@@ -183,6 +183,12 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.8.1 (05.11): ПРИСАДКА НА ИЗДЕЛИИ; ДВОЙНОЙ ТАП С ТЯГОЙ НЕ ДВИГАЕТ СЕЧЕНИЕ (его слова 05.11: «Не вижу присадки на
+// изделии»; «Двойной тап и тяга не должен смещать куб сечения»). Было: отверстий на деталях не было (в выгрузке их не было);
+// первый тап двойного с тягой через 0,35 с ставил угол сечения (точку рулетки, Part info) — тап ждал второго касания, но
+// при тяге не отменялся. Теперь: у детали из выгрузки (Phone 1.6.0 'holes') — отверстия: тёмный круг на пласти (торце) и
+// стенки на глубину крепежа внутрь детали (видны в рентгене и в разрезе); второе касание двойного сразу отменяет тап
+// кнопки — двойной тап и тяга только сдвигают вид.
 // KTNium Viewer 1.8.0 (05.11): НОМЕРА В КАПСУЛАХ, ДЕТАЛЬ КАК В РАСКРОЕ, КОММЕНТАРИЙ (его слова 05.11: «Справа капсулы с номером а не
 // названия деталей.»; «Удержание капсулы и свайп влево показывает деталь как она выглядит в раскрое и плюс все размеры
 // присадок от краев и друг от друга с названиями крепежей»; «Свайп вправо сворачивает картинку обратно в капсулу»; «Внизу
@@ -547,6 +553,7 @@ canvas.addEventListener('pointerdown', e => {
   else down0 = null;
   tap = null;
   holdOff();
+  if (down0 && down0.dbl) tapCancel();   // 1.8.1: второе касание двойного — тап кнопки (сечение, рулетка, Part info) не ставится
   pts.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
   begin(e);
   if (mode === 'wait' && meas && down0 && down0.dbl && e.pointerType !== 'mouse') {   // 1.7.0: рулетка — двойной тап и держать — лупа
@@ -772,7 +779,7 @@ function capsFor(pl, e1, e2, o, clip2, only) {
   const a = new V3(), b = new V3(), c = new V3();
   root.updateMatrixWorld(true);
   root.traverse(m => {
-    if (!m.isMesh || m.isLineSegments2 || !shown(m) || glass(m.material) || m.userData.cap) return;
+    if (!m.isMesh || m.isLineSegments2 || !shown(m) || glass(m.material) || m.userData.cap || m.userData.hole) return;
     const g = m.geometry;
     if (!g.boundingBox) g.computeBoundingBox();
     tb.copy(g.boundingBox).applyMatrix4(m.matrixWorld);
@@ -884,7 +891,7 @@ function cornerCut(P, sg) {
   const pos = [], Pa = P.toArray(), tb = new THREE.Box3(), a = new V3(), b = new V3(), c = new V3();
   root.updateMatrixWorld(true);
   root.traverse(o => {
-    if (!o.isMesh || o.isLineSegments2 || !shown(o) || glass(o.material)) return;
+    if (!o.isMesh || o.isLineSegments2 || o.userData.hole || !shown(o) || glass(o.material)) return;
     const g = o.geometry;
     if (!g.boundingBox) g.computeBoundingBox();
     tb.copy(g.boundingBox).applyMatrix4(o.matrixWorld);
@@ -989,7 +996,7 @@ function setLook(k) {
   const ms = new Set();
   if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2) for (const m of [].concat(o.material)) ms.add(m); });
   for (const m of ms) {
-    if (!m.color) continue;
+    if (!m.color || m.userData.hole) continue;   // 1.8.1: отверстия — тёмные всегда
     if (!m.userData.l0) m.userData.l0 = { map: m.map || null, color: m.color.clone() };
     const l0 = m.userData.l0;
     if (k === 'tex') { m.map = l0.map; m.color.copy(l0.color); }
@@ -1127,7 +1134,7 @@ function partOf(o) { while (o && o.userData.nm === undefined && o.parent && o.pa
 function ownMeshes(p) {
   const a = [];
   if (p.isMesh && !p.isLineSegments2) a.push(p);
-  for (const c of p.children) if (c.isMesh && !c.isLineSegments2 && c.userData.nm === undefined) a.push(c);
+  for (const c of p.children) if (c.isMesh && !c.isLineSegments2 && c.userData.nm === undefined && !c.userData.hole) a.push(c);
   return a;
 }
 // размеры детали по её осям (мм, по убыванию) и материалы
@@ -1578,7 +1585,7 @@ function focOn(o) {
   for (const m of ownMeshes(o)) { if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); bb.union(tb.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld)); }
   if (bb.isEmpty()) return;
   const c = bb.getCenter(new V3()), r = Math.max(0.03, bb.getSize(new V3()).length() / 2);
-  flyTo(c, Math.max(0.6, r / (0.38 * win.h * Math.min(1, cam.aspect))));
+  flyTo(c, Math.max(0.6, r / (0.75 * win.h * Math.min(1, cam.aspect))));   // 1.8.1: деталь — около 3/4 экрана (при 20° было мелко)
   const pi = partInfo(o), fc = $('fc');   // сверху по центру — материал, ниже размер детали
   fc.textContent = '';
   const add = (k, t) => { const d = document.createElement('span'); d.className = k; d.textContent = t; fc.appendChild(d); };
@@ -1811,7 +1818,7 @@ function cutLines(pl) {
   const a = new V3(), b = new V3(), c = new V3(), off = pl.normal.clone().multiplyScalar(0.0004);
   root.updateMatrixWorld(true);
   root.traverse(o => {
-    if (!o.isMesh || o.isLineSegments2 || !shown(o) || glass(o.material)) return;
+    if (!o.isMesh || o.isLineSegments2 || o.userData.hole || !shown(o) || glass(o.material)) return;
     const g = o.geometry;
     if (!g.boundingBox) g.computeBoundingBox();
     if (!pl.intersectsBox(g.boundingBox.clone().applyMatrix4(o.matrixWorld))) return;
@@ -2075,6 +2082,55 @@ function buttons() {
   swMeasure();
 }
 window.addEventListener('resize', () => swMeasure());
+// 1.8.1: присадка на изделии: у детали — отверстия из выгрузки ('holes': центр, ось, радиус в осях детали; 'hk' — крепёж с
+// глубиной): тёмный круг на грани и стенки внутрь детали на глубину крепежа (нет глубины — 13 мм); одна сетка на деталь
+const holeMat = new THREE.MeshBasicMaterial({ color: 0x262626, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
+holeMat.userData.hole = true;
+let holeN = 0;
+function addHoles(r) {
+  const parts = [];
+  r.traverse(o => { if (Array.isArray(o.userData.holes) && o.userData.holes.length) parts.push(o); });
+  for (const p of parts) {
+    const bb = new THREE.Box3();
+    for (const m of ownMeshes(p)) { if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); bb.union(m.geometry.boundingBox); }
+    const ctr = bb.isEmpty() ? new V3() : bb.getCenter(new V3());
+    const hk = Array.isArray(p.userData.hk) ? p.userData.hk : [];
+    const pos = [], idx = [], SEG = 18;
+    const c = new V3(), n = new V3(), e1 = new V3(), e2 = new V3(), q = new V3();
+    for (const h of p.userData.holes) {
+      c.set(h[0], h[1], h[2]);
+      n.set(h[3], h[4], h[5]).normalize();
+      if (c.clone().sub(ctr).dot(n) < 0) n.negate();   // n — наружу из детали
+      const rad = h[6], dep = Math.max(0.002, ((hk[h[7]] && hk[h[7]][2]) || 13) / 1000);
+      e1.set(Math.abs(n.x) < 0.9 ? 1 : 0, Math.abs(n.x) < 0.9 ? 0 : 1, 0).cross(n).normalize();
+      e2.copy(n).cross(e1).normalize();
+      const top = c.clone().addScaledVector(n, 0.0001), bot = c.clone().addScaledVector(n, -dep);
+      const b0 = pos.length / 3;
+      pos.push(top.x, top.y, top.z);   // середина круга
+      for (let i = 0; i < SEG; i++) {
+        const a = i / SEG * Math.PI * 2;
+        q.copy(top).addScaledVector(e1, Math.cos(a) * rad).addScaledVector(e2, Math.sin(a) * rad);
+        pos.push(q.x, q.y, q.z);
+        q.copy(bot).addScaledVector(e1, Math.cos(a) * rad).addScaledVector(e2, Math.sin(a) * rad);
+        pos.push(q.x, q.y, q.z);
+      }
+      for (let i = 0; i < SEG; i++) {
+        const t0 = b0 + 1 + 2 * i, t1 = b0 + 1 + 2 * ((i + 1) % SEG);
+        idx.push(b0, t0, t1);                    // круг
+        idx.push(t0, t0 + 1, t1 + 1, t0, t1 + 1, t1);   // стенки
+      }
+    }
+    if (!pos.length) continue;
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    const m = new THREE.Mesh(g, holeMat);
+    m.userData.hole = true;
+    m.raycast = () => {};
+    p.add(m);
+    holeN += p.userData.holes.length;
+  }
+}
 // рёбра, как в SketchUp: где грани сходятся под углом больше 20°; 1.6.1: сплошные линии поверх граней
 function addEdges(r) {
   const cache = new Map(), ms = [];
@@ -2123,6 +2179,7 @@ async function open(id) {
       document.documentElement.style.background = document.body.style.background = 'rgb(' + K.bg.slice(0, 3).map(Number).join(',') + ')';
     }
     addEdges(root);
+    addHoles(root);   // 1.8.1: присадка на изделии
     scene.add(root);
     new THREE.Box3().setFromObject(root).getBoundingSphere(bs);
     size = Math.max(0.5, bs.radius * 2);
@@ -2148,7 +2205,7 @@ async function open(id) {
     window.__ready = true;
   }
 }
-window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, k: swK(SW.s), to: SW.to, n: SW.n }), state: () => ({ edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
+window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, k: swK(SW.s), to: SW.to, n: SW.n }), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
 if (cfg.id) {
   open(cfg.id);
 } else {
