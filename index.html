@@ -13,17 +13,90 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 #bar { position: fixed; left: 0; right: 0; top: 0; z-index: 2; display: flex; gap: 10px; align-items: center;
   padding: 8px 10px; background: rgba(255,255,255,.9); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
 #title { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#scenes { position: fixed; left: 0; right: 0; bottom: 0; z-index: 2; display: none; overflow: hidden;
-  padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); background: rgba(255,255,255,.9);
-  box-shadow: 0 -1px 4px rgba(0,0,0,.1); }
-#sw { position: relative; height: 38px; overflow: hidden; }   /* 1.6.0: пачка кнопок сцен */
+#scenes { position: fixed; left: 0; right: 0; bottom: 0; z-index: 2; display: none; pointer-events: none;
+  padding: 10px 0 calc(12px + env(safe-area-inset-bottom)); background: none; }   /* 1.7.0: у полосы сцен фона нет */
+#sw { position: relative; height: 40px; pointer-events: auto; touch-action: none; -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none; }   /* 1.7.0: пачка — как переключатель приложений iPhone */
 .b { flex: none; border: 0; border-radius: 18px; padding: 9px 14px; background: #e4e6ea; color: #222; font: inherit;
   text-decoration: none; cursor: pointer; }
-#sw .b { position: absolute; top: 0; left: 0; height: 38px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  box-shadow: -2px 0 5px rgba(0,0,0,.28); transition: left .18s ease, width .18s ease; }
-#sw .b:first-child { box-shadow: none; }
-#sw .b:not(.on) { padding-left: 8px; padding-right: 10px; text-overflow: clip; }   /* полоска — короче: номер у края */
 .b.on { background: #2f6db5; color: #fff; }
+/* 1.7.0: плашки — стекло: размытие того, что под ними, блик, светлый кант, тень; текущая — синее стекло */
+#sw .b { position: absolute; top: 0; left: 0; height: 40px; max-width: 70vw; padding: 0 16px 0 13px; border-radius: 20px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transform-origin: 0 50%; will-change: transform;
+  color: #1c1c1e; background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.56));   /* в пачке текст нижней почти не просвечивает */
+  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), inset 0 -1px 2px rgba(0,0,0,.06),
+    0 8px 20px rgba(0,0,0,.16), 0 1px 3px rgba(0,0,0,.12); }
+#sw .b::before { content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
+  background: linear-gradient(105deg, rgba(255,255,255,.7) 0%, rgba(255,255,255,0) 32%, rgba(255,255,255,0) 72%, rgba(255,255,255,.28) 100%); }
+#sw .b .n { font-weight: 600; }
+#sw .b.on { color: #fff; background: linear-gradient(180deg, rgba(74,140,222,.86), rgba(38,98,178,.78));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3), 0 8px 20px rgba(24,70,140,.3), 0 1px 3px rgba(0,0,0,.14); }
+#sw .b.on::before { background: linear-gradient(105deg, rgba(255,255,255,.38) 0%, rgba(255,255,255,0) 34%, rgba(255,255,255,0) 74%, rgba(255,255,255,.16) 100%); }
+/* 1.7.0: справа — капсулы деталей сцены, листаются по кругу */
+#pw { position: fixed; right: 8px; top: 120px; z-index: 2; display: none; width: 0; height: 300px; pointer-events: none; }
+#pw .c { position: absolute; right: 0; top: 50%; height: 34px; margin-top: -17px; max-width: min(46vw, 210px); padding: 0 13px;
+  box-sizing: border-box; border-radius: 17px; display: none; line-height: 34px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; font-size: 14px; color: #1c1c1e; pointer-events: auto; touch-action: none; cursor: pointer;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; transform-origin: 100% 50%; will-change: transform, opacity;
+  background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.34));
+  -webkit-backdrop-filter: blur(16px) saturate(180%); backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), 0 6px 16px rgba(0,0,0,.14), 0 1px 3px rgba(0,0,0,.1); }
+#fc { left: 50%; top: 60px; transform: translateX(-50%); max-width: 78vw; padding: 7px 16px; border-radius: 18px; text-align: center; }
+#fc .m { font-weight: 600; overflow-wrap: anywhere; }
+#fc .s { margin-top: 1px; font-variant-numeric: tabular-nums; }
+#pw .c.on { color: #fff; background: linear-gradient(180deg, rgba(74,140,222,.86), rgba(38,98,178,.78));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3), 0 6px 16px rgba(24,70,140,.3); }
+/* 1.7.0: удержание пальца — кружок (дальше палец двигает вид) */
+#ring { position: fixed; left: -100px; top: -100px; z-index: 4; width: 64px; height: 64px; margin: -32px 0 0 -32px;
+  border-radius: 50%; pointer-events: none; opacity: 0; transform: scale(.3); border: 2px solid rgba(255,255,255,.95);
+  background: rgba(47,109,181,.18); box-shadow: 0 0 0 1px rgba(47,109,181,.55), 0 4px 14px rgba(0,0,0,.18);
+  transition: opacity .12s ease, transform .4s cubic-bezier(.3,1.6,.5,1); }
+#ring.on { opacity: 1; transform: scale(1); }
+/* 1.7.0: кнопки над сценами слева — рулетка и Part info */
+.fb { position: fixed; bottom: calc(72px + env(safe-area-inset-bottom)); z-index: 2; display: none; width: 44px; height: 44px;
+  padding: 0; border: 0; border-radius: 22px; align-items: center; justify-content: center; color: #1c1c1e; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.34));
+  -webkit-backdrop-filter: blur(16px) saturate(180%); backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), 0 8px 20px rgba(0,0,0,.16), 0 1px 3px rgba(0,0,0,.12); }
+.fb.on { color: #fff; background: linear-gradient(180deg, rgba(74,140,222,.86), rgba(38,98,178,.78));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3), 0 8px 20px rgba(24,70,140,.3); }
+.fb svg { width: 26px; height: 26px; }
+#ms { left: 10px; }
+#pib { left: 62px; }
+#scb { left: 114px; }
+#lkb { left: 166px; }
+.fb.has:not(.on) { color: #2f6db5; }   /* куб стоит, кнопка не нажата */
+#lkb svg g { display: none; }
+#lkb[data-k="tex"] .lk-tex, #lkb[data-k="col"] .lk-col, #lkb[data-k="mono"] .lk-mono { display: inline; }
+/* 1.7.0: ручка угла сечения — двигать */
+.hd { position: fixed; left: 0; top: 0; z-index: 2; display: none; width: 40px; height: 40px; margin: -20px 0 0 -20px;
+  border-radius: 20px; align-items: center; justify-content: center; color: #2f6db5; touch-action: none;
+  -webkit-user-select: none; user-select: none; cursor: move;
+  background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.34));
+  -webkit-backdrop-filter: blur(16px) saturate(180%); backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), 0 8px 20px rgba(0,0,0,.16), 0 1px 3px rgba(0,0,0,.12); }
+.hd.on { background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.6)); }
+.hd svg { width: 22px; height: 22px; }
+#mo { position: fixed; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }
+.gl { position: fixed; z-index: 2; display: none; pointer-events: none; color: #1c1c1e; border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.34));
+  -webkit-backdrop-filter: blur(16px) saturate(180%); backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), 0 8px 20px rgba(0,0,0,.16), 0 1px 3px rgba(0,0,0,.12); }
+#mlab { left: 0; top: 0; transform: translate(-50%, -135%); padding: 6px 12px; font-weight: 600; white-space: nowrap; }
+#pic { left: 10px; top: 60px; max-width: calc(100vw - 84px); padding: 9px 14px; border-radius: 18px; }
+#pic .t { font-weight: 600; overflow-wrap: anywhere; }
+#pic .s { margin-top: 2px; font-variant-numeric: tabular-nums; }
+#pic .m { margin-top: 2px; color: #3a3a3c; font-size: 13px; }
+/* 1.7.0: лупа рулетки — увеличенный кусок под пальцем, перекрестье, точка, куда встанет */
+#lpf { position: fixed; left: 0; top: 0; z-index: 3; display: none; width: 124px; height: 124px; pointer-events: none;
+  border-radius: 8px; box-shadow: 0 0 0 2px rgba(255,255,255,.95), 0 0 0 3px rgba(0,0,0,.2), 0 10px 26px rgba(0,0,0,.3); }
+#lpf::before, #lpf::after { content: ''; position: absolute; background: rgba(47,109,181,.75); }
+#lpf::before { left: 50%; top: 36%; width: 1px; height: 28%; }
+#lpf::after { top: 50%; left: 36%; height: 1px; width: 28%; }
+#lpf b { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -6.5px 0 0 -6.5px; border-radius: 50%;
+  border: 2px solid #2f6db5; background: #fff; }
 #msg { position: fixed; inset: 0; z-index: 3; display: none; align-items: center; justify-content: center;
   padding: 24px; text-align: center; color: #555; pointer-events: none; }
 </style>
@@ -37,6 +110,27 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 <canvas id="c"></canvas>
 <div id="bar"><div id="title"></div></div>
 <div id="scenes"></div>
+<div id="pw"></div>
+<div id="fc" class="gl"></div>
+<div id="ring"></div>
+<svg id="mo"></svg>
+<div id="mlab" class="gl"></div>
+<div id="pic" class="gl"></div>
+<div id="lpf"><b></b></div>
+<button id="ms" class="fb" type="button" aria-label="Tape measure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+  stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="12.5" height="12.5" rx="3.2"/><circle cx="8.75" cy="11.75" r="2.7"/>
+  <path d="M15 14.9h6.5v3.1H15"/><path d="M17.4 14.9v1.5M19.6 14.9v1.5"/></svg></button>
+<button id="pib" class="fb" type="button" aria-label="Part info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+  stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.7" r=".9" fill="currentColor" stroke="none"/></svg></button>
+<button id="scb" class="fb" type="button" aria-label="Section box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5v10h10"/><path d="M3.5 9.5l4-4h12v12l-4 4"/><path d="M9.5 9.5h6v6h-6z" fill="currentColor" fill-opacity=".25"/>
+  <path d="M15.5 9.5l4-4M15.5 15.5l4 2"/></svg></button>
+<button id="lkb" class="fb" type="button" aria-label="Textures / colors / monochrome" data-k="tex"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><g class="lk-tex"><rect x="4" y="4" width="16" height="16" rx="3"/>
+  <path d="M4.5 12.5l8-8M4.8 18.2L18.2 4.8M11.5 19.5l8-8"/></g><g class="lk-col"><rect x="4" y="4" width="16" height="16" rx="3" fill="currentColor" fill-opacity=".45"/></g>
+  <g class="lk-mono"><rect x="4" y="4" width="16" height="16" rx="3"/></g></svg></button>
+<div id="hdm" class="hd" aria-label="Move section box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+  stroke-linejoin="round"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg></div>
 <div id="msg" style="display:flex">Загрузка…</div>
 <script>
 // 1.3.1: просмотр не загрузился (модули, сеть) — сказать об этом, а не оставлять пустую страницу
@@ -51,6 +145,53 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.7.0 (05.11): ЖЕСТЫ, РЕНТГЕН, ПАЧКА СЦЕН — КАК ПЕРЕКЛЮЧАТЕЛЬ ПРИЛОЖЕНИЙ IPHONE (его слова 05.11: «Пачка
+// должна быть как запущенные приложения на айфоне. Только наоборот - сначала первая сцена, потом рядом вторая и так далее,
+// видим их полностью. Но по мере свайпа влево, плашки начинают постепенно заходить друг на друга все бошьше и больше.
+// Анимация должна быть пружинистой. Плашки стекло как в айоуэс 27. Фон у панели сцен отсутствует.»; «Ведение одним пальцем -
+// орбита. Удержание и ведение одним пальцем - пан. Полоса вертикальная справа - приближение/отдаление»; «Двойной тап - xray»).
+// Было (1.6.0): пачка без листания — текущая целиком, прочие полосками с номером, ужатые под ширину экрана, полоса кнопок
+// с белым фоном; палец — сдвиг, двойной тап с удержанием — вращение. Теперь: плашки сцен в ряд целиком (первая слева);
+// свайп влево — лента едет за пальцем, ушедшие к левому краю ложатся в пачку, каждая следующая сверху, и чем глубже, тем
+// теснее (полоска верхней 40 точек, каждой ниже — 0,7 от прежней); отпустил — лента долетает и встаёт пружиной (чуть за
+// место и назад) так, что плашка за пачкой видна целиком; у краёв тянется резинкой; нажатая плашка проседает и пружинит;
+// нажатие на плашку в пачке — её сцена, и плашка выезжает на вид. Плашки — стекло (размытие того, что под ними, блик,
+// светлый кант, тень), текущая — синее стекло; у полосы фона нет. Палец — вращение вокруг точки под пальцем; постоял
+// на месте 0,45 с (кружок под пальцем) и повёл — ближе / дальше (вверх — ближе, к точке под пальцем; его слова 05.11:
+// «Удержание и сдвиг - приближение/отдаление. Двойной тап и сдвиг - пан.»); двойной тап и сразу повёл — сдвиг вида;
+// справа — капсулы деталей сцены (ниже); двойной тап — рентген (грани
+// полупрозрачные, видно всё внутри, рёбра все), ещё двойной — обратно; два пальца — щипок и сдвиг, как были. Мышь — как
+// была; двойной щелчок — рентген. Фон (его слова 05.11: «Фон пусть будет как в моей модели.») — цвет фона модели SketchUp
+// (Phone 1.3.2 пишет extras.ktn.bg); в выгрузках без него — как был. Кнопки над сценами слева (его слова
+// 05.11: «Над сценами слева кнопка рулетка»; «Дв тап и удержание при рулетке - лупа для выбора точки. Вторая кнопка Парт
+// инфо.»): РУЛЕТКА — вкл / выкл; тап по модели — точка (рядом угол детали — к углу, ребро — к ребру), второй тап — линия
+// и расстояние в мм, третий — новый замер; двойной тап с удержанием — лупа над пальцем (кусок под пальцем крупно,
+// перекрестье, точка, куда встанет, линия и мм — вживую), отпустил — точка там; PART INFO — тап по детали: её имя, размеры
+// по осям детали (длина × ширина × толщина, мм) и материал, деталь — синими рёбрами; тап мимо — снять. Тап ждёт 0,35 с:
+// вдруг это первый тап двойного (тогда рентген). Вращение, сдвиг, щипок, полоса — как всегда. СЕЧЕНИЕ — КУБ (его слова
+// 05.11: «Третья - выбрать сечение»; «Точнее, сечение это куб который когда врезаешь в изделие, оно вырезается в форме
+// куба и видно внутренности»; «Куб сечения это три грани куба ...которые мы всегда видим со стороны камеры»): угол куба
+// в точке P — вырезано всё, что от P ближе к камере по всем трём осям модели; три грани угла (разрез — линиями, сами
+// грани — бледно-синие) всегда смотрят на камеру: обошёл модель — угол поворачивается за камерой. Тап по модели — P
+// внутри изделия под пальцем (на половине пути луча сквозь изделие, не глубже трети модели); ручка ✥ в P — вести угол
+// в плоскости экрана (повернул вид — ведёшь вглубь); тап в другом месте — угол туда; кнопка ещё раз — сечения нет
+// (сечение сцены — как было). ВИД (его слова 05.11: «Следующая - переключение монохром/цвет без текстур и
+// текстуры»): четвёртая кнопка по кругу — текстуры → цвет без текстур (средний цвет текстуры) → монохром → текстуры.
+// Кнопки рулетка, Part info, сечение — по одной: нажал одну, прочие выкл.; сечение при этом остаётся (значок синий).
+// КАПСУЛЫ ДЕТАЛЕЙ (его слова 05.11: «Справа по вертикали зацикленное листание капсул деталей в данной сцене.»; «Нажатие на
+// капсулу приблежает к детали но не слишком близко и показывает ее в стандартном виде, а все остальное в xray.»): справа
+// столбиком капсулы с именами деталей, что видны в сцене (порядок — как в модели), листаются пальцем по кругу, пружиной;
+// тап по капсуле — она встаёт в середину (синяя), камера летит к детали (деталь — около трети экрана, не ближе 0,6 м), деталь
+// — как есть, всё остальное — рентгеном; сверху по центру — материал детали, ниже её размер (его слова 05.11: «Когда деталь
+// показывается, сверху по центру название материала и ниже размер детали.»); тап по модели — фокус снят (рентген — как был
+// до него); повторное нажатие на сцену — вид сцены, стиль (рентген, текстуры / цвет / монохром) не сбрасывается (его слова
+// 05.11: «Повторное нажатие на сцену не сбрасывает стиль отображения.»); другая сцена — капсулы её
+// деталей. Полоса «ближе / дальше» справа убрана: ближе / дальше — удержанием и ведением пальца.
+// KTNium Viewer 1.6.1 (05.11): РЁБРА ВИДНЫ (его слова 05.11: «Пч не вижу линий? Ребер.»). Было: рёбра (где грани сходятся
+// под углом больше 20°) рисовались линией в 1 пиксель кадра, полупрозрачной (0,5), и лежали в той же глубине, что и грани, —
+// грани перекрывали их через раз: на телефоне линия выходила бледной и пунктирной, почти невидимой. Теперь рёбра — сплошные
+// тёмные линии в 1 точку экрана (LineSegments2, как линии сечения), а грани чуть отодвинуты вглубь (polygonOffset) — рёбра
+// всегда поверх своих граней. Толщина для проверки — в адресе &ew=1.5 (0 — без рёбер).
 // KTNium Viewer 1.6.0 (05.11): КНОПКИ СЦЕН — ПАЧКОЙ (его слова 05.11: «стч кнопки сцен внизу собирались в пачку так, чтоб оставался виден номер сцены слева и чтоб на него можно было нажать. но если пачка большая, то пусть сжимаются пропорционально»).
 // Было: кнопки сцен в ряд, ряд листался пальцем, текущая прокручивалась в середину. Теперь — пачка без листания: текущая
 // сцена видна целиком (длинное имя — с многоточием, не шире 62 % полосы), остальные лежат внахлёст, у каждой слева виден
@@ -126,6 +267,7 @@ sun.position.set(0.4, 1, 0.6);
 cam.add(sun);
 scene.add(cam);
 let dirty = true, anim = null, root = null, K = null, size = 5;
+let xray = false;   // 1.7.0: рентген (двойной тап)
 const bs = new THREE.Sphere(new V3(), 5);
 // кадр: окно в долях фокусного (центр cx, cy и полувысота h); ширина — h · пропорции экрана
 const win = { cx: 0, cy: 0, h: Math.tan(17.5 * Math.PI / 180) };
@@ -147,7 +289,7 @@ function nearFor(d) { nearP = Math.min(0.05, Math.max(0.002, d * 0.02)); proj();
 
 // затенение углов (GTAO): стекло и линии не затеняют
 let composer = null, gtao = null;
-const glass = m => m && (Array.isArray(m) ? m.some(glass) : (m.transparent && m.opacity < 0.97));
+const glass = m => m && (Array.isArray(m) ? m.some(glass) : (m.userData && m.userData.x0 ? m.userData.x0[0] && m.userData.x0[1] < 0.97 : m.transparent && m.opacity < 0.97));   // 1.7.0: в рентгене — как было до него
 const QS = new URLSearchParams(location.search);
 function setupAO() {
   try {
@@ -177,11 +319,20 @@ function setupAO() {
 }
 setupAO();
 const cutMat = new LineMaterial({ color: 0x1c1c1c, linewidth: 2.4, worldUnits: false });
+// 1.6.1: рёбра — сплошные, в 1 точку экрана (было: полупрозрачные, в 1 пиксель кадра, наполовину под гранями)
+const EW = QS.get('ew') !== null && isFinite(+QS.get('ew')) ? +QS.get('ew') : 1;
+const edgeMat = new LineMaterial({ color: 0x1c1c1c, linewidth: EW, worldUnits: false });
+let edgeN = 0;
+const selMat = new LineMaterial({ color: 0x2f6db5, linewidth: 2.2, worldUnits: false });   // 1.7.0: Part info — рёбра детали
+const wireMat = new LineMaterial({ color: 0x2f6db5, linewidth: 1.6, worldUnits: false, transparent: true, opacity: 0.85 });   // 1.7.0: грани угла сечения
 function resize() {
   const w = window.innerWidth, h = window.innerHeight;
   renderer.setSize(w, h, false);
   if (composer) composer.setSize(w, h);
   cutMat.resolution.set(w, h);
+  edgeMat.resolution.set(w, h);
+  selMat.resolution.set(w, h);
+  wireMat.resolution.set(w, h);
   cam.aspect = w / h;
   if (untouched && cur) goTo(cur, true); else proj();
 }
@@ -220,10 +371,14 @@ renderer.setAnimationLoop(() => {
   if (motion) { stepMotion(); dirty = true; }
   if (dirty) {
     dirty = false;
-    if (composer) {
+    if (secP) secTick();   // 1.7.0: грани угла — к камере
+    if (composer && !xray) {   // 1.7.0: в рентгене — без затенения
       try { composer.render(); if (!aoChecked && root) aoCheck(); } catch (e) { aoOff(e && e.message); }
       if (!composer) renderer.render(scene, cam);
     } else renderer.render(scene, cam);
+    if (meas) measDraw();   // 1.7.0: рулетка — за камерой
+    if (secP) secDraw();    // 1.7.0: ручка угла — за камерой
+    if (lp) lpRender();     // 1.7.0: лупа — вторым проходом в своё окошко
   }
 });
 
@@ -235,7 +390,11 @@ let pivotOk = false;
 const ndc = (x, y) => new THREE.Vector2((x / window.innerWidth) * 2 - 1, -(y / window.innerHeight) * 2 + 1);
 const fwd = () => new V3(0, 0, -1).applyQuaternion(cam.quaternion);
 function shown(o) { for (; o; o = o.parent) if (!o.visible) return false; return true; }
-function clipOk(p) { const cp = renderer.clippingPlanes; return !cp.length || cp[0].distanceToPoint(p) >= 0; }
+function clipOk(p) {
+  const cp = renderer.clippingPlanes;
+  if (cp.length && cp[0].distanceToPoint(p) < 0) return false;
+  return !secIn(p);   // 1.7.0: в углу сечения — вырезано
+}
 function pick(x, y) {
   if (!root) return null;
   ray.setFromCamera(ndc(x, y), cam);
@@ -276,9 +435,18 @@ function pan(dx, dy, depth) {
 const depthTo = p => Math.max(0.01, p.clone().sub(cam.position).dot(fwd()));
 const pts = new Map();
 let mode = null, last = null, depth = 1;
-// 1.5.0: двойной тап с удержанием — вращение; tap — последнее короткое касание одним пальцем, down0 — нынешнее
-const TAP_MS = 350, TAP_PX = 10, DT_MS = 350, DT_PX = 40;   // тап — до 0,35 с и 10 точек хода; второе касание — до 0,35 с, до 40 точек
-let tap = null, down0 = null, dblHold = false;
+// 1.7.0: палец — вращение; постоял на месте и повёл — ближе / дальше (кружок под пальцем); двойной тап и повёл — сдвиг;
+// двойной тап — рентген.
+// tap — последнее короткое касание (первый тап двойного), down0 — нынешнее касание одним пальцем
+const TAP_MS = 350, TAP_PX = 10, DT_MS = 350, DT_PX = 40, HOLD_MS = 450;   // тап — до 0,35 с и 10 точек хода; второй — до 0,35 с и 40 точек; удержание — 0,45 с
+let tap = null, down0 = null, holdT = 0;
+const ringEl = $('ring');
+function ringAt(x, y, on) {
+  ringEl.style.left = x + 'px';
+  ringEl.style.top = y + 'px';
+  if (on !== undefined) ringEl.classList.toggle('on', on);
+}
+function holdOff() { if (holdT) { clearTimeout(holdT); holdT = 0; } }
 function begin(e) {
   anim = null;
   untouched = false;
@@ -288,7 +456,7 @@ function begin(e) {
     if (p) { pivot.copy(p); pivotOk = true; nearFor(cam.position.distanceTo(p)); }
     else if (!pivotOk) { pivot.copy(along(a[0].x, a[0].y)); pivotOk = true; }
     if (a[0].type === 'mouse') mode = e && (e.button === 2 || e.shiftKey) ? 'pan' : 'orbit';
-    else mode = e && dblHold ? 'orbit' : 'pan';   // 1.5.0: палец — сдвиг, двойной тап с удержанием — вращение
+    else mode = e ? 'wait' : null;   // 1.7.0: палец — ждём: пошёл — вращение, постоял — сдвиг; после щипка оставшийся палец — ничего
     depth = depthTo(pivot);
     last = { x: a[0].x, y: a[0].y };
   } else if (a.length >= 2) {
@@ -300,39 +468,54 @@ function begin(e) {
     last = { c, d: Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y) };
   }
 }
-// 1.3.2: движение пальца — модели, а не окну (шторка Safari в приложении закрывалась движением вниз); кнопки сцен листаются
-document.addEventListener('touchmove', e => {
-  const t = e.target;
-  if (t && t.closest && t.closest('#scenes')) return;
-  if (e.cancelable) e.preventDefault();
-}, { passive: false });
+// 1.3.2: движение пальца — модели, а не окну (шторка Safari в приложении закрывалась движением вниз)
 canvas.addEventListener('pointerdown', e => {
   canvas.setPointerCapture(e.pointerId);
-  if (e.pointerType !== 'mouse') {   // 1.5.0: первый палец — второе ли касание двойного тапа
-    const now = e.timeStamp || performance.now();   // время касания, а не обработки (занятая страница)
-    if (pts.size === 0) {
-      dblHold = !!(tap && now - tap.t < DT_MS && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < DT_PX);
-      down0 = { t: now, x: e.clientX, y: e.clientY, id: e.pointerId, moved: false };
-    } else {
-      dblHold = false;
-      down0 = null;
-    }
-    tap = null;
-  }
+  const now = e.timeStamp || performance.now();   // время касания, а не обработки (занятая страница)
+  if (pts.size === 0) down0 = { t: now, x: e.clientX, y: e.clientY, id: e.pointerId, moved: false,
+    dbl: !!(tap && now - tap.t < DT_MS && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < DT_PX) };
+  else down0 = null;
+  tap = null;
+  holdOff();
   pts.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
   begin(e);
+  if (mode === 'wait' && meas && down0 && down0.dbl && e.pointerType !== 'mouse') {   // 1.7.0: рулетка — двойной тап и держать — лупа
+    tapCancel();
+    const id = e.pointerId;
+    lpT = setTimeout(() => { lpT = 0; if (mode === 'wait' && pts.size === 1 && pts.has(id)) { const q = pts.get(id); lpStart(q.x, q.y); } }, LP_HOLD);
+  }
+  if (mode === 'wait') {
+    const id = e.pointerId;
+    holdT = setTimeout(() => {   // 1.7.0: постоял на месте — ближе / дальше
+      holdT = 0;
+      if (mode !== 'wait' || pts.size !== 1 || !pts.has(id)) return;
+      const q = pts.get(id);
+      mode = 'zoom';
+      last = { x: q.x, y: q.y };
+      ringAt(q.x, q.y, true);
+      if (navigator.vibrate) try { navigator.vibrate(12); } catch (_) {}
+    }, HOLD_MS);
+  }
 });
 canvas.addEventListener('pointermove', e => {
   if (!pts.has(e.pointerId) || !mode) return;
-  if (down0 && e.pointerId === down0.id && Math.hypot(e.clientX - down0.x, e.clientY - down0.y) > TAP_PX) down0.moved = true;
+  if (down0 && e.pointerId === down0.id && !down0.moved && Math.hypot(e.clientX - down0.x, e.clientY - down0.y) > TAP_PX) {
+    down0.moved = true;
+    if (mode === 'wait') { holdOff(); if (lpT) { clearTimeout(lpT); lpT = 0; } mode = down0.dbl ? 'pan' : 'orbit'; }   // 1.7.0: пошёл сразу — вращение; после двойного тапа — сдвиг
+  }
   pts.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
   const a = [...pts.values()];
+  if (mode === 'loupe') { if (a.length === 1) lpMove(a[0].x, a[0].y); return; }
   if (mode === 'orbit' && a.length === 1) {
     orbit(a[0].x - last.x, a[0].y - last.y);
     last = { x: a[0].x, y: a[0].y };
   } else if (mode === 'pan' && a.length === 1) {
     pan(a[0].x - last.x, a[0].y - last.y, depth);
     last = { x: a[0].x, y: a[0].y };
+  } else if (mode === 'zoom' && a.length === 1) {   // 1.7.0: удержание и повёл — вверх ближе, вниз дальше, к точке под пальцем
+    if (a[0].y !== last.y) dollyTo(pivot, Math.exp(-(a[0].y - last.y) * 0.006));
+    last = { x: a[0].x, y: a[0].y };
+    ringAt(a[0].x, a[0].y);
   } else if (mode === 'pinch' && a.length >= 2) {
     const c = { x: (a[0].x + a[1].x) / 2, y: (a[0].y + a[1].y) / 2 };
     const d = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
@@ -343,14 +526,624 @@ canvas.addEventListener('pointermove', e => {
   }
 });
 function end(e) {
-  // 1.5.0: короткое касание одним пальцем без хода — первый тап двойного (после двойного тапа — с нуля)
+  // короткое касание одним пальцем без хода — тап; второй тап рядом и сразу — рентген (1.7.0)
   if (down0 && e.pointerId === down0.id) {
     const now = e.timeStamp || performance.now();
-    tap = !dblHold && !down0.moved && pts.size === 1 && now - down0.t < TAP_MS ? { t: now, x: e.clientX, y: e.clientY } : null;
+    const isTap = e.type === 'pointerup' && !down0.moved && pts.size === 1 && now - down0.t < TAP_MS && (mode === 'wait' || mode === 'orbit');
+    if (isTap && down0.dbl) { tapCancel(); setXray(!xray); tap = null; }
+    else {
+      tap = isTap ? { t: now, x: e.clientX, y: e.clientY } : null;
+      if (tap && (tool || foc)) tapLater(e.clientX, e.clientY);   // 1.7.0: рулетка / Part info / сечение / снять фокус — если это не первый тап двойного
+    }
     down0 = null;
   }
+  holdOff();
+  if (lpT) { clearTimeout(lpT); lpT = 0; }
+  if (mode === 'loupe') lpEnd(e.type === 'pointerup');   // 1.7.0: лупа — отпустил: точка там
+  ringAt(e.clientX, e.clientY, false);
   pts.delete(e.pointerId);
-  if (pts.size) begin(null); else { mode = null; dblHold = false; }
+  if (pts.size) begin(null); else mode = null;
+}
+// 1.7.0: рентген — грани полупрозрачные (0,45) и не закрывают того, что за ними; рёбра видны все; затенение — выкл.
+function setXray(on) {
+  xray = !!on;
+  if (root) root.traverse(o => {
+    if (!o.isMesh || o.isLineSegments2) return;
+    for (const m of [].concat(o.material)) {
+      if (m.userData.focus) continue;   // деталь в фокусе — как есть
+      if (!m.userData.x0) m.userData.x0 = [m.transparent, m.opacity, m.depthWrite];
+      const x0 = m.userData.x0;
+      m.transparent = xray ? true : x0[0];
+      m.opacity = xray ? Math.min(x0[1], 0.45) : x0[1];
+      m.depthWrite = xray ? false : x0[2];
+      m.needsUpdate = true;
+    }
+  });
+  dirty = true;
+}
+// 1.7.0: тап с кнопкой (рулетка, Part info) — через 0,35 с, если второго тапа не было (двойной — рентген)
+let tapT = 0;
+function tapCancel() { if (tapT) { clearTimeout(tapT); tapT = 0; } }
+function tapLater(x, y) { tapCancel(); tapT = setTimeout(() => { tapT = 0; if (tool === 'meas') measTap(x, y); else if (tool === 'info') infoTap(x, y); else if (tool === 'sec') secTap(x, y); else if (foc) focOff(); }, DT_MS); }
+function fbPlace() {   // кнопки — над полосой сцен (нет сцен — у низа)
+  const b = K && K.scenes && K.scenes.length > 1 ? 'calc(72px + env(safe-area-inset-bottom))' : 'calc(14px + env(safe-area-inset-bottom))';
+  for (const el of [msEl, piBtn, scEl, lkEl]) { el.style.bottom = b; el.style.display = 'flex'; }
+}
+// кнопки — по одной: tool — нажатая (meas — рулетка, info — Part info, sec — сечение-куб)
+let tool = null, meas = null, pinfo = null;
+function setTool(t) {
+  tapCancel();
+  if (lp) lpEnd(false);
+  if (tool === 'info') infoSel(null);
+  tool = t;
+  meas = t === 'meas' ? { a: null, b: null } : null;
+  pinfo = t === 'info' ? { o: null, keep: [] } : null;
+  msEl.classList.toggle('on', t === 'meas');
+  piBtn.classList.toggle('on', t === 'info');
+  scEl.classList.toggle('on', t === 'sec');
+  scEl.classList.toggle('has', !!secP);
+  measDraw();
+  secDraw();
+  dirty = true;
+}
+// сечение — угол куба со стороны камеры: от точки P вырезано всё, что ближе к камере по всем трём осям (три плоскости,
+// вырезано там, где «внутри» у всех трёх); три грани угла всегда смотрят на камеру
+const scEl = $('scb'), hdm = $('hdm');
+let secP = null, secSg = null, secS = 0, secCutObj = null, secCutT = 0, secVis = null;
+const SCP = [0, 1, 2].map(() => new THREE.Plane());
+const faceMat = new THREE.MeshBasicMaterial({ color: 0x2f6db5, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide });
+scEl.addEventListener('click', () => { if (tool === 'sec') { secSet(null); setTool(null); } else setTool('sec'); });
+function secMats() {
+  const ms = new Set([edgeMat, selMat]);
+  if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2) for (const m of [].concat(o.material)) ms.add(m); });
+  if (gtao && gtao.normalMaterial) ms.add(gtao.normalMaterial);
+  return ms;
+}
+const secSigns = () => [0, 1, 2].map(i => (cam.position.getComponent(i) >= secP.getComponent(i) ? 1 : -1));
+function secPlanes() {   // нормаль — от камеры: со стороны камеры от P — отрицательно
+  for (let i = 0; i < 3; i++) { const n = new V3(); n.setComponent(i, -secSg[i]); SCP[i].set(n, secSg[i] * secP.getComponent(i)); }
+}
+const secIn = p => !!secP && secSg[0] * (p.x - secP.x) > 0 && secSg[1] * (p.y - secP.y) > 0 && secSg[2] * (p.z - secP.z) > 0;
+function secSet(P) {   // P — угол (мир) или null
+  const was = !!secP;
+  secP = P ? P.clone() : null;
+  if (secP) { secSg = secSigns(); secPlanes(); }
+  if (!!secP !== was) {
+    for (const m of secMats()) { m.clippingPlanes = secP ? SCP : null; m.clipIntersection = !!secP; m.needsUpdate = true; }
+    renderer.localClippingEnabled = !!secP;
+    if (cutObj) { scene.remove(cutObj); cutObj = null; }
+    if (secP) renderer.clippingPlanes = [];   // угол — вместо сечения сцены
+    else setClip(K && K.scenes ? K.scenes[actIdx] : null);
+  }
+  scEl.classList.toggle('has', !!secP);
+  secVisUpd();
+  secCut(true);
+  secDraw();
+  dirty = true;
+}
+function secTick() {   // камера ушла на другую сторону — грани угла поворачиваются к ней
+  if (!secP) return;
+  const sg = secSigns();
+  if (sg[0] !== secSg[0] || sg[1] !== secSg[1] || sg[2] !== secSg[2]) { secSg = sg; secPlanes(); secVisUpd(); secCut(false); }
+}
+// три грани угла — бледно-синие, с каёмкой (видны, пока нажата кнопка)
+function secVisUpd() {
+  if (!secVis) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(54), 3));
+    const m = new THREE.Mesh(g, faceMat);
+    m.raycast = () => {};
+    m.renderOrder = 5;
+    m.frustumCulled = false;
+    const l = new LineSegments2(new LineSegmentsGeometry(), wireMat);
+    l.raycast = () => {};
+    l.frustumCulled = false;
+    secVis = { m, l };
+    scene.add(m);
+    scene.add(l);
+  }
+  const on = !!(secP && tool === 'sec');
+  secVis.m.visible = on;
+  secVis.l.visible = on;
+  if (!secP) return;
+  const S = secS || 0.3, P = secP, sg = secSg, pos = secVis.m.geometry.attributes.position, seg = [];
+  let k = 0;
+  for (let i = 0; i < 3; i++) {
+    const j = (i + 1) % 3, h = (i + 2) % 3;
+    const q = (a, b) => { const v = P.clone(); v.setComponent(j, P.getComponent(j) + sg[j] * S * a); v.setComponent(h, P.getComponent(h) + sg[h] * S * b); return v; };
+    const c = [q(0, 0), q(1, 0), q(1, 1), q(0, 1)];
+    for (const t of [0, 1, 2, 0, 2, 3]) pos.setXYZ(k++, c[t].x, c[t].y, c[t].z);
+    for (const [a, b] of [[0, 1], [1, 2], [2, 3], [3, 0]]) seg.push(...c[a].toArray(), ...c[b].toArray());
+  }
+  pos.needsUpdate = true;
+  secVis.l.geometry.dispose();
+  secVis.l.geometry = new LineSegmentsGeometry().setPositions(seg);
+}
+// разрез на гранях угла — линиями (сразу или чуть позже, пока ведут ручку)
+function secCut(now) {
+  if (secCutT) { clearTimeout(secCutT); secCutT = 0; }
+  if (!now) { secCutT = setTimeout(() => { secCutT = 0; secCut(true); }, 140); return; }
+  if (secCutObj) { scene.remove(secCutObj); secCutObj.geometry.dispose(); secCutObj = null; }
+  if (!secP || !root) return;
+  const pos = cornerCut(secP, secSg);
+  if (pos.length) {
+    secCutObj = new LineSegments2(new LineSegmentsGeometry().setPositions(pos), cutMat);
+    secCutObj.raycast = () => {};
+    scene.add(secCutObj);
+  }
+  dirty = true;
+}
+function cornerCut(P, sg) {
+  const pos = [], Pa = P.toArray(), tb = new THREE.Box3(), a = new V3(), b = new V3(), c = new V3();
+  root.updateMatrixWorld(true);
+  root.traverse(o => {
+    if (!o.isMesh || o.isLineSegments2 || !shown(o) || glass(o.material)) return;
+    const g = o.geometry;
+    if (!g.boundingBox) g.computeBoundingBox();
+    tb.copy(g.boundingBox).applyMatrix4(o.matrixWorld);
+    const lo = tb.min.toArray(), hi = tb.max.toArray();
+    for (let i = 0; i < 3; i++) if (sg[i] > 0 ? hi[i] < Pa[i] : lo[i] > Pa[i]) return;   // деталь не заходит в угол
+    const Q = g.attributes.position, I = g.index, n = I ? I.count : Q.count, mw = o.matrixWorld;
+    for (let t = 0; t + 2 < n; t += 3) {
+      a.fromBufferAttribute(Q, I ? I.getX(t) : t).applyMatrix4(mw);
+      b.fromBufferAttribute(Q, I ? I.getX(t + 1) : t + 1).applyMatrix4(mw);
+      c.fromBufferAttribute(Q, I ? I.getX(t + 2) : t + 2).applyMatrix4(mw);
+      const v = [a.toArray(), b.toArray(), c.toArray()];
+      for (let ax = 0; ax < 3; ax++) {
+        const d = v.map(p => p[ax] - Pa[ax]);
+        if ((d[0] > 0 && d[1] > 0 && d[2] > 0) || (d[0] < 0 && d[1] < 0 && d[2] < 0)) continue;
+        const out = [];
+        for (const [i0, i1] of [[0, 1], [1, 2], [2, 0]]) {
+          if ((d[i0] > 0) !== (d[i1] > 0) && Math.abs(d[i0] - d[i1]) > 1e-12) {
+            const u = d[i0] / (d[i0] - d[i1]);
+            out.push([0, 1, 2].map(k => v[i0][k] + (v[i1][k] - v[i0][k]) * u));
+          }
+        }
+        if (out.length < 2) continue;
+        const p = out[0], q = out[1];
+        let t0 = 0, t1 = 1;
+        for (let k = 0; k < 3 && t0 < t1; k++) {   // на грани угла: по двум другим осям — со стороны камеры от P
+          if (k === ax) continue;
+          const A = sg[k] * (q[k] - p[k]), B = sg[k] * (p[k] - Pa[k]);
+          if (Math.abs(A) < 1e-12) { if (B < 0) t1 = -1; continue; }
+          const ts = -B / A;
+          if (A > 0) t0 = Math.max(t0, ts); else t1 = Math.min(t1, ts);
+        }
+        if (t0 < t1) for (const u of [t0, t1]) pos.push(...[0, 1, 2].map(k => p[k] + (q[k] - p[k]) * u));
+      }
+    }
+  });
+  return pos;
+}
+// тап: угол — внутри изделия под пальцем (половина пути луча сквозь изделие, не глубже половины грани угла)
+function secTap(x, y) {
+  if (!root) return;
+  ray.setFromCamera(ndc(x, y), cam);
+  const cp = renderer.clippingPlanes;
+  const hs = ray.intersectObject(root, true).filter(h => h.object.isMesh && !h.object.isLineSegments2 && shown(h.object) && (!cp.length || cp[0].distanceToPoint(h.point) >= 0));
+  if (!hs.length) return;
+  if (!secS) secS = Math.max(0.25, Math.min(0.9, bs.radius * 2 / 3));
+  const f = hs[0].point, l = hs[hs.length - 1].point;
+  secSet(f.clone().addScaledVector(ray.ray.direction, Math.max(0.02, Math.min(f.distanceTo(l) / 2, secS / 2))));
+}
+// ручка ✥ — в углу P
+function secDraw() {
+  if (secVis) { const on = !!(secP && tool === 'sec'); secVis.m.visible = on; secVis.l.visible = on; }
+  const q = secP && tool === 'sec' ? toScr(secP) : null;
+  if (q) { hdm.style.left = q[0].toFixed(1) + 'px'; hdm.style.top = q[1].toFixed(1) + 'px'; hdm.style.display = 'flex'; }
+  else hdm.style.display = 'none';
+}
+let hdD = null;
+hdm.addEventListener('pointerdown', e => {
+  if (!secP) return;
+  e.preventDefault();
+  e.stopPropagation();
+  try { hdm.setPointerCapture(e.pointerId); } catch (_) {}
+  hdD = { id: e.pointerId, x: e.clientX, y: e.clientY, P: secP.clone() };
+  hdm.classList.add('on');
+});
+hdm.addEventListener('pointermove', e => {   // вести угол — в плоскости экрана, на глубине P
+  if (!hdD || e.pointerId !== hdD.id || !secP) return;
+  const s = 2 * win.h * depthTo(hdD.P) / window.innerHeight;
+  const dv = new V3(1, 0, 0).applyQuaternion(cam.quaternion).multiplyScalar((e.clientX - hdD.x) * s)
+    .add(new V3(0, 1, 0).applyQuaternion(cam.quaternion).multiplyScalar(-(e.clientY - hdD.y) * s));
+  secP.copy(hdD.P).add(dv);
+  secSg = secSigns();
+  secPlanes();
+  secVisUpd();
+  secDraw();
+  secCut(false);
+  dirty = true;
+});
+const hdUp = e => { if (hdD && e.pointerId === hdD.id) { hdD = null; hdm.classList.remove('on'); secCut(true); } };
+hdm.addEventListener('pointerup', hdUp);
+hdm.addEventListener('pointercancel', hdUp);
+// вид: текстуры → цвет без текстур → монохром → текстуры
+let look = 'tex';
+const lkEl = $('lkb');
+lkEl.addEventListener('click', () => setLook(look === 'tex' ? 'col' : look === 'col' ? 'mono' : 'tex'));
+function avgColor(tex) {   // средний цвет текстуры
+  try {
+    const im = tex && tex.image;
+    if (!im) return null;
+    const c = document.createElement('canvas');
+    c.width = c.height = 8;
+    const x = c.getContext('2d');
+    x.drawImage(im, 0, 0, 8, 8);
+    const d = x.getImageData(0, 0, 8, 8).data;
+    let r = 0, g = 0, b = 0;
+    for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+    const n = d.length / 4;
+    return new THREE.Color().setRGB(r / n / 255, g / n / 255, b / n / 255, THREE.SRGBColorSpace);
+  } catch (e) { return null; }
+}
+function setLook(k) {
+  look = k;
+  const ms = new Set();
+  if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2) for (const m of [].concat(o.material)) ms.add(m); });
+  for (const m of ms) {
+    if (!m.color) continue;
+    if (!m.userData.l0) m.userData.l0 = { map: m.map || null, color: m.color.clone() };
+    const l0 = m.userData.l0;
+    if (k === 'tex') { m.map = l0.map; m.color.copy(l0.color); }
+    else if (k === 'col') {
+      m.map = null;
+      if (l0.map) { if (!l0.avg) l0.avg = avgColor(l0.map) || new THREE.Color(0xcccccc); m.color.copy(l0.avg).multiply(l0.color); }
+      else m.color.copy(l0.color);
+    } else { m.map = null; m.color.set(0xefefef); }
+    m.needsUpdate = true;
+  }
+  lkEl.dataset.k = k;
+  dirty = true;
+}
+// рулетка: тап — точка (липнет к углу или ребру рядом), второй — расстояние, мм
+const msEl = $('ms'), moEl = $('mo'), mlab = $('mlab');
+msEl.addEventListener('click', () => setTool(tool === 'meas' ? null : 'meas'));
+function measPut(p) {
+  if (!meas || !p) return;
+  if (!meas.a || meas.b) { meas.a = p; meas.b = null; } else meas.b = p;
+  measDraw();
+}
+function measTap(x, y) { if (meas && root) measPut(snapPt(x, y)); }
+const toScr = v => { const q = v.clone().project(cam); return q.z > -1 && q.z < 1 ? [(q.x + 1) / 2 * window.innerWidth, (1 - q.y) / 2 * window.innerHeight] : null; };
+// точка модели под пальцем; рядом (16 точек экрана) угол детали — угол, иначе рядом (12 точек) ребро — точка ребра
+function snapPt(x, y, R1, R2) {
+  R1 = R1 || 16; R2 = R2 || 12;
+  const objs = new Set(), o3 = Math.round(R1 * 0.9);
+  let hit = null;
+  for (const [dx, dy] of [[0, 0], [-o3, 0], [o3, 0], [0, -o3], [0, o3]]) {
+    ray.setFromCamera(ndc(x + dx, y + dy), cam);
+    for (const h of ray.intersectObject(root, true)) {
+      if (!h.object.isMesh || h.object.isLineSegments2 || !shown(h.object) || !clipOk(h.point)) continue;
+      if (!dx && !dy) hit = h.point.clone();
+      objs.add(h.object);
+      break;
+    }
+  }
+  let best = null, bd = R1, edge = null, be = R2;
+  const A = new V3(), B = new V3();
+  for (const o of objs) {
+    const l = o.children.find(c => c.isLineSegments2);
+    if (!l) continue;
+    const st = l.geometry.attributes.instanceStart, en = l.geometry.attributes.instanceEnd;
+    for (let i = 0; i < st.count; i++) {
+      A.set(st.getX(i), st.getY(i), st.getZ(i)).applyMatrix4(o.matrixWorld);
+      B.set(en.getX(i), en.getY(i), en.getZ(i)).applyMatrix4(o.matrixWorld);
+      const sa = toScr(A), sb = toScr(B);
+      if (!sa || !sb) continue;
+      if (clipOk(A)) { const d = Math.hypot(sa[0] - x, sa[1] - y); if (d < bd) { bd = d; best = A.clone(); } }
+      if (clipOk(B)) { const d = Math.hypot(sb[0] - x, sb[1] - y); if (d < bd) { bd = d; best = B.clone(); } }
+      const vx = sb[0] - sa[0], vy = sb[1] - sa[1], L2 = vx * vx + vy * vy;
+      if (L2 > 1) {
+        const t = Math.max(0, Math.min(1, ((x - sa[0]) * vx + (y - sa[1]) * vy) / L2));
+        const d = Math.hypot(sa[0] + vx * t - x, sa[1] + vy * t - y);
+        if (d < be) { be = d; edge = [A.clone(), B.clone()]; }
+      }
+    }
+  }
+  if (best) return best;
+  if (edge) {   // на ребре — ближайшая к лучу точка отрезка (перспектива)
+    ray.setFromCamera(ndc(x, y), cam);
+    const P = new V3();
+    ray.ray.distanceSqToSegment(edge[0], edge[1], null, P);
+    if (clipOk(P)) return P;
+  }
+  return hit;
+}
+function measDraw() {
+  let h = '', lab = null;
+  const b3 = meas && (meas.b || (lp && meas.a && !meas.b ? lp.p : null));   // лупа — вторая точка вживую
+  if (meas && (meas.a || (lp && lp.p))) {
+    const a3 = meas.a && !(meas.b && lp) ? meas.a : (lp && lp.p) || meas.a;
+    const A3 = meas.a && meas.b && lp ? (lp.p || null) : null;   // лупа после готового замера — новый замер: только точка
+    const pa = A3 ? toScr(A3) : toScr(a3), pb = A3 ? null : (b3 && a3 !== b3 ? toScr(b3) : null);
+    const f = v => v.toFixed(1);
+    if (pa && pb) h += '<line x1="' + f(pa[0]) + '" y1="' + f(pa[1]) + '" x2="' + f(pb[0]) + '" y2="' + f(pb[1]) + '" stroke="#fff" stroke-width="5" stroke-linecap="round"/>' +
+      '<line x1="' + f(pa[0]) + '" y1="' + f(pa[1]) + '" x2="' + f(pb[0]) + '" y2="' + f(pb[1]) + '" stroke="#2f6db5" stroke-width="2.2" stroke-linecap="round"/>';
+    for (const q of [pa, pb]) if (q) h += '<circle cx="' + f(q[0]) + '" cy="' + f(q[1]) + '" r="5.5" fill="#fff" stroke="#2f6db5" stroke-width="2.2"/>';
+    if (pa && pb && !A3) lab = { x: (pa[0] + pb[0]) / 2, y: (pa[1] + pb[1]) / 2, t: Math.round(a3.distanceTo(b3) * 1000) + (RU ? ' мм' : ' mm') };
+  }
+  if (moEl.__h !== h) { moEl.innerHTML = h; moEl.__h = h; }
+  if (lab) { mlab.textContent = lab.t; mlab.style.left = lab.x + 'px'; mlab.style.top = lab.y + 'px'; mlab.style.display = 'block'; }
+  else mlab.style.display = 'none';
+}
+// лупа: кусок под пальцем в LP_Z раз крупнее — в окошке над пальцем (тот же холст: второй проход в своё окно)
+const LP_S = 124, LP_Z = 3, LP_HOLD = 200;
+let lp = null, lpT = 0;
+const lpEl = $('lpf'), lpDot = lpEl.querySelector('b'), lcam = new THREE.PerspectiveCamera();
+function lpStart(x, y) { mode = 'loupe'; lp = { x, y, p: null }; lpEl.style.display = 'block'; lpMove(x, y); }
+function lpMove(x, y) {
+  if (!lp) return;
+  lp.x = x; lp.y = y;
+  lp.p = root ? snapPt(x, y, 7, 5) : null;   // в лупе — тоньше: угол 7, ребро 5 точек
+  const W = window.innerWidth, tb = $('bar').getBoundingClientRect().bottom;
+  let lx = Math.max(8, Math.min(W - LP_S - 8, x - LP_S / 2)), ly = y - LP_S - 58;
+  if (ly < tb + 6) ly = y + 58;
+  lp.lx = lx; lp.ly = ly;
+  lpEl.style.left = lx + 'px'; lpEl.style.top = ly + 'px';
+  const q = lp.p ? toScr(lp.p) : null;
+  if (q) { lpDot.style.display = 'block'; lpDot.style.left = (LP_S / 2 + (q[0] - x) * LP_Z) + 'px'; lpDot.style.top = (LP_S / 2 + (q[1] - y) * LP_Z) + 'px'; }
+  else lpDot.style.display = 'none';
+  dirty = true;
+}
+function lpEnd(put) {
+  const p = lp && lp.p;
+  lp = null;
+  lpEl.style.display = 'none';
+  mode = null;
+  if (put && p) measPut(p); else measDraw();
+  dirty = true;
+}
+function lpRender() {
+  if (!lp || lp.lx === undefined) return;
+  const W = window.innerWidth, H = window.innerHeight, a = cam.aspect, n = cam.near, f = cam.far, q = LP_S / LP_Z;
+  const fl = n * (win.cx - win.h * a), fr = n * (win.cx + win.h * a), ft = n * (win.cy + win.h), fb = n * (win.cy - win.h);
+  lcam.position.copy(cam.position);
+  lcam.quaternion.copy(cam.quaternion);
+  lcam.updateMatrixWorld();
+  lcam.projectionMatrix.makePerspective(fl + (fr - fl) * (lp.x - q / 2) / W, fl + (fr - fl) * (lp.x + q / 2) / W,
+    ft + (fb - ft) * (lp.y - q / 2) / H, ft + (fb - ft) * (lp.y + q / 2) / H, n, f);
+  lcam.projectionMatrixInverse.copy(lcam.projectionMatrix).invert();
+  const vy = H - lp.ly - LP_S;
+  renderer.setScissorTest(true);
+  renderer.setViewport(lp.lx, vy, LP_S, LP_S);
+  renderer.setScissor(lp.lx, vy, LP_S, LP_S);
+  renderer.render(scene, lcam);
+  renderer.setScissorTest(false);
+  renderer.setViewport(0, 0, W, H);
+}
+// Part info: тап по детали — имя, размеры по осям детали, материал; деталь — синими рёбрами
+const piBtn = $('pib'), piCard = $('pic');
+piBtn.addEventListener('click', () => setTool(tool === 'info' ? null : 'info'));
+function partOf(o) { while (o && o.userData.nm === undefined && o.parent && o.parent !== root) o = o.parent; return o; }
+function ownMeshes(p) {
+  const a = [];
+  if (p.isMesh && !p.isLineSegments2) a.push(p);
+  for (const c of p.children) if (c.isMesh && !c.isLineSegments2 && c.userData.nm === undefined) a.push(c);
+  return a;
+}
+// размеры детали по её осям (мм, по убыванию) и материалы
+function partInfo(p) {
+  const bb = new THREE.Box3(), tb = new THREE.Box3(), inv = p.matrixWorld.clone().invert(), mats = new Set();
+  for (const m of ownMeshes(p)) {
+    if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+    bb.union(tb.copy(m.geometry.boundingBox).applyMatrix4(inv.clone().multiply(m.matrixWorld)));
+    for (const mt of [].concat(m.material)) if (mt && mt.name) mats.add(mt.name);
+  }
+  const sc = new V3();
+  p.matrixWorld.decompose(new V3(), new THREE.Quaternion(), sc);
+  const sz = bb.isEmpty() ? [] : bb.getSize(new V3()).multiply(new V3(Math.abs(sc.x), Math.abs(sc.y), Math.abs(sc.z)))
+    .toArray().map(v => Math.round(v * 1000)).sort((u, v) => v - u);
+  return { sz, mats: [...mats] };
+}
+function infoSel(p) {
+  if (pinfo) { for (const [l, m] of pinfo.keep) l.material = m; pinfo.keep = []; pinfo.o = null; }
+  piCard.style.display = 'none';
+  dirty = true;
+  if (!p || !pinfo) return;
+  pinfo.o = p;
+  const bb = new THREE.Box3(), tb = new THREE.Box3(), inv = p.matrixWorld.clone().invert(), mats = new Set();
+  for (const m of ownMeshes(p)) {
+    if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+    tb.copy(m.geometry.boundingBox).applyMatrix4(inv.clone().multiply(m.matrixWorld));
+    bb.union(tb);
+    for (const mt of [].concat(m.material)) if (mt && mt.name) mats.add(mt.name);
+    for (const l of m.children) if (l.isLineSegments2) { pinfo.keep.push([l, l.material]); l.material = selMat; }
+  }
+  const sc = new V3();
+  p.matrixWorld.decompose(new V3(), new THREE.Quaternion(), sc);
+  const sz = bb.isEmpty() ? [] : bb.getSize(new V3()).multiply(new V3(Math.abs(sc.x), Math.abs(sc.y), Math.abs(sc.z)))
+    .toArray().map(v => Math.round(v * 1000)).sort((u, v) => v - u);
+  piCard.textContent = '';
+  const add = (c, t) => { const d = document.createElement('div'); d.className = c; d.textContent = t; piCard.appendChild(d); };
+  add('t', p.userData.nm || (RU ? 'без имени' : 'no name'));
+  if (sz.length) add('s', sz.join(' × ') + (RU ? ' мм' : ' mm'));
+  if (mats.size) add('m', [...mats].join(', '));
+  piCard.style.top = ($('bar').getBoundingClientRect().bottom + 10) + 'px';
+  piCard.style.display = 'block';
+}
+function infoTap(x, y) {
+  if (!pinfo || !root) return;
+  ray.setFromCamera(ndc(x, y), cam);
+  let o = null;
+  for (const h of ray.intersectObject(root, true)) if (h.object.isMesh && !h.object.isLineSegments2 && shown(h.object) && clipOk(h.point)) { o = h.object; break; }
+  infoSel(o ? partOf(o) : null);
+}
+// 1.7.0: справа — капсулы деталей сцены, листаются по кругу пальцем (пружиной); тап по капсуле — к детали (не вплотную),
+// деталь — как есть, всё остальное — рентгеном; тап по модели — как было
+const pwEl = $('pw');
+const PW = { w: 0, v: 0, to: null, t: 0, raf: 0, n: 0, items: [], pool: [], drag: null, span: 3, wt: 0 };
+const PSH = 40, PK = 5;   // шаг капсулы, капсул в запасе — по PK вверх и вниз
+const pmod = (i, n) => ((i % n) + n) % n;
+let foc = null;   // деталь в фокусе: { o, keep: [[сетка, её материал]], xray0 }
+function pwBuild() {
+  const items = [];
+  if (root) root.traverse(o => { if (o !== root && o.userData.nm !== undefined && shown(o) && ownMeshes(o).length) items.push({ o, t: String(o.userData.nm || '').split('\\').filter(Boolean).pop() || (RU ? 'без имени' : 'no name'), full: o.userData.nm || '' }); });
+  PW.items = items;
+  PW.n = items.length;
+  PW.w = 0; PW.v = 0; PW.to = null;
+  if (!PW.pool.length) for (let j = 0; j < 2 * PK + 1; j++) { const c = document.createElement('div'); c.className = 'c'; pwEl.appendChild(c); PW.pool.push(c); }
+  PW.pool.forEach(c => { c.__i = undefined; });
+  pwEl.style.display = PW.n ? 'block' : 'none';
+  pwPlace();
+}
+function pwPlace() {   // между полосой названия и кнопками
+  const tb = $('bar').getBoundingClientRect().bottom, H = window.innerHeight;
+  const bt = msEl.style.display === 'flex' ? msEl.getBoundingClientRect().top : H - 80;
+  const free = Math.max(120, bt - tb - 20), h = Math.min(free, (2 * PK + 1) * PSH);
+  pwEl.style.top = (tb + 10 + (free - h) / 2) + 'px';
+  pwEl.style.height = h + 'px';
+  PW.span = Math.max(0.5, (h / 2 - PSH / 2) / PSH);
+  pwLayout();
+}
+function pwLayout() {
+  const n = PW.n;
+  if (!n) return;
+  const base = Math.floor(PW.w), fr = PW.w - base, lim = Math.min(PW.span, PK) + 0.5;
+  const fi = foc ? PW.items.findIndex(it => it.o === foc.o) : -1;
+  PW.pool.forEach((el, j) => {
+    const k = j - PK, d = k - fr, a = Math.abs(d);
+    if (!(d > -n / 2 - 1e-6 && d <= n / 2 + 1e-6) || a > lim) { el.style.display = 'none'; return; }   // мало деталей — без повторов
+    const i = pmod(base + k, n);
+    if (el.__i !== i) { el.__i = i; el.textContent = PW.items[i].t; el.title = PW.items[i].full || PW.items[i].t; }
+    el.style.display = 'block';
+    el.style.transform = 'translateY(' + (d * PSH).toFixed(2) + 'px) scale(' + (1 - 0.06 * Math.min(a, 4)).toFixed(4) + ')';
+    el.style.opacity = Math.max(0, 1 - 0.2 * Math.max(0, a - 0.6)).toFixed(3);
+    el.style.zIndex = String(100 - Math.round(a * 10));
+    el.classList.toggle('on', i === fi);
+  });
+}
+function pwTick() {
+  PW.raf = 0;
+  const now = performance.now();
+  const dt = Math.min(0.034, Math.max(0.001, (now - (PW.t || now)) / 1000 || 0.016));
+  PW.t = now;
+  let go = false;
+  if (PW.to !== null && !PW.drag) {   // пружиной: чуть за место и назад
+    const KS = 240, CS = 2 * 0.62 * Math.sqrt(KS);
+    PW.v += (-KS * (PW.w - PW.to) - CS * PW.v) * dt;
+    PW.w += PW.v * dt;
+    if (Math.abs(PW.w - PW.to) < 0.002 && Math.abs(PW.v) < 0.02) { PW.w = PW.to; PW.v = 0; PW.to = null; } else go = true;
+  }
+  pwLayout();
+  if (go) PW.raf = requestAnimationFrame(pwTick);
+}
+function pwKick() { if (!PW.raf) { PW.t = performance.now(); PW.raf = requestAnimationFrame(pwTick); } }
+pwEl.addEventListener('pointerdown', e => {
+  const c = e.target && e.target.closest ? e.target.closest('#pw .c') : null;
+  if (!c) return;
+  e.preventDefault();
+  try { c.setPointerCapture(e.pointerId); } catch (_) {}
+  const t = e.timeStamp || performance.now();
+  PW.drag = { id: e.pointerId, y0: e.clientY, w0: PW.w, moved: false, h: [[t, PW.w]], el: c };
+  PW.to = null;
+  PW.v = 0;
+});
+pwEl.addEventListener('pointermove', e => {
+  const d = PW.drag;
+  if (!d || e.pointerId !== d.id) return;
+  const dy = e.clientY - d.y0;
+  if (!d.moved) { if (Math.abs(dy) < 6) return; d.moved = true; }
+  const t = e.timeStamp || performance.now();
+  PW.w = d.w0 - dy / PSH;   // палец вверх — капсулы вверх
+  d.h.push([t, PW.w]);
+  while (d.h.length > 2 && t - d.h[0][0] > 90) d.h.shift();
+  pwLayout();
+});
+const pwUp = e => {
+  const d = PW.drag;
+  if (!d || e.pointerId !== d.id) return;
+  PW.drag = null;
+  if (!d.moved) {   // тап по капсуле — она в середину, к детали
+    if (e.type === 'pointerup' && d.el.__i !== undefined && PW.n) {
+      const i = d.el.__i;
+      let dl = pmod(i - PW.w, PW.n);
+      if (dl > PW.n / 2) dl -= PW.n;
+      PW.to = Math.round(PW.w + dl);
+      pwKick();
+      focOn(PW.items[i].o);
+    }
+    return;
+  }
+  const a = d.h[0], z = d.h[d.h.length - 1], t = e.timeStamp || performance.now();
+  const v = z[0] > a[0] && t - z[0] < 80 ? (z[1] - a[1]) / (z[0] - a[0]) * 1000 : 0;   // капсул в секунду
+  PW.v = v;
+  PW.to = Math.round(PW.w + v * 0.3);
+  pwKick();
+};
+pwEl.addEventListener('pointerup', pwUp);
+pwEl.addEventListener('pointercancel', pwUp);
+pwEl.addEventListener('wheel', e => {   // ПК: колесо над капсулами
+  e.preventDefault();
+  PW.to = null;
+  PW.w += e.deltaY / PSH;
+  pwLayout();
+  clearTimeout(PW.wt);
+  PW.wt = setTimeout(() => { PW.to = Math.round(PW.w); pwKick(); }, 140);
+}, { passive: false });
+window.addEventListener('resize', () => { if (PW.n) pwPlace(); });
+// фокус: деталь — своими (непрозрачными) копиями материалов, остальное — рентгеном; камера — к детали, не вплотную
+function focOn(o) {
+  if (!o) return;
+  focOff();
+  foc = { o, keep: [], xray0: xray };
+  for (const m of ownMeshes(o)) {
+    const ms = [].concat(m.material).map(mt => {
+      const ud = mt.userData;
+      mt.userData = {};
+      const c = mt.clone();
+      mt.userData = ud;
+      c.userData = { focus: true, x0: ud.x0, l0: ud.l0 };
+      if (ud.x0) { c.transparent = ud.x0[0]; c.opacity = ud.x0[1]; c.depthWrite = ud.x0[2]; }
+      return c;
+    });
+    foc.keep.push([m, m.material]);
+    m.material = Array.isArray(m.material) ? ms : ms[0];
+  }
+  setXray(true);
+  const bb = new THREE.Box3(), tb = new THREE.Box3();
+  for (const m of ownMeshes(o)) { if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); bb.union(tb.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld)); }
+  if (bb.isEmpty()) return;
+  const c = bb.getCenter(new V3()), r = Math.max(0.03, bb.getSize(new V3()).length() / 2);
+  flyTo(c, Math.max(0.6, r / (0.38 * win.h * Math.min(1, cam.aspect))));
+  const pi = partInfo(o), fc = $('fc');   // сверху по центру — материал, ниже размер детали
+  fc.textContent = '';
+  const add = (k, t) => { const d = document.createElement('div'); d.className = k; d.textContent = t; fc.appendChild(d); };
+  if (pi.mats.length) add('m', pi.mats.join(', '));
+  if (pi.sz.length) add('s', pi.sz.join(' × ') + (RU ? ' мм' : ' mm'));
+  fc.style.top = ($('bar').getBoundingClientRect().bottom + 10) + 'px';
+  fc.style.display = fc.childNodes.length ? 'block' : 'none';
+  pwLayout();
+}
+function focOff() {
+  if (!foc) return;
+  for (const [m, mt] of foc.keep) { for (const c of [].concat(m.material)) c.dispose(); m.material = mt; }
+  const x0 = foc.xray0;
+  foc = null;
+  $('fc').style.display = 'none';
+  setXray(x0);
+  pwLayout();
+}
+// полёт камеры к точке c на расстояние d (тем же направлением взгляда), 0,65 с
+function flyTo(c, d) {
+  const p0 = cam.position.clone(), q0 = cam.quaternion.clone(), w0 = { cx: win.cx, cy: win.cy };
+  const dir = c.clone().sub(p0);
+  if (dir.lengthSq() < 1e-10) dir.copy(fwd()); else dir.normalize();
+  const p1 = c.clone().addScaledVector(dir, -d);
+  const q1 = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(p1, c, UP));
+  const t0 = performance.now();
+  untouched = false;
+  pivot.copy(c);
+  pivotOk = true;
+  anim = () => {
+    const k = ss(Math.min(1, (performance.now() - t0) / 650));
+    cam.position.lerpVectors(p0, p1, k);
+    cam.quaternion.slerpQuaternions(q0, q1, k);
+    win.cx = w0.cx * (1 - k);
+    win.cy = w0.cy * (1 - k);
+    nearFor(cam.position.distanceTo(c));
+    if (k >= 1) anim = null;
+  };
 }
 canvas.addEventListener('pointerup', end);
 canvas.addEventListener('pointercancel', end);
@@ -580,8 +1373,11 @@ function show(i, instant) {
   if (!s) return;
   finishMotion();
   const v0 = new Map(AN.map(e => [e, shown(e.o)]));
+  if (typeof foc !== 'undefined' && foc) focOff();   // 1.7.0: другая сцена — без фокуса
   apply(s.hidden_tags !== undefined ? s.hidden_tags : K.hidden_tags, s.hidden_pids || []);
+  if (PW.pool.length) pwBuild();   // 1.7.0: капсулы — деталей этой сцены
   setClip(s);
+  if (secP) { if (cutObj) { scene.remove(cutObj); cutObj = null; } renderer.clippingPlanes = []; secCut(true); }   // 1.7.0: угол — вместо сечения сцены
   goTo(s, instant);
   if (instant) return;
   const m = { open: [], close: [], forced: [], held: [], t: performance.now() };
@@ -597,54 +1393,166 @@ function show(i, instant) {
   }
   if (m.open.length || m.close.length) motion = m;
 }
-// 1.6.0: кнопки сцен — пачкой: текущая целиком, у остальных слева номер (полоска — до конца номера), внахлёст
+// 1.7.0: пачка сцен — как переключатель приложений iPhone, только наоборот: первая слева, дальше по порядку, целиком;
+// свайп влево — ушедшие к левому краю ложатся в пачку, каждая следующая сверху, чем глубже — тем теснее; пружиной.
+// k — сколько плашек в пачке (дробно): плашка i <= k — в пачке на SPAD + pileW(k) - pileW(k - i) (первая всегда у края),
+// остальные — в ряд и едут ровно за пальцем; сдвиг ленты s и k связаны: s = X(k) - SPAD - pileW(k)
 let actIdx = 0;
-function stack() {
+const SW = { s: 0, v: 0, to: null, t: 0, raf: 0, n: 0, A: 0, max: 0, w: [], X: [], p: [], pv: [], pt: [], drag: null, wt: 0 };
+const SPAD = 10, SGAP = 8, P1 = 40, PR = 0.7;   // поля, зазор, полоска верхней в пачке, доля каждой глубже
+const pileW = d => (d <= 0 ? 0 : P1 * (1 - Math.pow(PR, d)) / (1 - PR));
+function swXk(k) {
+  const i = Math.max(0, Math.min(SW.n - 1, Math.floor(k)));
+  return SW.X[i] + (k - i) * (SW.w[i] + SGAP);
+}
+const swS = k => swXk(k) - SPAD - pileW(k);   // сдвиг ленты, при котором в пачке k плашек
+function swK(s) {
+  if (s <= 0 || SW.n < 2) return 0;
+  let lo = 0, hi = SW.n - 1;
+  if (swS(hi) <= s) return hi;
+  for (let t = 0; t < 32; t++) { const m = (lo + hi) / 2; if (swS(m) < s) lo = m; else hi = m; }
+  return (lo + hi) / 2;
+}
+function swLayout() {
+  const Wd = $('sw');
+  if (!Wd || !SW.n) return;
+  const bs = Wd.children, s = SW.s;
+  const k = swK(s), e = s > 0 ? Math.max(0, s - swS(k)) : 0;
+  for (let i = 0; i < SW.n && i < bs.length; i++) {
+    const x = s <= 0 || i > k ? SW.X[i] - s : SPAD + pileW(k) - pileW(k - i) - e;
+    const p = SW.p[i];
+    bs[i].style.transform = 'translate3d(' + x.toFixed(2) + 'px,0,0)' + (Math.abs(p - 1) > 1e-4 ? ' scale(' + p.toFixed(4) + ')' : '');
+  }
+}
+// у краёв — резинка (как в iOS)
+const swRb = d => { const A = Math.max(1, SW.A); return (1 - 1 / (d * 0.55 / A + 1)) * A; };
+const swRbInv = y => { const A = Math.max(1, SW.A); y = Math.min(y, A * 0.999); return (A / 0.55) * (1 / (1 - y / A) - 1); };
+const swRub = r => (r < 0 ? -swRb(-r) : r > SW.max ? SW.max + swRb(r - SW.max) : r);
+const swUnrub = s => (s < 0 ? -swRbInv(-s) : s > SW.max ? SW.max + swRbInv(s - SW.max) : s);
+function swTick() {
+  SW.raf = 0;
+  const now = performance.now();
+  const dt = Math.min(0.034, Math.max(0.001, (now - (SW.t || now)) / 1000 || 0.016));
+  SW.t = now;
+  let go = false;
+  if (SW.to !== null && !SW.drag) {   // лента — пружиной: чуть за место и назад
+    const KS = 240, CS = 2 * 0.62 * Math.sqrt(KS);
+    SW.v += (-KS * (SW.s - SW.to) - CS * SW.v) * dt;
+    SW.s += SW.v * dt;
+    if (Math.abs(SW.s - SW.to) < 0.25 && Math.abs(SW.v) < 6) { SW.s = SW.to; SW.v = 0; SW.to = null; } else go = true;
+  }
+  for (let i = 0; i < SW.n; i++) {   // нажатая плашка проседает и пружинит обратно
+    if (SW.p[i] === SW.pt[i] && !SW.pv[i]) continue;
+    const KP = 700, CP = 2 * 0.42 * Math.sqrt(KP);
+    SW.pv[i] += (-KP * (SW.p[i] - SW.pt[i]) - CP * SW.pv[i]) * dt;
+    SW.p[i] += SW.pv[i] * dt;
+    if (Math.abs(SW.p[i] - SW.pt[i]) < 0.0008 && Math.abs(SW.pv[i]) < 0.02) { SW.p[i] = SW.pt[i]; SW.pv[i] = 0; } else go = true;
+  }
+  swLayout();
+  if (go) SW.raf = requestAnimationFrame(swTick);
+}
+function swKick() { if (!SW.raf) { SW.t = performance.now(); SW.raf = requestAnimationFrame(swTick); } }
+function swMeasure() {
   const Wd = $('sw');
   if (!Wd) return;
   const bs = [...Wd.children];
-  const n = bs.length;
-  const A = Wd.clientWidth;
-  if (!n || A <= 0) return;
-  bs.forEach(b => { b.style.width = ''; b.style.left = '0px'; });
-  const w = bs.map(b => b.offsetWidth);                      // ширина целиком
-  const st = bs.map((b, i) => {                              // полоска с номером
-    const q = b.querySelector('.n');
-    return q ? Math.min(w[i], q.offsetLeft + q.offsetWidth + 4) : Math.min(w[i], 40);
-  });
-  const a = Math.min(Math.max(actIdx, 0), n - 1);
-  const G = 4;
-  let Sa = 0;
-  for (let i = 0; i < n; i++) if (i !== a) Sa += st[i];
-  // текущая — целиком, но не шире 62 % и так, чтобы номера прочих были видны; совсем тесно — номер и 40 точек имени
-  const wa = Math.max(Math.min(w[a], st[a] + 40), Math.min(w[a], A * 0.62, A - G - Sa));
-  const R = A - wa - (n > 1 ? G : 0);                        // место прочим
-  const v = w.map((x, i) => (i === a ? 0 : x + G));           // видно у прочих: целиком
-  let F = 0, Sm = 0, Ex = 0;
-  for (let i = 0; i < n; i++) if (i !== a) { F += v[i]; Sm += st[i]; Ex += Math.max(0, v[i] - st[i]); }
-  if (F > R) {
-    for (let i = 0; i < n; i++) {
-      if (i === a) continue;
-      if (R >= Sm) v[i] = st[i] + (Ex > 0 ? (R - Sm) * Math.max(0, w[i] + G - st[i]) / Ex : 0);   // номер виден, лишнее — поровну долям
-      else v[i] = st[i] * Math.max(R, 0) / Sm;                                                  // пачка большая — сжать пропорционально
-    }
+  SW.n = bs.length;
+  SW.A = Wd.clientWidth || window.innerWidth;
+  SW.w = bs.map(b => b.offsetWidth);
+  SW.X = [];
+  let x = SPAD;
+  for (let i = 0; i < SW.n; i++) { SW.X.push(x); x += SW.w[i] + SGAP; }
+  SW.max = Math.max(0, x - SGAP + SPAD - SW.A);
+  for (let i = 0; i < SW.n; i++) {
+    if (SW.p[i] === undefined) { SW.p[i] = 1; SW.pv[i] = 0; SW.pt[i] = 1; }
+    bs[i].style.zIndex = String(i + 1);   // каждая следующая — сверху
   }
-  const xs = [];
-  let x = 0;
-  for (let i = 0; i < n; i++) { xs.push(x); x += i === a ? wa + G : v[i]; }
-  bs.forEach((b, i) => {
-    b.style.zIndex = String(i + 1);
-    b.style.left = Math.round(xs[i]) + 'px';
-    if (i === a) b.style.width = Math.round(wa) + 'px';
-    else if (i < a) b.style.width = Math.round(Math.max(st[i], Math.min(w[i], xs[a] + wa / 2 - xs[i]))) + 'px';   // под текущей — не дальше её середины
-    else if (i === n - 1) b.style.width = Math.max(8, Math.round(Math.min(w[i], A - xs[i]))) + 'px';            // последняя — не за край
+  if (!SW.drag && (SW.s > SW.max || SW.s < 0)) { SW.to = Math.max(0, Math.min(SW.max, SW.s)); swKick(); }
+  swLayout();
+}
+// отпустил: куда долетит — и встать пружиной так, чтобы плашка за пачкой была целиком
+function swSettle(v) {
+  SW.v = v;
+  const proj = Math.max(0, Math.min(SW.max, SW.s + v * 0.35));
+  let to = 0, bd = Math.abs(proj);
+  const tryR = r => { if (r >= 0 && r <= SW.max) { const d = Math.abs(proj - r); if (d < bd) { bd = d; to = r; } } };
+  for (let j = 1; j < SW.n; j++) tryR(swS(j));
+  tryR(SW.max);
+  SW.to = to;
+  swKick();
+}
+// нажатие на плашку: её сцена; в пачке или за правым краем — выезжает на вид
+function swTap(x, y) {
+  const el = document.elementFromPoint(x, y);
+  const b = el && el.closest ? el.closest('#sw .b') : null;
+  if (!b) return;
+  const i = [...b.parentNode.children].indexOf(b);
+  if (i < 0) return;
+  setAct(i);
+  show(i, false);
+  const k = swK(SW.s);
+  let to = null;
+  if (SW.s > 0 && i < k - 0.001) to = Math.max(0, Math.min(SW.max, swS(i)));
+  else {
+    const r = SW.X[i] + SW.w[i] - SW.s - (SW.A - SPAD);
+    if (r > 0.5) to = Math.min(SW.max, SW.s + r);
+  }
+  if (to !== null) { SW.to = to; swKick(); }
+}
+function swInit() {
+  const Wd = $('sw');
+  Wd.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    try { Wd.setPointerCapture(e.pointerId); } catch (_) {}
+    const b = e.target && e.target.closest ? e.target.closest('.b') : null;
+    const bi = b ? [...Wd.children].indexOf(b) : -1;
+    const t = e.timeStamp || performance.now();
+    SW.drag = { id: e.pointerId, x0: e.clientX, r0: swUnrub(SW.s), moved: false, h: [[t, SW.s]], bi };
+    SW.to = null;
+    SW.v = 0;
+    if (bi >= 0) { SW.pt[bi] = 0.94; swKick(); }
   });
+  Wd.addEventListener('pointermove', e => {
+    const d = SW.drag;
+    if (!d || e.pointerId !== d.id) return;
+    const dx = e.clientX - d.x0;
+    if (!d.moved) {
+      if (Math.abs(dx) < 6) return;
+      d.moved = true;
+      if (d.bi >= 0) { SW.pt[d.bi] = 1; swKick(); }
+    }
+    const t = e.timeStamp || performance.now();
+    SW.s = swRub(d.r0 - dx);
+    d.h.push([t, SW.s]);
+    while (d.h.length > 2 && t - d.h[0][0] > 90) d.h.shift();
+    swLayout();
+  });
+  const up = e => {
+    const d = SW.drag;
+    if (!d || e.pointerId !== d.id) return;
+    SW.drag = null;
+    if (d.bi >= 0) SW.pt[d.bi] = 1;
+    if (!d.moved) { if (e.type === 'pointerup') swTap(e.clientX, e.clientY); swKick(); return; }
+    const a = d.h[0], z = d.h[d.h.length - 1], t = e.timeStamp || performance.now();
+    const v = z[0] > a[0] && t - z[0] < 80 ? (z[1] - a[1]) / (z[0] - a[0]) * 1000 : 0;   // точки в секунду; палец замер — без разлёта
+    swSettle(v);
+  };
+  Wd.addEventListener('pointerup', up);
+  Wd.addEventListener('pointercancel', up);
+  Wd.addEventListener('wheel', e => {   // ПК: колесо / тачпад над полосой — лента
+    e.preventDefault();
+    SW.to = null;
+    SW.v = 0;
+    SW.s = Math.max(0, Math.min(SW.max, SW.s + (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY)));
+    swLayout();
+    clearTimeout(SW.wt);
+    SW.wt = setTimeout(() => swSettle(0), 160);
+  }, { passive: false });
 }
 function setAct(i) {
   actIdx = i;
   const Wd = $('sw');
   if (Wd) [...Wd.children].forEach((x, j) => x.classList.toggle('on', j === i));
-  stack();
 }
 function buttons() {
   const S = $('scenes');
@@ -653,7 +1561,7 @@ function buttons() {
   K.scenes.forEach((s, i) => {
     const b = document.createElement('button');
     b.className = 'b' + (i === 0 ? ' on' : '');
-    const m = /^(\d+)(\.?\s*.*)$/.exec(String(s.name || ''));   // номер — отдельно: полоска до конца цифр
+    const m = /^(\d+)(\.?\s*.*)$/.exec(String(s.name || ''));   // номер — отдельно
     if (m) {
       const q = document.createElement('span');
       q.className = 'n';
@@ -662,25 +1570,34 @@ function buttons() {
       b.appendChild(document.createTextNode(m[2]));
     } else b.textContent = s.name;
     b.title = s.name;
-    b.onclick = () => { setAct(i); show(i, false); };
     Wd.appendChild(b);
   });
   S.style.display = K.scenes.length > 1 ? 'block' : 'none';
   actIdx = 0;
-  stack();
+  Object.assign(SW, { s: 0, v: 0, to: null, p: [], pv: [], pt: [], drag: null });
+  swInit();
+  swMeasure();
 }
-window.addEventListener('resize', () => stack());
-// рёбра, как в SketchUp: где грани сходятся под углом больше 20°
+window.addEventListener('resize', () => swMeasure());
+// рёбра, как в SketchUp: где грани сходятся под углом больше 20°; 1.6.1: сплошные линии поверх граней
 function addEdges(r) {
-  const lm = new THREE.LineBasicMaterial({ color: 0x2a2a2a, transparent: true, opacity: 0.5 });
   const cache = new Map(), ms = [];
   r.traverse(o => { if (o.isMesh) ms.push(o); });
   ms.forEach(m => {
+    for (const mt of [].concat(m.material)) { mt.polygonOffset = true; mt.polygonOffsetFactor = 1; mt.polygonOffsetUnits = 1; }   // 1.6.1: грани — чуть глубже рёбер
+    if (!(EW > 0)) return;
     let g = cache.get(m.geometry);
-    if (!g) { g = new THREE.EdgesGeometry(m.geometry, 20); cache.set(m.geometry, g); }
-    const l = new THREE.LineSegments(g, lm);
+    if (g === undefined) {
+      const e = new THREE.EdgesGeometry(m.geometry, 20);
+      g = e.attributes.position.count ? new LineSegmentsGeometry().fromEdgesGeometry(e) : null;
+      e.dispose();
+      cache.set(m.geometry, g);
+    }
+    if (!g) return;
+    const l = new LineSegments2(g, edgeMat);
     l.raycast = () => {};
     m.add(l);
+    edgeN++;
   });
 }
 async function open(id) {
@@ -700,9 +1617,15 @@ async function open(id) {
     const bin = Uint8Array.from(atob(r.data), ch => ch.charCodeAt(0));
     const g = await new Promise((ok, no) => new GLTFLoader().parse(bin.buffer, '', ok, no));
     root = g.scene;
+    { const J = g.parser.json, AS = g.parser.associations;   // 1.7.0: имя узла как в SketchUp (для Part info)
+      root.traverse(o => { const a = AS.get(o); if (a && a.nodes !== undefined && J.nodes[a.nodes]) o.userData.nm = String(J.nodes[a.nodes].name || ''); }); }
     K = (g.parser.json.extras && g.parser.json.extras.ktn) || {};
     K.scenes = K.scenes || [];
     K.hidden_tags = K.hidden_tags || [];
+    if (Array.isArray(K.bg) && K.bg.length >= 3) {   // 1.7.0: фон — как в модели SketchUp
+      scene.background = new THREE.Color().setRGB(K.bg[0] / 255, K.bg[1] / 255, K.bg[2] / 255, THREE.SRGBColorSpace);
+      document.documentElement.style.background = document.body.style.background = 'rgb(' + K.bg.slice(0, 3).map(Number).join(',') + ')';
+    }
     addEdges(root);
     scene.add(root);
     new THREE.Box3().setFromObject(root).getBoundingSphere(bs);
@@ -714,6 +1637,8 @@ async function open(id) {
       K.camera = { eye: [c.x + d * 0.6, c.y + d * 0.4, c.z + d * 0.8], target: [c.x, c.y, c.z], fov: 35 };
     }
     buttons();   // сперва полосы — рамка сцены вписывается между ними
+    fbPlace();   // 1.7.0: кнопки над сценами слева
+    pwBuild();   // 1.7.0: капсулы деталей сцены справа
     if (K.scenes.length) {
       show(0, true);
     } else {
@@ -727,7 +1652,7 @@ async function open(id) {
     window.__ready = true;
   }
 }
-window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer) composer.render(); else renderer.render(scene, cam); }, state: () => ({ motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
+window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, pw: () => ({ n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, k: swK(SW.s), to: SW.to, n: SW.n }), state: () => ({ edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
 if (cfg.id) {
   open(cfg.id);
 } else {
