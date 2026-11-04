@@ -17,31 +17,30 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
    без фона панели») */
 #bar { position: fixed; left: 0; right: 0; top: 0; z-index: 2; display: flex; gap: 10px; align-items: center;
   padding: calc(8px + env(safe-area-inset-top)) 10px 0; background: none; pointer-events: none; }
-#title { flex: 0 1 auto; min-width: 0; max-width: calc(100vw - 20px); box-sizing: border-box; padding: 0 16px; height: 38px;
-  line-height: 38px; border-radius: 19px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  color: #1c1c1e; background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.56));
-  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+/* 1.8.2: название — мельче (13 пт), стекло — как у плашки материала (его слова 05.11: «Название проекта напиши помельче»;
+   «Сд стекло как на яйфоне. Ты же сдел так плашку с материалом изначально.») */
+#title { flex: 0 1 auto; min-width: 0; max-width: calc(100vw - 20px); box-sizing: border-box; padding: 0 12px; height: 30px;
+  line-height: 30px; border-radius: 15px; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: #1c1c1e; background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.34));
+  -webkit-backdrop-filter: blur(16px) saturate(180%); backdrop-filter: blur(16px) saturate(180%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), 0 8px 20px rgba(0,0,0,.16), 0 1px 3px rgba(0,0,0,.12); }
 #scenes { position: fixed; left: 0; right: 0; bottom: 0; z-index: 2; display: none; pointer-events: none;
   padding: 10px 0 calc(12px + env(safe-area-inset-bottom)); background: none; }   /* 1.7.0: у полосы сцен фона нет */
 #sw { position: relative; height: 40px; pointer-events: auto; touch-action: none; -webkit-user-select: none; user-select: none;
-  -webkit-touch-callout: none; }   /* 1.7.0: пачка — как переключатель приложений iPhone */
+  -webkit-touch-callout: none; }   /* 1.8.2: простая лента — плашки в ряд, листается пальцем */
 .b { flex: none; border: 0; border-radius: 18px; padding: 9px 14px; background: #e4e6ea; color: #222; font: inherit;
   text-decoration: none; cursor: pointer; }
 .b.on { background: #2f6db5; color: #fff; }
-/* 1.7.0: плашки — стекло: размытие того, что под ними, блик, светлый кант, тень; текущая — синее стекло */
+/* 1.7.0: плашки — стекло; текущая — синее стекло. 1.8.2: стекло — как у плашки материала (его слова 05.11: «Сд стекло как на
+   яйфоне. Ты же сдел так плашку с материалом изначально.»); плашки в ряд, не в пачке */
 #sw .b { position: absolute; top: 0; left: 0; height: 40px; max-width: 70vw; padding: 0 16px 0 13px; border-radius: 20px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transform-origin: 0 50%; will-change: transform;
-  color: #1c1c1e; background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.56));   /* в пачке текст нижней почти не просвечивает */
-  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), inset 0 -1px 2px rgba(0,0,0,.06),
-    0 8px 20px rgba(0,0,0,.16), 0 1px 3px rgba(0,0,0,.12); }
-#sw .b::before { content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
-  background: linear-gradient(105deg, rgba(255,255,255,.7) 0%, rgba(255,255,255,0) 32%, rgba(255,255,255,0) 72%, rgba(255,255,255,.28) 100%); }
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transform-origin: 50% 50%; will-change: transform;
+  color: #1c1c1e; background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.34));
+  -webkit-backdrop-filter: blur(16px) saturate(180%); backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), 0 8px 20px rgba(0,0,0,.16), 0 1px 3px rgba(0,0,0,.12); }
 #sw .b .n { font-weight: 600; }
 #sw .b.on { color: #fff; background: linear-gradient(180deg, rgba(74,140,222,.86), rgba(38,98,178,.78));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3), 0 8px 20px rgba(24,70,140,.3), 0 1px 3px rgba(0,0,0,.14); }
-#sw .b.on::before { background: linear-gradient(105deg, rgba(255,255,255,.38) 0%, rgba(255,255,255,0) 34%, rgba(255,255,255,0) 74%, rgba(255,255,255,.16) 100%); }
 /* 1.7.0: справа — капсулы деталей сцены, листаются по кругу */
 #pw { position: fixed; right: 8px; top: 120px; z-index: 2; display: none; width: 0; height: 300px; pointer-events: none; }
 #pw .c { position: absolute; right: 0; top: 50%; height: 34px; margin-top: -17px; max-width: min(46vw, 210px); padding: 0 13px;
@@ -51,12 +50,14 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
   background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.34));
   -webkit-backdrop-filter: blur(16px) saturate(180%); backdrop-filter: blur(16px) saturate(180%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), 0 6px 16px rgba(0,0,0,.14), 0 1px 3px rgba(0,0,0,.1); }
-/* 1.8.0: плашка детали — низкая, во всю ширину: материал · размер, одной строкой */
-#fc { left: 8px; right: 8px; top: 60px; padding: 4px 14px; border-radius: 14px; text-align: center; font-size: 14px; line-height: 20px;
+/* 1.8.0: плашка детали — низкая, во всю ширину: материал · размер, одной строкой; 1.8.2: материал — 17 пт жирно, размер — 15 пт
+   (его слова 05.11: «а вот нащвание материала ... пусть будут виднее») */
+#fc { left: 8px; right: 8px; top: 60px; padding: 5px 14px; border-radius: 16px; text-align: center; font-size: 15px; line-height: 22px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#fc .m { font-weight: 600; }
+#fc .m { font-size: 17px; font-weight: 700; color: #000; }
 #fc .s { font-variant-numeric: tabular-nums; }
-#pw .c.nb { min-width: 40px; text-align: center; padding: 0 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+#pw .c.nb { min-width: 44px; text-align: center; padding: 0 12px; font-size: 18px; font-weight: 700; color: #000;
+  font-variant-numeric: tabular-nums; }   /* 1.8.2: номера — 18 пт жирно (его слова 05.11: «номера в капсулах пусть будут виднее») */
 #pw .c.hold { box-shadow: 0 0 0 2px rgba(47,109,181,.75), 0 8px 22px rgba(0,0,0,.25); }
 /* 1.8.0: деталь как в раскрое — карточка из капсулы */
 #sh { position: fixed; z-index: 5; display: none; flex-direction: column; overflow: hidden; border-radius: 22px; color: #1c1c1e;
@@ -183,6 +184,20 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.8.2 (05.11): ПАЛЕЦ — ВРАЩЕНИЕ, УДЕРЖАНИЕ — СДВИГ, ДВОЙНОЙ ТАП С ТЯГОЙ — БЛИЖЕ / ДАЛЬШЕ; НАЗВАНИЕ МЕЛЬЧЕ,
+// МАТЕРИАЛ И НОМЕРА КРУПНЕЕ (его слова 05.11: «Один палец - орбита. Удержание сдвиг - пан.»; «Оставь номера справа. Давай так:
+// дв тап и сдвиг - приближение/отдаление. Удержание и сдвиг - пан.»; «Сд стекло как на яйфоне. Ты же сдел так плашку с
+// материалом изначально.»; «Название проекта напиши помельче, а вот нащвание материала и номера в капсулах пусть будут
+// виднее.»). Было (1.8.0–1.8.1): палец сразу — ближе / дальше, постоял и повёл — вращение, двойной тап и повёл — сдвиг;
+// название — 15 пт в плотном стекле; материал на плашке и номера в капсулах — 14 пт. Теперь: палец — вращение; постоял
+// (0,45 с, кружок) и повёл — сдвиг; двойной тап и повёл — вверх ближе, вниз дальше, к точке под пальцем (и после паузы —
+// тоже ближе / дальше, не сдвиг); двойной тап — рентген, щипок — как было; название — 13 пт, стекло как у плашки материала;
+// материал — 17 пт жирно, номера в капсулах — 18 пт жирно. Капсулы — справа, как были.
+// Сцены (его слова 05.11: «Не нужно что капсулы сцен примагничивались»; «И вообще, давай сделаем просто горизонтальную
+// прокрутку сцен. Не зацикленную.»): было (1.7.0) — пачка, как переключатель приложений iPhone, лента после пальца
+// вставала пружиной так, чтобы плашка была целиком; теперь — простая лента: плашки в ряд по порядку, едет за пальцем,
+// отпустил — катится и плавно встаёт где придётся (без доводки к плашке), у краёв — резинка, по кругу не листается; тап
+// по плашке — её сцена, лента не едет. Плашки сцен и название — стекло, как у плашки материала.
 // KTNium Viewer 1.8.1 (05.11): ПРИСАДКА НА ИЗДЕЛИИ; ДВОЙНОЙ ТАП С ТЯГОЙ НЕ ДВИГАЕТ СЕЧЕНИЕ (его слова 05.11: «Не вижу присадки на
 // изделии»; «Двойной тап и тяга не должен смещать куб сечения»). Было: отверстий на деталях не было (в выгрузке их не было);
 // первый тап двойного с тягой через 0,35 с ставил угол сечения (точку рулетки, Part info) — тап ждал второго касания, но
@@ -507,6 +522,8 @@ const pts = new Map();
 let mode = null, last = null, depth = 1;
 // 1.7.0: палец — вращение; постоял на месте и повёл — ближе / дальше (кружок под пальцем); двойной тап и повёл — сдвиг;
 // двойной тап — рентген.
+// 1.8.2: палец — вращение; постоял на месте и повёл — сдвиг (кружок под пальцем); двойной тап и повёл — ближе / дальше;
+// двойной тап — рентген; щипок — ближе / дальше и сдвиг.
 // tap — последнее короткое касание (первый тап двойного), down0 — нынешнее касание одним пальцем
 const TAP_MS = 350, TAP_PX = 10, DT_MS = 350, DT_PX = 40, HOLD_MS = 450;   // тап — до 0,35 с и 10 точек хода; второй — до 0,35 с и 40 точек; удержание — 0,45 с
 let tap = null, down0 = null, holdT = 0;
@@ -561,13 +578,13 @@ canvas.addEventListener('pointerdown', e => {
     const id = e.pointerId;
     lpT = setTimeout(() => { lpT = 0; if (mode === 'wait' && pts.size === 1 && pts.has(id)) { const q = pts.get(id); lpStart(q.x, q.y); } }, LP_HOLD);
   }
-  if (mode === 'wait') {
+  if (mode === 'wait' && !(down0 && down0.dbl)) {   // 1.8.2: после двойного тапа удержания нет — повёл и после паузы: ближе / дальше
     const id = e.pointerId;
-    holdT = setTimeout(() => {   // 1.8.0: постоял на месте — вращение
+    holdT = setTimeout(() => {   // 1.8.2: постоял на месте — сдвиг
       holdT = 0;
       if (mode !== 'wait' || pts.size !== 1 || !pts.has(id)) return;
       const q = pts.get(id);
-      mode = 'orbit';   // 1.8.0: постоял и повёл — вращение (было ближе / дальше)
+      mode = 'pan';   // 1.8.2: постоял и повёл — сдвиг (было вращение): точка под пальцем идёт за пальцем
       last = { x: q.x, y: q.y };
       ringAt(q.x, q.y, true);
       if (navigator.vibrate) try { navigator.vibrate(12); } catch (_) {}
@@ -578,7 +595,7 @@ canvas.addEventListener('pointermove', e => {
   if (!pts.has(e.pointerId) || !mode) return;
   if (down0 && e.pointerId === down0.id && !down0.moved && Math.hypot(e.clientX - down0.x, e.clientY - down0.y) > TAP_PX) {
     down0.moved = true;
-    if (mode === 'wait') { holdOff(); if (lpT) { clearTimeout(lpT); lpT = 0; } mode = down0.dbl ? 'pan' : 'zoom'; }   // 1.8.0: пошёл сразу — ближе / дальше (было вращение); после двойного тапа — сдвиг
+    if (mode === 'wait') { holdOff(); if (lpT) { clearTimeout(lpT); lpT = 0; } mode = down0.dbl ? 'zoom' : 'orbit'; }   // 1.8.2: пошёл сразу — вращение (было ближе / дальше); после двойного тапа — ближе / дальше (было сдвиг)
   }
   pts.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
   const a = [...pts.values()];
@@ -590,7 +607,8 @@ canvas.addEventListener('pointermove', e => {
   } else if (mode === 'pan' && a.length === 1) {
     pan(a[0].x - last.x, a[0].y - last.y, depth);
     last = { x: a[0].x, y: a[0].y };
-  } else if (mode === 'zoom' && a.length === 1) {   // 1.7.0: удержание и повёл — вверх ближе, вниз дальше, к точке под пальцем
+    ringAt(a[0].x, a[0].y);   // 1.8.2: кружок — за пальцем (удержание)
+  } else if (mode === 'zoom' && a.length === 1) {   // 1.8.2: двойной тап и повёл — вверх ближе, вниз дальше, к точке под пальцем
     if (a[0].y !== last.y) dollyTo(pivot, Math.exp(-(a[0].y - last.y) * 0.006));
     last = { x: a[0].x, y: a[0].y };
     ringAt(a[0].x, a[0].y);
@@ -1233,7 +1251,7 @@ function pwBuild() {
   pwPlace();
 }
 function pwPlace() {   // между полосой названия и кнопками
-  const tb = $('bar').getBoundingClientRect().bottom, H = window.innerHeight;
+  const tb = $('bar').getBoundingClientRect().bottom + 42, H = window.innerHeight;   // 1.8.2: и ниже плашки материала — капсулы под неё не заходят
   const bt = msEl.style.display === 'flex' ? msEl.getBoundingClientRect().top : H - 80;
   const free = Math.max(120, bt - tb - 20), h = Math.min(free, (2 * PK + 1) * PSH);
   pwEl.style.top = (tb + 10 + (free - h) / 2) + 'px';
@@ -1896,33 +1914,19 @@ function show(i, instant) {
   }
   if (m.open.length || m.close.length) motion = m;
 }
-// 1.7.0: пачка сцен — как переключатель приложений iPhone, только наоборот: первая слева, дальше по порядку, целиком;
-// свайп влево — ушедшие к левому краю ложатся в пачку, каждая следующая сверху, чем глубже — тем теснее; пружиной.
-// k — сколько плашек в пачке (дробно): плашка i <= k — в пачке на SPAD + pileW(k) - pileW(k - i) (первая всегда у края),
-// остальные — в ряд и едут ровно за пальцем; сдвиг ленты s и k связаны: s = X(k) - SPAD - pileW(k)
+// 1.8.2: сцены — простая лента (его слова 05.11: «Не нужно что капсулы сцен примагничивались»; «И вообще, давай сделаем просто
+// горизонтальную прокрутку сцен. Не зацикленную.»): плашки в ряд по порядку, лента едет за пальцем; отпустил — катится с той
+// же скоростью и плавно встаёт где придётся (как прокрутка в iOS), без доводки к плашке; у краёв — резинка; по кругу — нет.
+// Было (1.7.0): пачка, как переключатель приложений iPhone; после пальца лента вставала так, чтобы плашка была целиком.
 let actIdx = 0;
-const SW = { s: 0, v: 0, to: null, t: 0, raf: 0, n: 0, A: 0, max: 0, w: [], X: [], p: [], pv: [], pt: [], drag: null, wt: 0 };
-const SPAD = 10, SGAP = 8, P1 = 40, PR = 0.7;   // поля, зазор, полоска верхней в пачке, доля каждой глубже
-const pileW = d => (d <= 0 ? 0 : P1 * (1 - Math.pow(PR, d)) / (1 - PR));
-function swXk(k) {
-  const i = Math.max(0, Math.min(SW.n - 1, Math.floor(k)));
-  return SW.X[i] + (k - i) * (SW.w[i] + SGAP);
-}
-const swS = k => swXk(k) - SPAD - pileW(k);   // сдвиг ленты, при котором в пачке k плашек
-function swK(s) {
-  if (s <= 0 || SW.n < 2) return 0;
-  let lo = 0, hi = SW.n - 1;
-  if (swS(hi) <= s) return hi;
-  for (let t = 0; t < 32; t++) { const m = (lo + hi) / 2; if (swS(m) < s) lo = m; else hi = m; }
-  return (lo + hi) / 2;
-}
+const SW = { s: 0, v: 0, mv: 0, to: null, t: 0, raf: 0, n: 0, A: 0, max: 0, w: [], X: [], p: [], pv: [], pt: [], drag: null };
+const SPAD = 10, SGAP = 8;   // поля, зазор
 function swLayout() {
   const Wd = $('sw');
   if (!Wd || !SW.n) return;
   const bs = Wd.children, s = SW.s;
-  const k = swK(s), e = s > 0 ? Math.max(0, s - swS(k)) : 0;
   for (let i = 0; i < SW.n && i < bs.length; i++) {
-    const x = s <= 0 || i > k ? SW.X[i] - s : SPAD + pileW(k) - pileW(k - i) - e;
+    const x = SW.X[i] - s;
     const p = SW.p[i];
     bs[i].style.transform = 'translate3d(' + x.toFixed(2) + 'px,0,0)' + (Math.abs(p - 1) > 1e-4 ? ' scale(' + p.toFixed(4) + ')' : '');
   }
@@ -1938,8 +1942,15 @@ function swTick() {
   const dt = Math.min(0.034, Math.max(0.001, (now - (SW.t || now)) / 1000 || 0.016));
   SW.t = now;
   let go = false;
-  if (SW.to !== null && !SW.drag) {   // лента — пружиной: чуть за место и назад
-    const KS = 240, CS = 2 * 0.62 * Math.sqrt(KS);
+  if (SW.mv && !SW.drag) {   // отпустил — катится и плавно встаёт (замедление — как у прокрутки iOS)
+    SW.s += SW.mv * dt;
+    SW.mv *= Math.pow(0.998, dt * 1000);
+    if (SW.s < 0 || SW.s > SW.max) { SW.v = SW.mv; SW.mv = 0; SW.to = SW.s < 0 ? 0 : SW.max; }   // докатилась до края — резинкой назад
+    else if (Math.abs(SW.mv) < 8) SW.mv = 0;
+    else go = true;
+  }
+  if (SW.to !== null && !SW.drag) {   // за краем — назад к краю, без раскачки
+    const KS = 240, CS = 2 * Math.sqrt(KS);
     SW.v += (-KS * (SW.s - SW.to) - CS * SW.v) * dt;
     SW.s += SW.v * dt;
     if (Math.abs(SW.s - SW.to) < 0.25 && Math.abs(SW.v) < 6) { SW.s = SW.to; SW.v = 0; SW.to = null; } else go = true;
@@ -1966,25 +1977,18 @@ function swMeasure() {
   let x = SPAD;
   for (let i = 0; i < SW.n; i++) { SW.X.push(x); x += SW.w[i] + SGAP; }
   SW.max = Math.max(0, x - SGAP + SPAD - SW.A);
-  for (let i = 0; i < SW.n; i++) {
-    if (SW.p[i] === undefined) { SW.p[i] = 1; SW.pv[i] = 0; SW.pt[i] = 1; }
-    bs[i].style.zIndex = String(i + 1);   // каждая следующая — сверху
-  }
-  if (!SW.drag && (SW.s > SW.max || SW.s < 0)) { SW.to = Math.max(0, Math.min(SW.max, SW.s)); swKick(); }
+  for (let i = 0; i < SW.n; i++) if (SW.p[i] === undefined) { SW.p[i] = 1; SW.pv[i] = 0; SW.pt[i] = 1; }
+  if (!SW.drag && (SW.s > SW.max || SW.s < 0)) { SW.mv = 0; SW.to = Math.max(0, Math.min(SW.max, SW.s)); swKick(); }
   swLayout();
 }
-// отпустил: куда долетит — и встать пружиной так, чтобы плашка за пачкой была целиком
+// отпустил: за краем — назад к краю; иначе — катится с той же скоростью и встаёт где придётся (без доводки к плашке)
 function swSettle(v) {
-  SW.v = v;
-  const proj = Math.max(0, Math.min(SW.max, SW.s + v * 0.35));
-  let to = 0, bd = Math.abs(proj);
-  const tryR = r => { if (r >= 0 && r <= SW.max) { const d = Math.abs(proj - r); if (d < bd) { bd = d; to = r; } } };
-  for (let j = 1; j < SW.n; j++) tryR(swS(j));
-  tryR(SW.max);
-  SW.to = to;
+  SW.v = 0;
+  if (SW.s < 0 || SW.s > SW.max) { SW.mv = 0; SW.to = SW.s < 0 ? 0 : SW.max; }
+  else { SW.to = null; SW.mv = Math.abs(v) > 30 ? v : 0; }
   swKick();
 }
-// нажатие на плашку: её сцена; в пачке или за правым краем — выезжает на вид
+// нажатие на плашку: её сцена (лента не едет)
 function swTap(x, y) {
   const el = document.elementFromPoint(x, y);
   const b = el && el.closest ? el.closest('#sw .b') : null;
@@ -1993,14 +1997,6 @@ function swTap(x, y) {
   if (i < 0) return;
   setAct(i);
   show(i, false);
-  const k = swK(SW.s);
-  let to = null;
-  if (SW.s > 0 && i < k - 0.001) to = Math.max(0, Math.min(SW.max, swS(i)));
-  else {
-    const r = SW.X[i] + SW.w[i] - SW.s - (SW.A - SPAD);
-    if (r > 0.5) to = Math.min(SW.max, SW.s + r);
-  }
-  if (to !== null) { SW.to = to; swKick(); }
 }
 function swInit() {
   const Wd = $('sw');
@@ -2010,9 +2006,11 @@ function swInit() {
     const b = e.target && e.target.closest ? e.target.closest('.b') : null;
     const bi = b ? [...Wd.children].indexOf(b) : -1;
     const t = e.timeStamp || performance.now();
-    SW.drag = { id: e.pointerId, x0: e.clientX, r0: swUnrub(SW.s), moved: false, h: [[t, SW.s]], bi };
+    const stop = Math.abs(SW.mv) > 40 || (SW.to !== null && Math.abs(SW.s - SW.to) > 2);   // 1.8.2: катилась — касание её останавливает
+    SW.drag = { id: e.pointerId, x0: e.clientX, r0: swUnrub(SW.s), moved: false, h: [[t, SW.s]], bi, stop };
     SW.to = null;
     SW.v = 0;
+    SW.mv = 0;
     if (bi >= 0) { SW.pt[bi] = 0.94; swKick(); }
   });
   Wd.addEventListener('pointermove', e => {
@@ -2035,7 +2033,7 @@ function swInit() {
     if (!d || e.pointerId !== d.id) return;
     SW.drag = null;
     if (d.bi >= 0) SW.pt[d.bi] = 1;
-    if (!d.moved) { if (e.type === 'pointerup') swTap(e.clientX, e.clientY); swKick(); return; }
+    if (!d.moved) { if (e.type === 'pointerup' && !d.stop) swTap(e.clientX, e.clientY); if (SW.s < 0 || SW.s > SW.max) swSettle(0); swKick(); return; }
     const a = d.h[0], z = d.h[d.h.length - 1], t = e.timeStamp || performance.now();
     const v = z[0] > a[0] && t - z[0] < 80 ? (z[1] - a[1]) / (z[0] - a[0]) * 1000 : 0;   // точки в секунду; палец замер — без разлёта
     swSettle(v);
@@ -2046,10 +2044,9 @@ function swInit() {
     e.preventDefault();
     SW.to = null;
     SW.v = 0;
-    SW.s = Math.max(0, Math.min(SW.max, SW.s + (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY)));
+    SW.mv = 0;
+    SW.s = Math.max(0, Math.min(SW.max, SW.s + (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY)));   // 1.8.2: без доводки
     swLayout();
-    clearTimeout(SW.wt);
-    SW.wt = setTimeout(() => swSettle(0), 160);
   }, { passive: false });
 }
 function setAct(i) {
@@ -2077,7 +2074,7 @@ function buttons() {
   });
   S.style.display = K.scenes.length > 1 ? 'block' : 'none';
   actIdx = 0;
-  Object.assign(SW, { s: 0, v: 0, to: null, p: [], pv: [], pt: [], drag: null });
+  Object.assign(SW, { s: 0, v: 0, mv: 0, to: null, p: [], pv: [], pt: [], drag: null });
   swInit();
   swMeasure();
 }
@@ -2205,7 +2202,7 @@ async function open(id) {
     window.__ready = true;
   }
 }
-window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, k: swK(SW.s), to: SW.to, n: SW.n }), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
+window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
 if (cfg.id) {
   open(cfg.id);
 } else {
