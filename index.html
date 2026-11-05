@@ -168,6 +168,13 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 #rp td.e, #rp th.e { background: rgba(232,236,241,.98); }
 #rp tfoot td { font-weight: 600; background: rgba(247,247,248,.98); }
 #rp .re { padding: 24px 16px; color: #3a3a3c; }
+/* 1.9.2: список — как окно List отчёта: разделы, имя слева, данные справа */
+#rp .rl { padding: 0 14px 10px; }
+#rp .rl h5 { margin: 12px 0 2px; font-size: 12px; font-weight: 600; color: #6c6c70; text-transform: uppercase; letter-spacing: .04em; }
+#rp .rl .r { display: flex; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid rgba(0,0,0,.07);
+  font-size: 15px; line-height: 1.3; }
+#rp .rl .r span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+#rp .rl .r b { flex: none; max-width: 50%; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 #rp .rb { flex: none; display: flex; gap: 8px; padding: 10px 10px 12px; }
 #rp .rb button { flex: 1; min-width: 0; height: 42px; padding: 0 8px; border: 0; border-radius: 21px; font: inherit; font-size: 14px;
   font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
@@ -222,6 +229,16 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 .pn { -webkit-backdrop-filter: blur(26px) saturate(190%) brightness(1.05); backdrop-filter: blur(26px) saturate(190%) brightness(1.05); }
 #rp.pn { background: linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.70)); }
 #ns.pn { background: linear-gradient(180deg, rgba(233,234,237,.88), rgba(228,229,233,.84)); }
+/* 1.9.2: стекло плашек и кнопок — вдвое прозрачнее, кант тоньше (его слова 05.11: «В два раза больше прозрачности и
+   потоньше» — «Стекло плашек и кнопок») */
+:root {
+  --lgf: linear-gradient(180deg, rgba(255,255,255,.17) 0%, rgba(255,255,255,.06) 58%, rgba(255,255,255,.11) 100%);
+  --lgo: linear-gradient(180deg, rgba(72,142,232,.60), rgba(34,94,182,.40));
+  --lgb: blur(3px) saturate(140%) brightness(1.08);
+  --lgs: inset 0 .5px .5px rgba(255,255,255,.8), inset 0 -.5px .5px rgba(255,255,255,.25), 0 5px 14px rgba(0,0,0,.11), 0 1px 2px rgba(0,0,0,.08);
+  --lgso: inset 0 .5px .5px rgba(255,255,255,.7), inset 0 -.5px .5px rgba(255,255,255,.2), 0 5px 14px rgba(24,70,140,.22), 0 1px 2px rgba(0,0,0,.1);
+}
+#title::after, #sw .b::after, #pw .c::after, .fb::after, .gl:not(#cmt)::after { padding: .7px; }
 </style>
 <script type="importmap">
 { "imports": {
@@ -236,7 +253,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 <div id="pw"></div>
 <div id="fc" class="gl"></div>
 <div id="sh"></div>
-<div id="rp" class="pn"><div class="ph"><i class="gr"></i><b></b></div><div class="rw"></div><div class="rb"><button type="button" data-w="list"></button><button type="button" data-w="table"></button></div><div class="pk"></div></div>
+<div id="rp" class="pn"><div class="ph"><i class="gr"></i><b></b></div><div class="rw"></div><div class="rb"><button type="button" data-w="list"></button></div><div class="pk"></div></div>
 <div id="ns" class="pn"><div class="ph"><i class="gr"></i><i class="tx"></i><b></b><span></span></div><div class="dt"></div><div class="nv"><div class="nr"></div></div></div>
 <div id="cmt" class="gl"></div>
 <button id="cmb" class="fb" type="button" aria-label="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -282,6 +299,17 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.2 (05.11): СТЕКЛО ВДВОЕ ПРОЗРАЧНЕЕ, КАНТ ТОНЬШЕ; РАЗРЕЗ ЗАЛИТ У ВСЕХ ДЕТАЛЕЙ (его слова 05.11: «В два
+// раза больше прозрачности и потоньше» — «Стекло плашек и кнопок»; «Не все детали заполнены стружкой при сечении.»).
+// Стекло: белого вдвое меньше (6–17%), размытие 3 точки, кант по краю — 0,7 точки, блики внутри — тоньше, тень — мягче;
+// синее (нажатое) — тоже прозрачнее. Разрез — было: заливка считалась по каждой сетке отдельно, а у детали с кромкой пласть
+// и торцы — разные сетки (разные материалы): петля разреза рвалась на стыке, такая деталь оставалась пустой; деталь с проёмом
+// под присадку в пласти (дырка без стенок) — тоже: петля не замыкалась. Теперь отрезки всех сеток детали — вместе; концы,
+// что не сошлись, стыкуются с ближайшими (до 60 мм); вырез в детали (петля внутри петли) — дырой в заливке. Удержание
+// пальца — без кружка (его слова 05.11: «Круг при удержании не нужен»); удержание и повёл — сдвиг, как было. Отчёт —
+// без таблицы, сразу список (его слова 05.11: «В отчете не нужна таблица а сразу список»): как окно List отчёта —
+// «Материалы» (имя — листы; кромка - метры) и «Комплектующие» (имя — шт.), его галочки и правки списка; кнопка
+// «Копировать» — тот же текст, что Copy окна List (имя модели, пустая строка, «- …»).
 // KTNium Viewer 1.9.1 (05.11): СТЕКЛО КАК НА IPHONE (его слова 05.11: «Пч все все еще не стекляное?»). Было: «стекло» —
 // матовое: белая заливка 34–80% и сильное размытие (16–22 точки) — над ровным фоном модели это выглядит белым пластиком.
 // Теперь — как стекло iOS 26 (Liquid Glass): почти прозрачное (белого 12–30%), модель видна сквозь, размытие лёгкое (5 точек,
@@ -751,8 +779,7 @@ canvas.addEventListener('pointerdown', e => {
       if (mode !== 'wait' || pts.size !== 1 || !pts.has(id)) return;
       const q = pts.get(id);
       mode = 'pan';   // 1.8.2: постоял и повёл — сдвиг (было вращение): точка под пальцем идёт за пальцем
-      last = { x: q.x, y: q.y };
-      ringAt(q.x, q.y, true);
+      last = { x: q.x, y: q.y };   // 1.9.2: кружка нет (его слова 05.11: «Круг при удержании не нужен»)
       if (navigator.vibrate) try { navigator.vibrate(12); } catch (_) {}
     }, HOLD_MS);
   }
@@ -952,12 +979,12 @@ function secVisUpd() {
 // полуплоскости в этих осях (угол сечения: только его грань), заливка — треугольниками, поверх — линии разреза
 let capObj = null, capScene = null;
 const capCache = new Map();
-function capSrc(o) {
+function capSrc(ms) {   // 1.9.2: ms — сетки детали
   const own = [];
-  for (const m of [].concat(o.material)) if (m && m.name) own.push(m);
+  for (const o of [].concat(ms)) for (const m of [].concat(o.material)) if (m && m.name && !own.includes(m)) own.push(m);
   const cut = own.find(m => /^edge\b|срез/i.test(m.name));
   if (cut) return cut;
-  const main = own[0];
+  const main = own.find(m => /ЛДСП|MFC|ДСП|LDSP|МДФ|MDF|ДВП|HDF/i.test(m.name)) || own[0];
   if (!main) return null;
   const want = /ЛДСП|MFC|ДСП|LDSP/i.test(main.name) ? /^edge\s*mfc/i : /МДФ|MDF|ДВП|HDF/i.test(main.name) ? /^edge\s*mdf/i : null;
   if (want) {
@@ -980,18 +1007,80 @@ function capMat(src) {   // свой материал заливки: двуст
   return c;
 }
 // pl — плоскость; e1, e2, o — её оси и начало; clip2 — [[a, b, c]]: a·u + b·v + c >= 0; only — фильтр сеток
+// 1.9.2: петли разреза детали из отрезков всех её сеток: сперва цепочки от концов (нечётные узлы), потом замкнутые; цепочки,
+// что не сошлись (проём в пласти — дырка без стенок), стыкуются концами с ближайшими — до 60 мм
+function capLoops(segs) {
+  const key = p => Math.round(p[0] * 1e5) + ':' + Math.round(p[1] * 1e5);
+  const adj = new Map(), pt = new Map(), n = segs.length / 2, used = new Uint8Array(n);
+  for (let i = 0; i < n; i++) {
+    const p = segs[2 * i], q = segs[2 * i + 1], kp = key(p), kq = key(q);
+    if (kp === kq) { used[i] = 1; continue; }
+    for (const [k, kk, pp] of [[kp, kq, p], [kq, kp, q]]) { if (!adj.has(k)) { adj.set(k, []); pt.set(k, pp); } adj.get(k).push([i, kk]); }
+  }
+  const step = k => { for (const [i, kk] of adj.get(k) || []) if (!used[i]) { used[i] = 1; return kk; } return null; };
+  const loops = [], open = [];
+  for (const [k, ar] of adj) {   // цепочки от концов
+    if (ar.length % 2 === 0) continue;
+    for (;;) {
+      let nk = step(k);
+      if (nk === null) break;
+      const ch = [k];
+      while (nk !== null) { ch.push(nk); nk = step(nk); }
+      open.push(ch);
+    }
+  }
+  for (const [k] of adj) {   // замкнутые
+    for (;;) {
+      let nk = step(k);
+      if (nk === null) break;
+      const ch = [k];
+      while (nk !== null && nk !== k) { ch.push(nk); nk = step(nk); }
+      if (nk === k) { if (ch.length >= 3) loops.push(ch.map(x => pt.get(x))); } else open.push(ch);
+    }
+  }
+  const GAP = 0.06, Dd = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
+  const ch = open.map(c => c.map(x => pt.get(x)));
+  while (ch.length) {
+    let c = ch.pop();
+    for (let g9 = 0; c && g9 < 10000; g9++) {
+      const e = c[c.length - 1];
+      let best = null, bd = GAP;
+      if (c.length >= 3 && Dd(e, c[0]) < bd) { bd = Dd(e, c[0]); best = { self: true }; }
+      ch.forEach((x, i) => { const d0 = Dd(e, x[0]), d1 = Dd(e, x[x.length - 1]); if (d0 < bd) { bd = d0; best = { i, rev: false }; } if (d1 < bd) { bd = d1; best = { i, rev: true }; } });
+      if (!best) c = null;   // не сошлась — без заливки
+      else if (best.self) { loops.push(c); c = null; }
+      else { const x = ch.splice(best.i, 1)[0]; c = c.concat(best.rev ? x.slice().reverse() : x); }
+    }
+  }
+  return loops;
+}
+const capArea = lp => { let ar = 0; for (let i = 0; i < lp.length; i++) { const p = lp[i], q = lp[(i + 1) % lp.length]; ar += p[0] * q[1] - q[0] * p[1]; } return ar / 2; };
+function capIn(pt, poly) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i], b = poly[j];
+    if ((a[1] > pt[1]) !== (b[1] > pt[1]) && pt[0] < (b[0] - a[0]) * (pt[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c;
+  }
+  return c;
+}
+let capStat = [];
 function capsFor(pl, e1, e2, o, clip2, only) {
-  const grp = new THREE.Group(), byMat = new Map(), tb = new THREE.Box3();
+  const grp = new THREE.Group(), byMat = new Map(), tb = new THREE.Box3(), parts = new Map();
   const a = new V3(), b = new V3(), c = new V3();
   root.updateMatrixWorld(true);
-  root.traverse(m => {
+  root.traverse(m => {   // 1.9.2: отрезки — по детали: все её сетки вместе
     if (!m.isMesh || m.isLineSegments2 || !shown(m) || glass(m.material) || m.userData.cap || m.userData.hole) return;
     const g = m.geometry;
     if (!g.boundingBox) g.computeBoundingBox();
     tb.copy(g.boundingBox).applyMatrix4(m.matrixWorld);
-    if (!pl.intersectsBox(tb) || (only && !only(tb))) return;
+    if (!pl.intersectsBox(tb)) return;
+    const pk = m.userData.nm === undefined && m.parent ? m.parent : m;
+    let rec = parts.get(pk);
+    if (!rec) { rec = { ms: [], segs: [], bb: new THREE.Box3() }; parts.set(pk, rec); }
+    rec.ms.push(m);
+    rec.bb.union(tb);
     const P = g.attributes.position, I = g.index, n = I ? I.count : P.count, mw = m.matrixWorld;
-    const segs = [];
+    const segs = rec.segs;
     for (let i = 0; i + 2 < n; i += 3) {
       a.fromBufferAttribute(P, I ? I.getX(i) : i).applyMatrix4(mw);
       b.fromBufferAttribute(P, I ? I.getX(i + 1) : i + 1).applyMatrix4(mw);
@@ -1004,32 +1093,18 @@ function capsFor(pl, e1, e2, o, clip2, only) {
       }
       if (out.length >= 2 && Math.hypot(out[0][0] - out[1][0], out[0][1] - out[1][1]) > 1e-6) segs.push(out[0], out[1]);
     }
-    if (segs.length < 6) return;
-    // петли: концы отрезков — по ключу (0,01 мм)
-    const key = p => Math.round(p[0] * 1e5) + ':' + Math.round(p[1] * 1e5);
-    const adj = new Map();
-    for (let i = 0; i < segs.length; i += 2) for (const [p, q] of [[segs[i], segs[i + 1]], [segs[i + 1], segs[i]]]) { const k = key(p); if (!adj.has(k)) adj.set(k, []); adj.get(k).push([q, i]); }
-    const used = new Set(), loops = [];
-    for (let i = 0; i < segs.length; i += 2) {
-      if (used.has(i)) continue;
-      used.add(i);
-      const lp = [segs[i]], k0 = key(segs[i]);
-      let cur = segs[i + 1], guard = 0;
-      while (key(cur) !== k0 && guard++ < 100000) {
-        lp.push(cur);
-        const nx = (adj.get(key(cur)) || []).find(([, j]) => !used.has(j));
-        if (!nx) { lp.length = 0; break; }
-        used.add(nx[1]);
-        cur = nx[0];
-      }
-      if (lp.length >= 3) loops.push(lp);
-    }
-    if (!loops.length) return;
-    const src = capSrc(m), id = src ? src.uuid : 'none';
+  });
+  for (const [pk, rec] of parts) {
+    if (rec.segs.length < 6 || (only && !only(rec.bb))) continue;
+    const loops = capLoops(rec.segs);
+    capStat.push([pk.userData.nm || '', rec.ms.map(m => [].concat(m.material).map(x => x && x.name).join('+')).join(' / '), rec.segs.length / 2, loops.length]);
+    if (!loops.length) continue;
+    const src = capSrc(rec.ms), id = src ? src.uuid : 'none';
     if (!byMat.has(id)) byMat.set(id, { src, pos: [] });
     const acc = byMat.get(id).pos;
-    for (let lp of loops) {
-      for (const [ca, cb, cc] of clip2 || []) {   // только грань угла: полуплоскости
+    const clip = lp0 => {   // только грань угла: полуплоскости
+      let lp = lp0;
+      for (const [ca, cb, cc] of clip2 || []) {
         const r = [];
         for (let j = 0; j < lp.length; j++) {
           const p = lp[j], q = lp[(j + 1) % lp.length], fp = ca * p[0] + cb * p[1] + cc, fq = ca * q[0] + cb * q[1] + cc;
@@ -1039,13 +1114,24 @@ function capsFor(pl, e1, e2, o, clip2, only) {
         lp = r;
         if (lp.length < 3) break;
       }
-      if (lp.length < 3) continue;
-      const v2 = lp.map(p => new THREE.Vector2(p[0], p[1]));
+      return lp;
+    };
+    // вырезы: петля внутри петли — дыра (по вложенности: чётная — заливка, нечётная — дыра ближайшей объемлющей)
+    const L = loops.map(lp => ({ lp, ar: Math.abs(capArea(lp)), dep: 0, par: null, holes: [] })).sort((x, y) => y.ar - x.ar);
+    for (let i = 0; i < L.length; i++) for (let j = i - 1; j >= 0; j--) if (capIn(L[i].lp[0], L[j].lp)) { L[i].par = L[j]; L[i].dep = L[j].dep + 1; break; }
+    for (const x of L) if (x.dep % 2 && x.par) x.par.holes.push(x);
+    for (const x of L) {
+      if (x.dep % 2) continue;
+      const ct = clip(x.lp);
+      if (ct.length < 3) continue;
+      const v2 = ct.map(p => new THREE.Vector2(p[0], p[1]));
+      const h2 = x.holes.map(h => clip(h.lp)).filter(h => h.length >= 3).map(h => h.map(p => new THREE.Vector2(p[0], p[1])));
       let tris;
-      try { tris = THREE.ShapeUtils.triangulateShape(v2, []); } catch (e) { tris = []; }
-      for (const t of tris) for (const k of t) acc.push(v2[k].x, v2[k].y);
+      try { tris = THREE.ShapeUtils.triangulateShape(v2, h2); } catch (e) { tris = []; }
+      const all = v2.concat(...h2);
+      for (const t of tris) for (const k of t) if (all[k]) acc.push(all[k].x, all[k].y);
     }
-  });
+  }
   const nrm = pl.normal.clone();
   for (const { src, pos } of byMat.values()) {
     if (!pos.length) continue;
@@ -1078,6 +1164,7 @@ function secCut(now) {
   if (!secP || !root) return;
   // 1.8.0: заливка разреза срезом — на каждой из трёх граней угла (только сама грань: со стороны камеры по двум другим осям)
   capObj = new THREE.Group();
+  capStat = [];
   for (let i = 0; i < 3; i++) {
     const j = (i + 1) % 3, h = (i + 2) % 3, ax = k => { const v = new V3(); v.setComponent(k, 1); return v; };
     const pl = new THREE.Plane(ax(i).multiplyScalar(-secSg[i]), secSg[i] * secP.getComponent(i));
@@ -1889,11 +1976,11 @@ const rpEl = $('rp');
 const RPU = RU ? { prod: 'Изделие', tot: 'Итого', sh: 'Листы', noname: '(без имени)', newrow: 'Новая строка', newcol: 'Новый столбик',
   g: { mat: 'Материал и кромка', hinge: 'Петли, шт.', runner: 'Направляющие ящиков, компл.', dowel: 'Шканты, шт.', other: 'Другие комплектующие, шт.' },
   u: { sh: 'л', rem: ' ост.', m: 'м', pcs: 'шт.', sets: 'компл.' }, title: 'Отчёт', cl: 'Копировать список', ct: 'Копировать таблицу',
-  ok: 'Скопировано', no: 'Не скопировано', none: 'Нечего копировать', empty: 'В отчёте пусто — в выгрузке нет деталей' }
+  ok: 'Скопировано', no: 'Не скопировано', none: 'Нечего копировать', empty: 'В отчёте пусто — в списке ничего не отмечено' }
   : { prod: 'Product', tot: 'Total', sh: 'Sheets', noname: '(no name)', newrow: 'New row', newcol: 'New column',
   g: { mat: 'Material and edge banding', hinge: 'Hinges, pcs', runner: 'Drawer runners, sets', dowel: 'Dowels, pcs', other: 'Other fittings, pcs' },
   u: { sh: ' sh.', rem: ' rem.', m: ' m', pcs: 'pcs', sets: 'sets' }, title: 'Report', cl: 'Copy list', ct: 'Copy table',
-  ok: 'Copied', no: 'Not copied', none: 'Nothing to copy', empty: 'The report is empty - no parts in the export' };
+  ok: 'Copied', no: 'Not copied', none: 'Nothing to copy', empty: 'The report is empty - nothing is ticked in the list' };
 const RCU = '\u0002', RSEP = '\u0001';
 let RST = null, RPX = null;
 const rpHas = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
@@ -2109,7 +2196,7 @@ function rpListRows() {
   mats.forEach(r => { const parts = (r.sh ? [r.sh] : []).concat(r.ed); if (parts.length) out.push({ b: 'm', t: rpJoin('m', r.n, parts.join('; ')) }); });
   return out.concat(fit);
 }
-function rpLines() {
+function rpListModel() {   // строки списка с правками окна List: {m: [{n, d, on}], f: [...]}
   const L = RST.list, M = { m: [], f: [] }, seen = {};
   rpListRows().forEach(r => {
     const b = r.b === 'm' ? 'm' : 'f', sp = rpSplit(b, r.t);
@@ -2118,6 +2205,10 @@ function rpLines() {
     if (seen[k] > 1) k += '#' + seen[k];
     M[b].push({ n: rpHas(L.name, k) ? String(L.name[k]) : sp[0], d: rpHas(L.val, k) ? String(L.val[k]) : sp[1], on: !rpHas(L.off, k) });
   });
+  return M;
+}
+function rpLines() {
+  const M = rpListModel();
   let out = [];
   ['m', 'f'].forEach(b => {
     const ls = M[b].filter(r => r.on && (r.n || r.d)).map(r => '- ' + rpJoin(b, r.n, r.d));
@@ -2132,13 +2223,17 @@ function rpOpen() {
   RST = rpLoadST(K.report.edits);
   RPX = rpExport();
   rpEl.querySelector('.ph b').textContent = RPU.title + (K.report.model ? ' · ' + K.report.model : '');
-  rpEl.querySelector('.rw').innerHTML = RPX ? RPX.html : '<div class="re">' + htm(RPU.empty) + '</div>';
-  const bs = rpEl.querySelectorAll('.rb button');
-  bs[0].textContent = RPU.cl;
-  bs[1].textContent = RPU.ct;
+  // 1.9.2: сразу список (таблицы нет): разделы, как в окне List отчёта, — отмеченные строки, имя — слева, данные — справа
+  const M = rpListModel();
+  let h = '';
+  [['m', RU ? 'Материалы' : 'Materials'], ['f', RU ? 'Комплектующие' : 'Fittings']].forEach(([b, t]) => {
+    const rs = M[b].filter(r => r.on && (r.n || r.d));
+    if (!rs.length) return;
+    h += '<h5>' + htm(t) + '</h5>' + rs.map(r => '<div class="r"><span>' + htm(r.n) + '</span><b>' + htm(r.d) + '</b></div>').join('');
+  });
+  rpEl.querySelector('.rw').innerHTML = h ? '<div class="rl">' + h + '</div>' : '<div class="re">' + htm(RPU.empty) + '</div>';
+  rpEl.querySelector('.rb button').textContent = RU ? 'Копировать' : 'Copy';
   pnOpen(rpEl);
-  const tr = rpEl.querySelector('thead tr');
-  if (tr) rpEl.querySelector('.rw').style.setProperty('--h1', tr.getBoundingClientRect().height + 'px');   // вторая строка шапки — под первой
   rpBtn.classList.add('on');
 }
 function rpClose(now) { pnClose(rpEl, now); rpBtn.classList.remove('on'); }
@@ -3297,7 +3392,7 @@ async function open(id) {
     window.__ready = true;
   }
 }
-window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
+window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
 if (cfg.id) {
   open(cfg.id);
 } else {
