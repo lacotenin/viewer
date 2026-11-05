@@ -194,6 +194,34 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 #pw .c.on.iso { box-shadow: inset 0 0 0 2px rgba(255,255,255,.95), 0 6px 16px rgba(24,70,140,.35); }
 #msg { position: fixed; inset: 0; z-index: 3; display: none; align-items: center; justify-content: center;
   padding: 24px; text-align: center; color: #555; pointer-events: none; }
+/* 1.9.1: СТЕКЛО КАК НА IPHONE (iOS 26, Liquid Glass; его слова 05.11: «Пч все все еще не стекляное?»): почти прозрачное,
+   лёгкое размытие, светлый кант по краю (свет сверху-слева и снизу-справа), мягкая тень; надписи — с белым ореолом; нажатое —
+   синее стекло. Было: белая заливка 34–80% и размытие 16–22 точки — над ровным фоном модели белый пластик */
+:root {
+  --lgf: linear-gradient(180deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.12) 58%, rgba(255,255,255,.22) 100%);
+  --lgo: linear-gradient(180deg, rgba(72,142,232,.80), rgba(34,94,182,.70));
+  --lgb: blur(5px) saturate(140%) brightness(1.1);
+  --lgs: inset 0 1px 1px rgba(255,255,255,.85), inset 0 -1px 1px rgba(255,255,255,.3), 0 8px 22px rgba(0,0,0,.16), 0 1px 3px rgba(0,0,0,.12);
+  --lgso: inset 0 1px 1px rgba(255,255,255,.7), inset 0 -1px 1px rgba(255,255,255,.22), 0 8px 22px rgba(24,70,140,.32), 0 1px 3px rgba(0,0,0,.14);
+  --lgr: linear-gradient(135deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.3) 26%, rgba(255,255,255,.06) 52%, rgba(255,255,255,.32) 78%, rgba(255,255,255,.9) 100%);
+  --lgt: 0 0 1px rgba(255,255,255,.95), 0 0 7px rgba(255,255,255,.75);
+}
+#title, #sw .b, #pw .c, .fb, .gl { background: var(--lgf); -webkit-backdrop-filter: var(--lgb); backdrop-filter: var(--lgb);
+  box-shadow: var(--lgs); text-shadow: var(--lgt); }
+#title { position: relative; }
+#title::after, #sw .b::after, #pw .c::after, .fb::after, .gl:not(#cmt)::after, #sh::after, .pn::after { content: ''; position: absolute;
+  inset: 0; border-radius: inherit; padding: 1.2px; pointer-events: none; background: var(--lgr);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
+#sw .b.on, #pw .c.on, .fb.on { color: #fff; background: var(--lgo); box-shadow: var(--lgso); text-shadow: 0 0 4px rgba(0,30,80,.35); }
+#pw .c.on.iso { box-shadow: inset 0 0 0 2px rgba(255,255,255,.95), var(--lgso); }
+.fb svg { filter: drop-shadow(0 0 1.5px rgba(255,255,255,.95)); }
+.fb.on svg { filter: none; }
+#sh { background: linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.68));
+  -webkit-backdrop-filter: blur(26px) saturate(190%) brightness(1.05); backdrop-filter: blur(26px) saturate(190%) brightness(1.05); }
+.pn { -webkit-backdrop-filter: blur(26px) saturate(190%) brightness(1.05); backdrop-filter: blur(26px) saturate(190%) brightness(1.05); }
+#rp.pn { background: linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.70)); }
+#ns.pn { background: linear-gradient(180deg, rgba(233,234,237,.88), rgba(228,229,233,.84)); }
 </style>
 <script type="importmap">
 { "imports": {
@@ -254,6 +282,12 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.1 (05.11): СТЕКЛО КАК НА IPHONE (его слова 05.11: «Пч все все еще не стекляное?»). Было: «стекло» —
+// матовое: белая заливка 34–80% и сильное размытие (16–22 точки) — над ровным фоном модели это выглядит белым пластиком.
+// Теперь — как стекло iOS 26 (Liquid Glass): почти прозрачное (белого 12–30%), модель видна сквозь, размытие лёгкое (5 точек,
+// ярче и сочнее), по краю — светлый кант (свет сверху-слева и снизу-справа), мягкая тень; надписи — с белым ореолом;
+// нажатое — синее стекло. Название, сцены, номера, кнопки, плашка материала, Part info, рулетка, комментарий; карточка
+// раскроя и окна Отчёт и Раскрой — плотнее (читать), но тем же стеклом с кантом.
 // KTNium Viewer 1.9.0 (05.11): РЁБРА КАК В SKETCHUP, ОБЛАСТЬ ЗУМА, ВТОРОЕ НАЖАТИЕ НА НОМЕР, ОТЧЁТ, РАСКРОЙ (его слова 05.11:
 // «Добавь все ребра как в скетчапе»; «...и потоньше»; «Первую кнопку сделай Область зума. Рисую прямоугольник на экране и
 // когда отпускаю, все что в пряямоугольнике зумируетсяна весь экран»; «Второе нажатие на номер прячет все кроме детали.
