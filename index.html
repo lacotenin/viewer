@@ -351,6 +351,11 @@ body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: сле�
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.14 (05.11): АЛЬБОМНЫЙ — ВСЕГДА ДВА СТОЛБИКА (его слова 05.11: «На альбомном варианте ты сделал почему-то
+// слева кнопки в 3 столбика, а надо в 2 столбика.»). Было (1.9.13): 2 столбика, только если 4 ряда по 44 с зазором 8
+// входили между названием (+6) и лентой (62); у него по высоте не вошло — стало 3. Теперь столбиков всегда 2: кнопки 44,
+// не входят — сперва зазор между рядами меньше (до 4), отступы — под названием 4, над лентой 58; мельче 44 — только если и
+// так нет. И после поворота телефона раскладка ещё раз через 0,3 и 0,8 с (Safari отдаёт размер окна не сразу).
 // KTNium Viewer 1.9.13 (05.11): АЛЬБОМНЫЙ — КНОПКИ КАК В КНИЖНОМ, У ЛЕВОГО КРАЯ (его слова 05.11: «В альбомном режиме кнопки
 // круглые меньше, чем в портретном. Надо, чтобы были одинаковые, тоже такие же большие, как в портретном. И расположение,
 // посмотри, они должны быть подальше, ближе к краю… они слишком близко к центру стоят.»). Было (1.9.12): размер — по высоте
@@ -1023,15 +1028,17 @@ function fbPlace() {   // кнопки — над полосой сцен (не�
   if (land) {
     // 1.9.13: кнопки 44, как в книжном; слева в 10 — вровень с названием (Safari в альбомном уже отодвинул страницу от выреза —
     // поле выреза второй раз не прибавлять); столбиков 2, если ряды входят между названием и лентой, иначе 3–4
-    const bot = K && K.scenes && K.scenes.length > 1 ? 62 : 60;
-    const top = $('bar').getBoundingClientRect().bottom + 6, avH = window.innerHeight - top - bot;
-    let cols = 2;
-    while (cols < 4 && Math.ceil(n / cols) * 52 - 8 > avH) cols++;
-    const rows = Math.max(1, Math.ceil(n / cols));
-    const sz9 = rows * 52 - 8 > avH ? Math.max(30, Math.floor((avH - (rows - 1) * 8) / rows)) : 44, st9 = sz9 + 8;
+    // 1.9.14: всегда два столбика; кнопки 44, не входят по высоте — сперва зазор между рядами до 4, потом мельче
+    const bot = K && K.scenes && K.scenes.length > 1 ? 58 : 60;
+    const top = $('bar').getBoundingClientRect().bottom + 4, avH = window.innerHeight - top - bot;
+    const cols = 2, rows = Math.max(1, Math.ceil(n / cols));
+    let gp9 = 8, sz9 = 44;
+    if (rows > 1 && rows * sz9 + (rows - 1) * gp9 > avH) gp9 = Math.max(4, Math.floor((avH - rows * sz9) / (rows - 1)));
+    if (rows * sz9 + (rows - 1) * gp9 > avH) sz9 = Math.max(30, Math.floor((avH - (rows - 1) * gp9) / rows));
+    const st9 = sz9 + gp9, hs9 = sz9 + 8;   // шаг по высоте и по ширине
     for (const [el, on] of all) el.style.display = on ? 'flex' : 'none';
     vis.forEach((el, i) => {
-      el.style.left = (10 + (i % cols) * st9) + 'px';
+      el.style.left = (10 + (i % cols) * hs9) + 'px';
       el.style.bottom = 'calc(' + (bot + (rows - 1 - Math.floor(i / cols)) * st9) + 'px + env(safe-area-inset-bottom))';
       size9(el, sz9);
     });
@@ -1068,6 +1075,8 @@ function fbPlace() {   // кнопки — над полосой сцен (не�
   }
 }
 window.addEventListener('resize', () => { if (K && root) fbPlace(); });
+// 1.9.14: после поворота Safari отдаёт размер окна не сразу — раскладка кнопок ещё раз
+window.addEventListener('orientationchange', () => { for (const t of [300, 800]) setTimeout(() => { if (K && root) fbPlace(); }, t); });
 // кнопки — по одной: tool — нажатая (meas — рулетка, info — Part info, sec — сечение-куб)
 let tool = null, meas = null, pinfo = null;
 function setTool(t) {
