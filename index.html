@@ -114,11 +114,6 @@ body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: сле�
 .fb.on { color: #fff; background: linear-gradient(180deg, rgba(74,140,222,.86), rgba(38,98,178,.78));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3), 0 8px 20px rgba(24,70,140,.3); }
 .fb svg { width: 26px; height: 26px; }
-/* 1.9.13: кнопки и название — прозрачнее, меньше белого (его слова 05.11: «И добавь всем кнопкам больше прозрачности, даже
-   и меньше белого.»); нажатая — синяя, как была */
-.fb:not(.on), #zm .zb, #title { background: linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.10));
-  -webkit-backdrop-filter: blur(10px) saturate(160%); backdrop-filter: blur(10px) saturate(160%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 0 0 0 1px rgba(255,255,255,.35), 0 6px 16px rgba(0,0,0,.12), 0 1px 3px rgba(0,0,0,.1); }
 #ms { left: 10px; }
 #pib { left: 62px; }
 #scb { left: 114px; }
@@ -245,6 +240,13 @@ body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: сле�
 #pw .c.on.iso { box-shadow: inset 0 0 0 2px rgba(255,255,255,.95), var(--lgso); }
 .fb svg { filter: drop-shadow(0 0 1.5px rgba(255,255,255,.95)); }
 .fb.on svg { filter: none; }
+/* 1.9.15: «+» и «−» — то же стекло, что у плашек сцен и круглых кнопок (его «…и у круглых кнопок тоже сделать такую же
+   прозрачность») */
+#zm .zb { position: relative; background: var(--lgf); -webkit-backdrop-filter: var(--lgb); backdrop-filter: var(--lgb);
+  box-shadow: var(--lgs); text-shadow: var(--lgt); }
+#zm .zb::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.2px; pointer-events: none;
+  background: var(--lgr); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
 #sh { background: linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.68));
   -webkit-backdrop-filter: blur(26px) saturate(190%) brightness(1.05); backdrop-filter: blur(26px) saturate(190%) brightness(1.05); }
 .pn { -webkit-backdrop-filter: blur(26px) saturate(190%) brightness(1.05); backdrop-filter: blur(26px) saturate(190%) brightness(1.05); }
@@ -351,6 +353,16 @@ body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: сле�
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.15 (05.11): ДВУМЯ ПАЛЬЦАМИ — КАК СТАНДАРТНО; КРУГЛЫЕ КНОПКИ — СТЕКЛО КАК У ПЛАШЕК СЦЕН (его слова 05.11:
+// «Ты изменил прозрачность только у капсул сцен, а надо и у круглых кнопок тоже сделать такую же прозрачность. И почему-то
+// двумя пальцами сейчас нельзя делать пан. Оставь, чтобы можно было двумя пальцами делать пан, потому что это стандартная
+// настройка. Все, что мы с тобой настраивали, это исключительно для того, чтобы можно было пользоваться одной рукой. А двумя
+// руками, чтобы было по-стандартному. Щипок, пан, орбита.»). Было (1.9.11): щипок — только ближе/дальше к точке под
+// серединой пальцев, сдвига двумя пальцами нет. Теперь двумя пальцами — как везде: середина пальцев ведёт модель (сдвиг),
+// разводишь/сводишь — ближе/дальше, точка под пальцами остаётся под пальцами; одной рукой — как было (палец — орбита,
+// удержание и повести — сдвиг, двойной тап и повести — ближе/дальше к точке под пальцем). Кнопки: круглые (и «+»/«−») —
+// то же стекло, что у плашек сцен и названия (1.9.1, переменные --lgf/--lgb/--lgs, кант --lgr); своё стекло 1.9.13
+// (белое .30→.10, размытие 10) снято — с ним кнопки выходили мутнее плашек.
 // KTNium Viewer 1.9.14 (05.11): АЛЬБОМНЫЙ — ВСЕГДА ДВА СТОЛБИКА (его слова 05.11: «На альбомном варианте ты сделал почему-то
 // слева кнопки в 3 столбика, а надо в 2 столбика.»). Было (1.9.13): 2 столбика, только если 4 ряда по 44 с зазором 8
 // входили между названием (+6) и лентой (62); у него по высоте не вошло — стало 3. Теперь столбиков всегда 2: кнопки 44,
@@ -960,9 +972,11 @@ canvas.addEventListener('pointermove', e => {
   } else if (mode === 'pinch' && a.length >= 2) {
     const c = { x: (a[0].x + a[1].x) / 2, y: (a[0].y + a[1].y) / 2 };
     const d = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
-    // 1.9.11: щипок — как колесо мыши: ближе / дальше к точке под серединой пальцев сейчас (повёл пальцы вправо — ближе
-    // правая часть); модель за пальцами не едет (было: сдвиг за серединой и зум к начальной точке)
-    if (d > 0 && last.d > 0) dollyTo(atDepthOf(c.x, c.y, pivot), d / last.d);
+    // 1.9.15: двумя пальцами — как стандартно: середина пальцев ведёт модель (сдвиг), разводишь — ближе к точке под
+    // пальцами (она остаётся под пальцами); 1.9.11 (только зум к середине, без сдвига) — снято по его слову
+    pan(c.x - last.c.x, c.y - last.c.y, depth);
+    if (d > 0 && last.d > 0) dollyTo(pivot, d / last.d);
+    depth = depthTo(pivot);
     last = { c, d };
   }
 });
