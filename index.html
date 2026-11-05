@@ -239,6 +239,33 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
   --lgso: inset 0 .5px .5px rgba(255,255,255,.7), inset 0 -.5px .5px rgba(255,255,255,.2), 0 5px 14px rgba(24,70,140,.22), 0 1px 2px rgba(0,0,0,.1);
 }
 #title::after, #sw .b::after, #pw .c::after, .fb::after, .gl:not(#cmt)::after { padding: .7px; }
+/* 1.9.3: название — кружком слева, нажатие — вправо во всю длину; после кружка — размер детали, ниже — её имя; нажатие на
+   размер — материал во всю ширину, кружок прячется (его слова 05.11: «Сверни в кружок влево название проекта…») */
+#title { flex: none; width: 30px; max-width: none; padding: 0; text-align: center; color: #000; cursor: pointer; pointer-events: auto;
+  transition: width .34s cubic-bezier(.2,1.12,.35,1); }
+#title .tl { display: inline-block; width: 30px; font-size: 14px; font-weight: 700; }
+#title .tt { display: none; padding: 0 12px; }
+#title.open { text-align: left; }
+#title.open .tl { display: none; }
+#title.open .tt { display: inline; }
+#title.hid { display: none; }
+#dm { position: relative; display: none; flex: 0 1 auto; min-width: 0; height: 30px; border-radius: 15px; overflow: hidden; color: #000;
+  pointer-events: auto; cursor: pointer; background: var(--lgf); -webkit-backdrop-filter: var(--lgb); backdrop-filter: var(--lgb);
+  box-shadow: var(--lgs); text-shadow: var(--lgt); }
+#dm.on { display: block; }
+#dm .dmi { height: 30px; line-height: 30px; padding: 0 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+#dm.mat { flex: 1 1 auto; }
+#dm.mat .dmi { overflow-x: auto; text-overflow: clip; font-size: 17px; font-weight: 700; touch-action: pan-x;
+  -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; }
+#dm.mat .dmi::-webkit-scrollbar { display: none; }
+#pn { position: fixed; left: 10px; top: 46px; z-index: 2; display: none; max-width: calc(100vw - 20px); box-sizing: border-box;
+  height: 26px; line-height: 26px; padding: 0 11px; border-radius: 13px; font-size: 13px; color: #000; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; pointer-events: none; background: var(--lgf); -webkit-backdrop-filter: var(--lgb);
+  backdrop-filter: var(--lgb); box-shadow: var(--lgs); text-shadow: var(--lgt); }
+#dm::after, #pn::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: .7px; pointer-events: none;
+  background: var(--lgr); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
 </style>
 <script type="importmap">
 { "imports": {
@@ -248,7 +275,8 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="bar"><div id="title"></div></div>
+<div id="bar"><div id="title"><span class="tl"></span><span class="tt"></span></div><div id="dm"><div class="dmi"></div></div></div>
+<div id="pn"></div>
 <div id="scenes"></div>
 <div id="pw"></div>
 <div id="fc" class="gl"></div>
@@ -299,6 +327,13 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.3 (05.11): НАЗВАНИЕ — КРУЖКОМ, РАЗМЕР И ИМЯ ДЕТАЛИ, МАТЕРИАЛ ПО НАЖАТИЮ (его слова 05.11: «Сверни в кружок
+// влево название проекта. Одно нажатие разворачивает вправо название, второе сворачивает. После ккружка размеры детали. Ниже
+// название детали. Нажатие на размер разворачивает на всю ширину название маиериала. Если не помещается, тянем влево и
+// читаем. Кружок при этом исчезает.»). Было: название — капсулой во всю длину; у детали (номер в капсуле) — плашка во всю
+// ширину «материал · размер». Теперь: название свёрнуто в кружок слева (в нём — первая буква), нажатие — разворачивается
+// вправо, ещё нажатие — сворачивается; у детали после кружка — её размер, ниже — её имя; нажатие на размер — во всю ширину
+// название материала (длинное — листается пальцем влево), кружок прячется; ещё нажатие — снова размер и кружок.
 // KTNium Viewer 1.9.2 (05.11): СТЕКЛО ВДВОЕ ПРОЗРАЧНЕЕ, КАНТ ТОНЬШЕ; РАЗРЕЗ ЗАЛИТ У ВСЕХ ДЕТАЛЕЙ (его слова 05.11: «В два
 // раза больше прозрачности и потоньше» — «Стекло плашек и кнопок»; «Не все детали заполнены стружкой при сечении.»).
 // Стекло: белого вдвое меньше (6–17%), размытие 3 точки, кант по краю — 0,7 точки, блики внутри — тоньше, тень — мягче;
@@ -747,7 +782,7 @@ function begin(e) {
 }
 // 1.3.2: движение пальца — модели, а не окну (шторка Safari в приложении закрывалась движением вниз); 1.8.0: и полоса
 // сцен, капсулы, карточка — свои (в 1.7.0 эта строка выпала при переделке жестов — вернул)
-document.addEventListener('touchmove', e => { const t = e.target; if (t && t.closest && t.closest('#cmt, #rp, #ns') && e.touches.length < 2) return; if (e.cancelable) e.preventDefault(); }, { passive: false });   // текст комментария листается
+document.addEventListener('touchmove', e => { const t = e.target; if (t && t.closest && t.closest('#cmt, #rp, #ns, #dm') && e.touches.length < 2) return; if (e.cancelable) e.preventDefault(); }, { passive: false });   // текст комментария листается
 // 1.8.0: двойной тап — без системной лупы, выделения и увеличения страницы (iPhone: щипок страницы — тоже нет)
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
@@ -2732,6 +2767,56 @@ window.addEventListener('keydown', e => {   // ПК: Esc — закрыть ок
   if (e.key === 'Escape') { if (pnIsOn(nsEl)) nsClose(); if (pnIsOn(rpEl)) rpClose(); }
   else if (pnIsOn(nsEl) && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) nsGo(NS.i + (e.key === 'ArrowRight' ? 1 : -1));
 });
+// =====================================================================================================================
+// 1.9.3: НАЗВАНИЕ — КРУЖКОМ СЛЕВА (его слова 05.11: «Сверни в кружок влево название проекта. Одно нажатие разворачивает вправо
+// название, второе сворачивает.»); у детали после кружка — размер, ниже — имя; нажатие на размер — во всю ширину название
+// материала (не помещается — тянуть влево), кружок прячется; ещё нажатие — обратно
+const titleEl = $('title'), dmEl = $('dm'), dmIn = dmEl.querySelector('.dmi'), pnEl = $('pn');
+let DM = { sz: '', mat: '', nm: '', open: false };
+function titleSet(t) {
+  titleEl.querySelector('.tl').textContent = Array.from(String(t || '').trim())[0] || '•';
+  titleEl.querySelector('.tt').textContent = t;
+  titleEl.title = t;
+}
+function titleToggle() {
+  if (titleEl.classList.contains('open')) {   // свернуть в кружок
+    titleEl.style.width = titleEl.offsetWidth + 'px';
+    void titleEl.offsetWidth;
+    titleEl.classList.remove('open');
+    titleEl.style.width = '';
+  } else {   // развернуть вправо: по длине названия, не шире строки
+    titleEl.classList.add('open');
+    titleEl.style.transition = 'none';
+    titleEl.style.width = 'auto';
+    const bw = $('bar').getBoundingClientRect().width - 20, dw = dmEl.classList.contains('on') ? Math.min(dmEl.scrollWidth, 120) + 10 : 0;
+    const w = Math.max(30, Math.min(titleEl.scrollWidth, bw - dw));
+    titleEl.style.width = '30px';
+    void titleEl.offsetWidth;
+    titleEl.style.transition = '';
+    titleEl.style.width = w + 'px';
+  }
+}
+function dmSet(sz, mat, nm) {   // деталь: размер, материал, имя; пусто — ничего
+  DM = { sz, mat, nm, open: false };
+  dmEl.classList.remove('mat');
+  dmIn.textContent = sz || mat;
+  dmIn.scrollLeft = 0;
+  dmEl.classList.toggle('on', !!(sz || mat));
+  titleEl.classList.remove('hid');
+  pnEl.textContent = nm;
+  pnEl.style.display = nm ? 'block' : 'none';
+  pnEl.style.top = ($('bar').getBoundingClientRect().bottom + 6) + 'px';
+}
+function dmToggle() {   // размер <-> материал во всю ширину (кружок прячется)
+  if (!DM.mat) return;
+  DM.open = !DM.open;
+  dmEl.classList.toggle('mat', DM.open);
+  titleEl.classList.toggle('hid', DM.open);
+  dmIn.textContent = DM.open ? DM.mat : (DM.sz || DM.mat);
+  dmIn.scrollLeft = 0;
+}
+titleEl.addEventListener('click', titleToggle);
+dmEl.addEventListener('click', dmToggle);
 // фокус: деталь — своими (непрозрачными) копиями материалов, остальное — рентгеном; камера — к детали, не вплотную
 function focOn(o) {
   if (!o) return;
@@ -2756,13 +2841,10 @@ function focOn(o) {
   if (bb.isEmpty()) return;
   const c = bb.getCenter(new V3()), r = Math.max(0.03, bb.getSize(new V3()).length() / 2);
   flyTo(c, Math.max(0.6, r / (0.75 * win.h * Math.min(1, cam.aspect))));   // 1.8.1: деталь — около 3/4 экрана (при 20° было мелко)
-  const pi = partInfo(o), fc = $('fc');   // сверху по центру — материал, ниже размер детали
-  fc.textContent = '';
-  const add = (k, t) => { const d = document.createElement('span'); d.className = k; d.textContent = t; fc.appendChild(d); };
-  if (pi.mats.length) add('m', pi.mats.join(', '));
-  if (pi.sz.length) add('s', (pi.mats.length ? ' · ' : '') + pi.sz.join(' × ') + (RU ? ' мм' : ' mm'));
-  fc.style.top = ($('bar').getBoundingClientRect().bottom + 10) + 'px';
-  fc.style.display = fc.childNodes.length ? 'block' : 'none';
+  // 1.9.3: после кружка названия — размер детали, ниже — её имя; нажатие на размер — материал во всю ширину (было — плашка
+  // «материал · размер» во всю ширину)
+  const pi = partInfo(o);
+  dmSet(pi.sz.length ? pi.sz.join(' × ') + (RU ? ' мм' : ' mm') : '', pi.mats.join(', '), String(o.userData.nm || '').split('\\').filter(Boolean).pop() || '');
   pwLayout();
 }
 // 1.9.0: второе нажатие на номер (его слова 05.11: «Второе нажатие на номер прячет все кроме детали. Дальше возвращает и так
@@ -2785,7 +2867,7 @@ function focOff() {
   for (const [m, mt] of foc.keep) { for (const c of [].concat(m.material)) c.dispose(); m.material = mt; }
   const x0 = foc.xray0;
   foc = null;
-  $('fc').style.display = 'none';
+  dmSet('', '', '');   // 1.9.3: размер, материал и имя — прочь
   setXray(x0);
   pwLayout();
 }
@@ -3351,7 +3433,7 @@ async function open(id) {
       r = await resp.json();
     }
     if (r.error) throw new Error(/Not in|No folder|Invalid|not found|не найден|Недопустим|идентификатор/i.test(r.error) ? (RU ? 'модель не найдена' : 'model not found') : r.error);
-    $('title').textContent = nice(r.name);
+    titleSet(nice(r.name));   // 1.9.3: кружок — первая буква, развёрнутое — название
     document.title = nice(r.name);
     const bin = Uint8Array.from(atob(r.data), ch => ch.charCodeAt(0));
     const g = await new Promise((ok, no) => new GLTFLoader().parse(bin.buffer, '', ok, no));
@@ -3392,7 +3474,7 @@ async function open(id) {
     window.__ready = true;
   }
 }
-window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
+window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, top: () => ({ tw: Math.round(titleEl.getBoundingClientRect().width), open: titleEl.classList.contains('open'), hid: titleEl.classList.contains('hid'), tl: titleEl.querySelector('.tl').textContent, tt: titleEl.querySelector('.tt').textContent, dm: dmEl.classList.contains('on') ? dmIn.textContent : null, mat: dmEl.classList.contains('mat'), dmw: Math.round(dmEl.getBoundingClientRect().width), sw: dmIn.scrollWidth, cw: dmIn.clientWidth, pn: pnEl.style.display === 'block' ? pnEl.textContent : null, fc: $('fc').style.display }), capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
 if (cfg.id) {
   open(cfg.id);
 } else {
