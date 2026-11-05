@@ -55,7 +55,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 #sw { margin-left: 58px; -webkit-clip-path: inset(-40px 0 -40px 0); clip-path: inset(-40px 0 -40px 0); }
 #scenes.zm2 #sw { margin-left: 106px; }
 /* 1.9.12: альбомный — лента во всю ширину низа (за безопасными полями выреза); «+» и «−» — в сетке кнопок слева */
-body.land #sw, body.land #scenes.zm2 #sw { margin-left: env(safe-area-inset-left); margin-right: env(safe-area-inset-right); }
+body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: слева — как в книжном: за «+» и «−» */
 /* 1.7.0: справа — капсулы деталей сцены, листаются по кругу */
 #pw { position: fixed; right: 8px; top: 120px; z-index: 2; display: none; width: 0; height: 300px; pointer-events: none; }
 #pw .c { position: absolute; right: 0; top: 50%; height: 34px; margin-top: -17px; max-width: min(46vw, 210px); padding: 0 13px;
@@ -114,6 +114,11 @@ body.land #sw, body.land #scenes.zm2 #sw { margin-left: env(safe-area-inset-left
 .fb.on { color: #fff; background: linear-gradient(180deg, rgba(74,140,222,.86), rgba(38,98,178,.78));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(255,255,255,.3), 0 8px 20px rgba(24,70,140,.3); }
 .fb svg { width: 26px; height: 26px; }
+/* 1.9.13: кнопки и название — прозрачнее, меньше белого (его слова 05.11: «И добавь всем кнопкам больше прозрачности, даже
+   и меньше белого.»); нажатая — синяя, как была */
+.fb:not(.on), #zm .zb, #title { background: linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.10));
+  -webkit-backdrop-filter: blur(10px) saturate(160%); backdrop-filter: blur(10px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 0 0 0 1px rgba(255,255,255,.35), 0 6px 16px rgba(0,0,0,.12), 0 1px 3px rgba(0,0,0,.1); }
 #ms { left: 10px; }
 #pib { left: 62px; }
 #scb { left: 114px; }
@@ -346,6 +351,17 @@ body.land #sw, body.land #scenes.zm2 #sw { margin-left: env(safe-area-inset-left
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.13 (05.11): АЛЬБОМНЫЙ — КНОПКИ КАК В КНИЖНОМ, У ЛЕВОГО КРАЯ (его слова 05.11: «В альбомном режиме кнопки
+// круглые меньше, чем в портретном. Надо, чтобы были одинаковые, тоже такие же большие, как в портретном. И расположение,
+// посмотри, они должны быть подальше, ближе к краю… они слишком близко к центру стоят.»). Было (1.9.12): размер — по высоте
+// под 5 рядов (у него вышло 30 вместо 44); слева — 10 + поле выреза, а Safari в альбомном уже отодвинул страницу от выреза
+// (название «K» стоит в 10 от края страницы и на его снимке — в стольких же от выреза): поле считалось дважды, сетка
+// уезжала к центру на ширину выреза. Теперь кнопки 44 (как в книжном), слева в 10 — вровень с «K»; столбиков 2, если
+// 4 ряда входят между названием и лентой сцен, иначе 3–4 (мельче 44 — только если и так не входят); «+» и «−» — в ряду
+// сцен слева, как в книжном (лента начинается за ними); кнопка списка номеров — справа над лентой, 44.
+// И (его слова 05.11: «И добавь всем кнопкам больше прозрачности, даже и меньше белого.»): круглые кнопки, «+» / «−» и
+// название — стекло прозрачнее: белого вдвое меньше (.30 → .10 вместо .66 → .34), размытие слабее (10 вместо 16);
+// нажатая (синяя) — как была; плашки сцен и номеров — как были.
 // KTNium Viewer 1.9.12 (05.11): АЛЬБОМНЫЙ — КНОПКИ СЛЕВА ДВУМЯ СТОЛБИКАМИ, ЛЕНТА СЦЕН У ПРАВОГО КРАЯ (его слова 05.11: «В
 // альбомном режиме сцены должны быть спрятаны за экраном справа, и должна быть видна только первая сцена и кусочек второй.
 // Ну, плашки имею в виду. И когда я тяну эту строку, то сцены тянутся внизу, уходят как паровозик влево. И когда последняя
@@ -1005,18 +1021,22 @@ function fbPlace() {   // кнопки — над полосой сцен (не�
   document.body.classList.toggle('land', land);
   const size9 = (el, sz9) => { el.style.width = el.style.height = sz9 + 'px'; el.style.borderRadius = sz9 / 2 + 'px'; const sv = el.querySelector('svg'); if (sv) sv.style.width = sv.style.height = Math.round(sz9 * 0.59) + 'px'; };
   if (land) {
-    const bot = K && K.scenes && K.scenes.length > 1 ? 72 : 14, rows = Math.ceil(n / 2) + 1;
-    const top = $('bar').getBoundingClientRect().bottom + 8, avH = window.innerHeight - top - bot;
-    const sz9 = Math.max(30, Math.min(44, Math.floor((avH - (rows - 1) * 8) / rows))), st9 = sz9 + 8;
+    // 1.9.13: кнопки 44, как в книжном; слева в 10 — вровень с названием (Safari в альбомном уже отодвинул страницу от выреза —
+    // поле выреза второй раз не прибавлять); столбиков 2, если ряды входят между названием и лентой, иначе 3–4
+    const bot = K && K.scenes && K.scenes.length > 1 ? 62 : 60;
+    const top = $('bar').getBoundingClientRect().bottom + 6, avH = window.innerHeight - top - bot;
+    let cols = 2;
+    while (cols < 4 && Math.ceil(n / cols) * 52 - 8 > avH) cols++;
+    const rows = Math.max(1, Math.ceil(n / cols));
+    const sz9 = rows * 52 - 8 > avH ? Math.max(30, Math.floor((avH - (rows - 1) * 8) / rows)) : 44, st9 = sz9 + 8;
     for (const [el, on] of all) el.style.display = on ? 'flex' : 'none';
     vis.forEach((el, i) => {
-      el.style.left = 'calc(' + (10 + (i % 2) * st9) + 'px + env(safe-area-inset-left))';
-      el.style.bottom = 'calc(' + (bot + (rows - 1 - Math.floor(i / 2)) * st9) + 'px + env(safe-area-inset-bottom))';
+      el.style.left = (10 + (i % cols) * st9) + 'px';
+      el.style.bottom = 'calc(' + (bot + (rows - 1 - Math.floor(i / cols)) * st9) + 'px + env(safe-area-inset-bottom))';
       size9(el, sz9);
     });
-    zmE.style.left = 'calc(10px + env(safe-area-inset-left))';
-    zmE.style.bottom = 'calc(' + bot + 'px + env(safe-area-inset-bottom))';
-    zbs.forEach(el => { size9(el, sz9); el.style.fontSize = Math.round(sz9 * 0.6) + 'px'; });
+    zmE.style.left = zmE.style.bottom = '';   // «+» и «−» — в ряду сцен слева, как в книжном
+    zbs.forEach(el => { size9(el, 40); el.style.fontSize = ''; });
     if (n) {
       pwBtn.style.left = 'auto';
       pwBtn.style.right = 'calc(10px + env(safe-area-inset-right))';
