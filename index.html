@@ -114,6 +114,13 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
   box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), 0 8px 20px rgba(0,0,0,.16), 0 1px 3px rgba(0,0,0,.12); }
 .hd.on { background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.6)); }
 .hd svg { width: 22px; height: 22px; }
+/* 1.9.0: ручка — небольшая точка (его слова 05.11: «Сд кнопку перемещения куба просто небольшой точкой»): без стекла и
+   стрелок, синяя точка с белым кантом; место под палец — прежние 40 точек; ведёшь — точка крупнее */
+.hd, .hd.on { background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.hd svg { display: none; }
+.hd::after { content: ''; width: 12px; height: 12px; border-radius: 50%; background: #2f6db5;
+  box-shadow: 0 0 0 2px #fff, 0 1px 5px rgba(0,0,0,.4); transition: transform .15s ease; }
+.hd.on::after { transform: scale(1.4); }
 #mo { position: fixed; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }
 .gl { position: fixed; z-index: 2; display: none; pointer-events: none; color: #1c1c1e; border-radius: 16px;
   background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.34));
@@ -132,6 +139,59 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 #lpf::after { top: 50%; left: 36%; height: 1px; width: 28%; }
 #lpf b { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -6.5px 0 0 -6.5px; border-radius: 50%;
   border: 2px solid #2f6db5; background: #fff; }
+/* 1.9.0: окна Отчёт и Раскрой — от названия до низа; ручка сверху; свайп вниз (у верха листания) — закрыть */
+.pn { position: fixed; left: 8px; right: 8px; top: 60px; bottom: calc(8px + env(safe-area-inset-bottom)); z-index: 6; display: none;
+  flex-direction: column; overflow: hidden; border-radius: 22px; color: #1c1c1e; touch-action: pan-x pan-y;
+  transform: translateY(28px); opacity: 0; transition: transform .34s cubic-bezier(.2,1.15,.35,1), opacity .2s ease;
+  background: linear-gradient(180deg, rgba(255,255,255,.93), rgba(255,255,255,.84));
+  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.6), 0 18px 44px rgba(0,0,0,.28); }
+.pn.on { transform: none; opacity: 1; }
+.pn .ph { position: relative; flex: none; display: flex; align-items: center; gap: 8px; padding: 16px 14px 8px; }
+.pn .ph b { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; font-size: 16px; }
+.pn .gr { position: absolute; left: 50%; top: 6px; width: 38px; height: 5px; margin-left: -19px; border-radius: 3px; background: rgba(0,0,0,.2); }
+.pn .pk { position: absolute; left: 50%; bottom: 66px; transform: translateX(-50%); z-index: 4; padding: 7px 14px; border-radius: 16px;
+  font-size: 14px; font-weight: 600; color: #fff; background: rgba(28,28,30,.82); opacity: 0; transition: opacity .2s ease; pointer-events: none; }
+.pn .pk.on { opacity: 1; }
+/* Отчёт: таблица — как в окне Report (только отмеченное), шапка и изделия — на месте при листании */
+#rp .rw { flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; margin: 0 6px; }
+#rp table { border-collapse: separate; border-spacing: 0; font-size: 13px; line-height: 1.25; font-variant-numeric: tabular-nums; }
+#rp th, #rp td { padding: 6px 8px; border-bottom: 1px solid rgba(0,0,0,.08); white-space: nowrap; text-align: right; background: rgba(255,255,255,.97); }
+#rp thead th { position: sticky; top: 0; z-index: 2; font-weight: 600; background: rgba(244,244,246,.98); }
+#rp thead tr + tr th { top: var(--h1, 28px); }
+#rp th.g { text-align: left; }
+#rp th.c { min-width: 44px; max-width: 132px; white-space: normal; text-align: center; font-size: 12px; vertical-align: bottom; }
+#rp .g0 { border-left: 1px solid rgba(0,0,0,.14); }
+#rp .p { position: sticky; left: 0; z-index: 1; text-align: left; font-weight: 600; max-width: 38vw; white-space: normal;
+  box-shadow: 1px 0 0 rgba(0,0,0,.1); }
+#rp thead th.p { z-index: 3; vertical-align: bottom; }
+#rp td.e, #rp th.e { background: rgba(232,236,241,.98); }
+#rp tfoot td { font-weight: 600; background: rgba(247,247,248,.98); }
+#rp .re { padding: 24px 16px; color: #3a3a3c; }
+#rp .rb { flex: none; display: flex; gap: 8px; padding: 10px 10px 12px; }
+#rp .rb button { flex: 1; min-width: 0; height: 42px; padding: 0 8px; border: 0; border-radius: 21px; font: inherit; font-size: 14px;
+  font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+  background: linear-gradient(180deg, rgba(74,140,222,.95), rgba(38,98,178,.92));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 6px 14px rgba(24,70,140,.25); }
+#rp .rb button:active { transform: scale(.97); }
+/* 1.9.0: Раскрой — фон поля раскроя; один столбик материала на экране, листы сверху вниз; вбок — другой материал */
+#ns { background: linear-gradient(180deg, rgba(233,234,237,.97), rgba(228,229,233,.95)); }
+#ns .ph .tx { flex: none; width: 20px; height: 20px; border-radius: 50%; background: #ddd center / cover no-repeat; box-shadow: 0 0 0 1px rgba(0,0,0,.18); }
+#ns .ph span { flex: none; font-size: 13px; color: #3a3a3c; }
+#ns .dt { flex: none; display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; padding: 0 14px 8px; }
+#ns .dt:empty { display: none; }
+#ns .dt i { width: 7px; height: 7px; border-radius: 4px; background: rgba(0,0,0,.22); cursor: pointer; }
+#ns .dt i.on { background: #2f6db5; }
+#ns .nv { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+#ns .nr { position: absolute; top: 0; bottom: 0; left: 0; display: flex; will-change: transform; }
+#ns .nc { flex: none; height: 100%; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain; padding: 0 10px 18px; }
+#ns canvas { display: block; }
+/* 1.9.0: Область зума — прямоугольник пальцем */
+#zr { position: fixed; z-index: 3; display: none; pointer-events: none; box-sizing: border-box; border: 1.5px dashed #2f6db5;
+  border-radius: 3px; background: rgba(47,109,181,.12); box-shadow: 0 0 0 1px rgba(255,255,255,.7); }
+/* 1.9.0: номер детали, у которой остальное спрятано, — с белым кантом */
+#pw .c.on.iso { box-shadow: inset 0 0 0 2px rgba(255,255,255,.95), 0 6px 16px rgba(24,70,140,.35); }
 #msg { position: fixed; inset: 0; z-index: 3; display: none; align-items: center; justify-content: center;
   padding: 24px; text-align: center; color: #555; pointer-events: none; }
 </style>
@@ -148,14 +208,24 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 <div id="pw"></div>
 <div id="fc" class="gl"></div>
 <div id="sh"></div>
+<div id="rp" class="pn"><div class="ph"><i class="gr"></i><b></b></div><div class="rw"></div><div class="rb"><button type="button" data-w="list"></button><button type="button" data-w="table"></button></div><div class="pk"></div></div>
+<div id="ns" class="pn"><div class="ph"><i class="gr"></i><i class="tx"></i><b></b><span></span></div><div class="dt"></div><div class="nv"><div class="nr"></div></div></div>
 <div id="cmt" class="gl"></div>
 <button id="cmb" class="fb" type="button" aria-label="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
   stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v10.5H11l-4.5 3.5V16H4z"/><path d="M8 9.5h8M8 12.5h5.5"/></svg></button>
+<button id="rpb" class="fb" type="button" aria-label="Report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+  stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.5" width="15" height="17" rx="2.6"/><path d="M8.2 8.3h7.6M8.2 12h7.6M8.2 15.7h4.6"/></svg></button>
+<button id="nsb" class="fb" type="button" aria-label="Nesting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+  stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 12.5h8.5v8M12 3.5v9M12 8.5h8.5M16 8.5v12"/></svg></button>
 <div id="ring"></div>
 <svg id="mo"></svg>
 <div id="mlab" class="gl"></div>
 <div id="pic" class="gl"></div>
 <div id="lpf"><b></b></div>
+<button id="zwb" class="fb" type="button" aria-label="Zoom window"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7V4.5h3M10 4.5h3M16.5 4.5h1v2.5M3.5 10.5v3M3.5 17v1.5h3"/>
+  <circle cx="14.5" cy="14.5" r="4.6"/><path d="M17.9 17.9l3.1 3.1"/></svg></button>
+<div id="zr"></div>
 <button id="ms" class="fb" type="button" aria-label="Tape measure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
   stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="12.5" height="12.5" rx="3.2"/><circle cx="8.75" cy="11.75" r="2.7"/>
   <path d="M15 14.9h6.5v3.1H15"/><path d="M17.4 14.9v1.5M19.6 14.9v1.5"/></svg></button>
@@ -184,6 +254,22 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.0 (05.11): РЁБРА КАК В SKETCHUP, ОБЛАСТЬ ЗУМА, ВТОРОЕ НАЖАТИЕ НА НОМЕР, ОТЧЁТ, РАСКРОЙ (его слова 05.11:
+// «Добавь все ребра как в скетчапе»; «...и потоньше»; «Первую кнопку сделай Область зума. Рисую прямоугольник на экране и
+// когда отпускаю, все что в пряямоугольнике зумируетсяна весь экран»; «Второе нажатие на номер прячет все кроме детали.
+// Дальше возвращает и так зацикленно»; «След кнопка внизу - репорт с возможность копировать в буфер.»; «След кнлпка внизу.
+// Раскрой. Открывается окно с листами как в поле раскроя, с названиями и один столбик на экране. Свайп влево, второй
+// материал. Свайп вниз, закрывает.»). Было: рёбра страница считала сама по углу между гранями (20°) — линий на ровной
+// пласти, швов, контуров не было; толщина — 1 точка экрана; кнопок зума, отчёта и раскроя не было; повторное нажатие на
+// номер ничего не меняло. Теперь: выгрузка Phone 1.7.0 несёт рёбра SketchUp (видимые, не смягчённые) — рисуются они, в 1
+// пиксель кадра (на телефоне вдвое тоньше); прежние выгрузки — как было. Первая кнопка — Область зума: прямоугольник
+// пальцем, отпустил — что в нём, на весь экран (вид не поворачивается), кнопка гаснет; рулетка и остальные — правее.
+// Кнопки — в ряд, только те, что есть; тесно — мельче. Номер в капсуле: 1-е нажатие — к детали (остальное рентгеном),
+// 2-е — остальное спрятано, 3-е — снова рентгеном, и так по кругу. Ручка угла сечения — небольшая точка (его слова 05.11:
+// «Сд кнопку перемещения куба просто небольшой точкой»; было — круглая стеклянная кнопка со стрелками), место под палец —
+// прежнее. Кнопка «Отчёт» — таблица, как во вкладке Report окна Manage, «Копировать список» и «Копировать таблицу»;
+// кнопка «Раскрой» — листы, как в поле раскроя, один столбик материала на экране, свайп влево — следующий материал;
+// окна — от названия до низа, свайп вниз — закрыть.
 // KTNium Viewer 1.8.2 (05.11): ПАЛЕЦ — ВРАЩЕНИЕ, УДЕРЖАНИЕ — СДВИГ, ДВОЙНОЙ ТАП С ТЯГОЙ — БЛИЖЕ / ДАЛЬШЕ; НАЗВАНИЕ МЕЛЬЧЕ,
 // МАТЕРИАЛ И НОМЕРА КРУПНЕЕ (его слова 05.11: «Один палец - орбита. Удержание сдвиг - пан.»; «Оставь номера справа. Давай так:
 // дв тап и сдвиг - приближение/отдаление. Удержание и сдвиг - пан.»; «Сд стекло как на яйфоне. Ты же сдел так плашку с
@@ -405,7 +491,8 @@ function setupAO() {
 setupAO();
 const cutMat = new LineMaterial({ color: 0x1c1c1c, linewidth: 2.4, worldUnits: false });
 // 1.6.1: рёбра — сплошные, в 1 точку экрана (было: полупрозрачные, в 1 пиксель кадра, наполовину под гранями)
-const EW = QS.get('ew') !== null && isFinite(+QS.get('ew')) ? +QS.get('ew') : 1;
+// 1.9.0: в 1 пиксель кадра — на телефоне вдвое тоньше (его слова 05.11: «...и потоньше»)
+const EW = QS.get('ew') !== null && isFinite(+QS.get('ew')) ? +QS.get('ew') : 1 / renderer.getPixelRatio();
 const edgeMat = new LineMaterial({ color: 0x1c1c1c, linewidth: EW, worldUnits: false });
 let edgeN = 0;
 const selMat = new LineMaterial({ color: 0x2f6db5, linewidth: 2.2, worldUnits: false });   // 1.7.0: Part info — рёбра детали
@@ -528,6 +615,47 @@ let mode = null, last = null, depth = 1;
 const TAP_MS = 350, TAP_PX = 10, DT_MS = 350, DT_PX = 40, HOLD_MS = 450;   // тап — до 0,35 с и 10 точек хода; второй — до 0,35 с и 40 точек; удержание — 0,45 с
 let tap = null, down0 = null, holdT = 0;
 const ringEl = $('ring');
+// 1.9.0: Область зума (его слова 05.11: «Первую кнопку сделай Область зума. Рисую прямоугольник на экране и когда отпускаю, все
+// что в пряямоугольнике зумируетсяна весь экран»): кнопка — инструмент; палец рисует прямоугольник; отпустил — что в нём, на
+// весь видимый экран: камера едет (0,45 с) без поворота — середина прямоугольника встаёт в середину; после зума кнопка гаснет;
+// крошечный прямоугольник (тап) — ничего; второй палец — щипок, как всегда
+const zwBtn = $('zwb'), zrEl = $('zr'), rpBtn = $('rpb'), nsBtn = $('nsb');
+let zr = null;
+function zrShow() {
+  if (!zr) return;
+  const x0 = Math.min(zr.x0, zr.x1), y0 = Math.min(zr.y0, zr.y1);
+  Object.assign(zrEl.style, { display: 'block', left: x0 + 'px', top: y0 + 'px', width: Math.abs(zr.x1 - zr.x0) + 'px', height: Math.abs(zr.y1 - zr.y0) + 'px' });
+}
+function zrHide() { zr = null; zrEl.style.display = 'none'; }
+function zrApply(r) {
+  const x0 = Math.min(r.x0, r.x1), x1 = Math.max(r.x0, r.x1), y0 = Math.min(r.y0, r.y1), y1 = Math.max(r.y0, r.y1);
+  const rw = x1 - x0, rh = y1 - y0;
+  if (rw < 16 || rh < 16 || !root) return false;
+  const H = window.innerHeight || 1, bb = bars(), vw = window.innerWidth, vh = H * bb.k;
+  const vcx = vw / 2, vcy = H / 2 + bb.d * H / 2, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  let dep = null;   // глубина: модель под серединой, иначе ближайшая модель в прямоугольнике, иначе — прежняя опора
+  const hc = pick(cx, cy);
+  if (hc) dep = depthTo(hc);
+  else for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) { const q = pick(x0 + rw * (i + 0.5) / 5, y0 + rh * (j + 0.5) / 5); if (q) { const d9 = depthTo(q); if (dep === null || d9 < dep) dep = d9; } }
+  if (dep === null) dep = pivotOk ? depthTo(pivot) : size;
+  const f = fwd();
+  ray.setFromCamera(ndc(cx, cy), cam);
+  const dc = ray.ray.direction.clone(), P = cam.position.clone().addScaledVector(dc, dep / Math.max(1e-6, dc.dot(f)));
+  const d1 = dep / Math.min(vw / rw, vh / rh);
+  ray.setFromCamera(ndc(vcx, vcy), cam);
+  const dv = ray.ray.direction.clone(), p1 = P.clone().addScaledVector(dv, -d1 / Math.max(1e-6, dv.dot(f)));
+  const p0 = cam.position.clone(), t0 = performance.now();
+  untouched = false;
+  pivot.copy(P);
+  pivotOk = true;
+  anim = () => {
+    const k = ss(Math.min(1, (performance.now() - t0) / 450));
+    cam.position.lerpVectors(p0, p1, k);
+    nearFor(Math.max(0.01, depthTo(P)));
+    if (k >= 1) anim = null;
+  };
+  return true;
+}
 function ringAt(x, y, on) {
   ringEl.style.left = x + 'px';
   ringEl.style.top = y + 'px';
@@ -557,7 +685,7 @@ function begin(e) {
 }
 // 1.3.2: движение пальца — модели, а не окну (шторка Safari в приложении закрывалась движением вниз); 1.8.0: и полоса
 // сцен, капсулы, карточка — свои (в 1.7.0 эта строка выпала при переделке жестов — вернул)
-document.addEventListener('touchmove', e => { const t = e.target; if (t && t.closest && t.closest('#cmt') && e.touches.length < 2) return; if (e.cancelable) e.preventDefault(); }, { passive: false });   // текст комментария листается
+document.addEventListener('touchmove', e => { const t = e.target; if (t && t.closest && t.closest('#cmt, #rp, #ns') && e.touches.length < 2) return; if (e.cancelable) e.preventDefault(); }, { passive: false });   // текст комментария листается
 // 1.8.0: двойной тап — без системной лупы, выделения и увеличения страницы (iPhone: щипок страницы — тоже нет)
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
@@ -573,6 +701,10 @@ canvas.addEventListener('pointerdown', e => {
   if (down0 && down0.dbl) tapCancel();   // 1.8.1: второе касание двойного — тап кнопки (сечение, рулетка, Part info) не ставится
   pts.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
   begin(e);
+  if (tool === 'zoom' && pts.size === 1 && (e.pointerType !== 'mouse' || e.button === 0)) {   // 1.9.0: Область зума — прямоугольник
+    mode = 'zrect';
+    zr = { x0: e.clientX, y0: e.clientY, x1: e.clientX, y1: e.clientY };
+  } else if (zr && mode !== 'zrect') zrHide();   // второй палец — щипок
   if (mode === 'wait' && meas && down0 && down0.dbl && e.pointerType !== 'mouse') {   // 1.7.0: рулетка — двойной тап и держать — лупа
     tapCancel();
     const id = e.pointerId;
@@ -599,6 +731,7 @@ canvas.addEventListener('pointermove', e => {
   }
   pts.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
   const a = [...pts.values()];
+  if (mode === 'zrect') { if (a.length === 1 && zr) { zr.x1 = a[0].x; zr.y1 = a[0].y; zrShow(); } return; }   // 1.9.0
   if (mode === 'loupe') { if (a.length === 1) lpMove(a[0].x, a[0].y); return; }
   if (mode === 'orbit' && a.length === 1) {
     orbit(a[0].x - last.x, a[0].y - last.y);
@@ -634,6 +767,11 @@ function end(e) {
     down0 = null;
   }
   holdOff();
+  if (mode === 'zrect') {   // 1.9.0: Область зума — отпустил: что в прямоугольнике, на весь экран; вышло — кнопка гаснет
+    const r9 = zr;
+    zrHide();
+    if (e.type === 'pointerup' && r9 && zrApply(r9)) setTool(null);
+  }
   if (lpT) { clearTimeout(lpT); lpT = 0; }
   if (mode === 'loupe') lpEnd(e.type === 'pointerup');   // 1.7.0: лупа — отпустил: точка там
   ringAt(e.clientX, e.clientY, false);
@@ -663,10 +801,24 @@ function tapCancel() { if (tapT) { clearTimeout(tapT); tapT = 0; } }
 function tapLater(x, y) { tapCancel(); tapT = setTimeout(() => { tapT = 0; if (tool === 'meas') measTap(x, y); else if (tool === 'info') infoTap(x, y); else if (tool === 'sec') secTap(x, y); else if (foc) focOff(); }, DT_MS); }
 function fbPlace() {   // кнопки — над полосой сцен (нет сцен — у низа)
   const b = K && K.scenes && K.scenes.length > 1 ? 'calc(72px + env(safe-area-inset-bottom))' : 'calc(14px + env(safe-area-inset-bottom))';
-  for (const el of [msEl, piBtn, scEl, lkEl]) { el.style.bottom = b; el.style.display = 'flex'; }
-  cmBtn.style.bottom = b;
-  cmBtn.style.display = K && typeof K.comment === 'string' && K.comment.trim() ? 'flex' : 'none';   // 1.8.0: комментарий — если есть
+  // 1.9.0: в ряд по порядку — только те, что есть: Область зума, рулетка, Part info, сечение, вид, Комментарий (если есть),
+  // Отчёт и Раскрой (если они в выгрузке); не помещаются по 44 точки — мельче (не меньше 34)
+  const hasC = !!(K && typeof K.comment === 'string' && K.comment.trim());   // 1.8.0: комментарий — если есть
+  const hasR = !!(K && K.report && Array.isArray(K.report.products));
+  const hasN = !!(K && K.nest && ((K.nest.cols || []).length || (K.nest.addons || []).length));
+  const all = [[zwBtn, true], [msEl, true], [piBtn, true], [scEl, true], [lkEl, true], [cmBtn, hasC], [rpBtn, hasR], [nsBtn, hasN]];
+  const vis = all.filter(x => x[1]).map(x => x[0]), n = vis.length, av = window.innerWidth - 20;
+  const sz = Math.max(34, Math.min(44, Math.floor((av - (n - 1) * 6) / n))), st = n > 1 ? Math.min(52, (av - sz) / (n - 1)) : 0;
+  for (const [el, on] of all) { el.style.bottom = b; el.style.display = on ? 'flex' : 'none'; }
+  vis.forEach((el, i) => {
+    el.style.left = (10 + i * st).toFixed(1) + 'px';
+    el.style.width = el.style.height = sz + 'px';
+    el.style.borderRadius = sz / 2 + 'px';
+    const sv = el.querySelector('svg');
+    if (sv) sv.style.width = sv.style.height = Math.round(sz * 0.59) + 'px';
+  });
 }
+window.addEventListener('resize', () => { if (K && root) fbPlace(); });
 // кнопки — по одной: tool — нажатая (meas — рулетка, info — Part info, sec — сечение-куб)
 let tool = null, meas = null, pinfo = null;
 function setTool(t) {
@@ -677,6 +829,8 @@ function setTool(t) {
   meas = t === 'meas' ? { a: null, b: null } : null;
   pinfo = t === 'info' ? { o: null, keep: [] } : null;
   msEl.classList.toggle('on', t === 'meas');
+  zwBtn.classList.toggle('on', t === 'zoom');   // 1.9.0
+  if (t !== 'zoom') zrHide();
   piBtn.classList.toggle('on', t === 'info');
   scEl.classList.toggle('on', t === 'sec');
   scEl.classList.toggle('has', !!secP);
@@ -1032,10 +1186,18 @@ function setLook(k) {
 // рулетка: тап — точка (липнет к углу или ребру рядом), второй — расстояние, мм
 const msEl = $('ms'), moEl = $('mo'), mlab = $('mlab');
 msEl.addEventListener('click', () => setTool(tool === 'meas' ? null : 'meas'));
+zwBtn.addEventListener('click', () => setTool(tool === 'zoom' ? null : 'zoom'));   // 1.9.0: Область зума
 function measPut(p) {
   if (!meas || !p) return;
   if (!meas.a || meas.b) { meas.a = p; meas.b = null; } else meas.b = p;
   measDraw();
+}
+// 1.9.0: рёбра, что рисуются у сетки o: свои и — у части детали (сетка без имени) — у соседних сеток той же детали
+function edgesOf(o) {
+  const out = o.children.filter(c => c.isLineSegments2);
+  const p = o.userData.nm === undefined ? o.parent : null;
+  if (p) for (const sb of p.children) if (sb !== o && sb.userData.nm === undefined) for (const c of sb.children) if (c.isLineSegments2) out.push(c);
+  return out;
 }
 function measTap(x, y) { if (meas && root) measPut(snapPt(x, y)); }
 const toScr = v => { const q = v.clone().project(cam); return q.z > -1 && q.z < 1 ? [(q.x + 1) / 2 * window.innerWidth, (1 - q.y) / 2 * window.innerHeight] : null; };
@@ -1055,13 +1217,11 @@ function snapPt(x, y, R1, R2) {
   }
   let best = null, bd = R1, edge = null, be = R2;
   const A = new V3(), B = new V3();
-  for (const o of objs) {
-    const l = o.children.find(c => c.isLineSegments2);
-    if (!l) continue;
+  for (const l of new Set([...objs].flatMap(edgesOf))) {   // 1.9.0: рёбра детали — и у соседней её сетки
     const st = l.geometry.attributes.instanceStart, en = l.geometry.attributes.instanceEnd;
     for (let i = 0; i < st.count; i++) {
-      A.set(st.getX(i), st.getY(i), st.getZ(i)).applyMatrix4(o.matrixWorld);
-      B.set(en.getX(i), en.getY(i), en.getZ(i)).applyMatrix4(o.matrixWorld);
+      A.set(st.getX(i), st.getY(i), st.getZ(i)).applyMatrix4(l.matrixWorld);
+      B.set(en.getX(i), en.getY(i), en.getZ(i)).applyMatrix4(l.matrixWorld);
       const sa = toScr(A), sb = toScr(B);
       if (!sa || !sb) continue;
       if (clipOk(A)) { const d = Math.hypot(sa[0] - x, sa[1] - y); if (d < bd) { bd = d; best = A.clone(); } }
@@ -1274,6 +1434,7 @@ function pwLayout() {
     el.style.opacity = '1';
     el.style.zIndex = String(100 - Math.round(a * 10));
     el.classList.toggle('on', i === fi);
+    el.classList.toggle('iso', i === fi && !!(foc && foc.iso));   // 1.9.0: остальное спрятано
   });
 }
 function pwTick() {
@@ -1333,6 +1494,7 @@ const pwUp = e => {
   if (!d.moved) {   // тап по капсуле — она в середину, к детали
     if (e.type === 'pointerup' && d.el.__i !== undefined && PW.n) {
       const i = d.el.__i;
+      if (foc && foc.o === PW.items[i].o) { isoSet(!foc.iso); return; }   // 1.9.0: та же деталь — спрятать остальное / вернуть
       let dl = pmod(i - PW.w, PW.n);
       if (dl > PW.n / 2) dl -= PW.n;
       PW.to = Math.round(PW.w + dl);
@@ -1580,6 +1742,867 @@ cmBtn.addEventListener('click', () => {
   cmEl.style.display = on ? 'block' : 'none';
   cmBtn.classList.toggle('on', on);
 });
+// =====================================================================================================================
+// 1.9.0: ОКНА — от названия до низа экрана, ручка сверху; свайп вниз (когда листание у верха) — закрыть; кнопка — открыть или
+// закрыть. Листание внутри — пальцем, как в iOS; свайп вбок — у Раскроя: другой материал
+function pnOpen(el) {
+  clearTimeout(el._t);
+  el.style.top = ($('bar').getBoundingClientRect().bottom + 8) + 'px';
+  el.style.transition = '';
+  el.style.transform = '';
+  el.style.opacity = '';
+  el.style.display = 'flex';
+  void el.offsetWidth;
+  el.classList.add('on');
+}
+function pnClose(el, now) {
+  if (el.style.display !== 'flex') return;
+  el.classList.remove('on');
+  clearTimeout(el._t);
+  if (now) { el.style.display = 'none'; el.style.transform = ''; el.style.opacity = ''; return; }
+  el.style.transition = 'transform .26s ease-in, opacity .22s ease-in';
+  el.style.transform = 'translateY(' + Math.round(el.offsetHeight * 0.6 + 40) + 'px)';
+  el.style.opacity = '0';
+  el._t = setTimeout(() => { if (!el.classList.contains('on')) { el.style.display = 'none'; el.style.transition = ''; el.style.transform = ''; el.style.opacity = ''; } }, 280);
+}
+const pnIsOn = el => el.classList.contains('on');
+function pnToast(el, t) {
+  const k = el.querySelector('.pk');
+  if (!k) return;
+  k.textContent = t;
+  k.classList.add('on');
+  clearTimeout(k._t);
+  k._t = setTimeout(() => k.classList.remove('on'), 1400);
+}
+// палец в окне: вбок (если есть h) — h; вниз, когда листание у верха, — окно едет за пальцем, далеко или быстро — закрыть;
+// иначе — листает сам браузер
+function pnTouch(el, opt) {
+  let g = null;
+  el.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) { g = null; return; }
+    const t = e.touches[0];
+    g = { x0: t.clientX, y0: t.clientY, m: null, sc: opt.sc ? opt.sc() : null, h: [] };
+  }, { passive: true });
+  el.addEventListener('touchmove', e => {
+    if (!g) return;
+    if (e.touches.length !== 1) { if (g.m === 'down') { el.style.transition = ''; el.style.transform = ''; el.style.opacity = ''; } g = null; return; }
+    const t = e.touches[0], dx = t.clientX - g.x0, dy = t.clientY - g.y0;
+    if (!g.m) {
+      if (Math.hypot(dx, dy) < 8) return;
+      if (opt.h && Math.abs(dx) > Math.abs(dy) * 1.2) { g.m = 'h'; opt.h.start(); }
+      else if (dy > 0 && dy > Math.abs(dx) && (!g.sc || g.sc.scrollTop <= 0)) g.m = 'down';
+      else g.m = 'scroll';
+    }
+    if (g.m === 'scroll') return;
+    if (e.cancelable) e.preventDefault();
+    const now = e.timeStamp || performance.now();
+    g.h.push([now, dx, dy]);
+    while (g.h.length > 2 && now - g.h[0][0] > 100) g.h.shift();
+    if (g.m === 'h') opt.h.move(dx);
+    else {
+      const y = Math.max(0, dy);
+      el.style.transition = 'none';
+      el.style.transform = 'translateY(' + y.toFixed(1) + 'px)';
+      el.style.opacity = String(Math.max(0.35, 1 - y / 700));
+    }
+  }, { passive: false });
+  const end = () => {
+    if (!g) return;
+    const q = g;
+    g = null;
+    if (!q.m || q.m === 'scroll') return;
+    const a = q.h[0], z = q.h[q.h.length - 1], dt = a && z ? z[0] - a[0] : 0;
+    const vx = dt > 0 ? (z[1] - a[1]) / dt : 0, vy = dt > 0 ? (z[2] - a[2]) / dt : 0;   // точек в мс
+    if (q.m === 'h') { opt.h.end(z ? z[1] : 0, vx); return; }
+    const dy = z ? z[2] : 0;
+    if (dy > 110 || (vy > 0.55 && dy > 24)) opt.close();
+    else { el.style.transition = 'transform .32s cubic-bezier(.2,1.25,.4,1), opacity .2s ease'; el.style.transform = ''; el.style.opacity = ''; }
+  };
+  el.addEventListener('touchend', end);
+  el.addEventListener('touchcancel', end);
+}
+// буфер обмена: Clipboard API, иначе — выделение в скрытом поле и «копировать»
+function clipPut(txt) {
+  return new Promise(ok => {
+    const fb = () => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = txt;
+        ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;-webkit-user-select:text;user-select:text';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, txt.length);
+        const r = document.execCommand('copy');
+        document.body.removeChild(ta);
+        ok(!!r);
+      } catch (_) { ok(false); }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) navigator.clipboard.writeText(txt).then(() => ok(true), fb);
+    else fb();
+  });
+}
+const htm = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+// =====================================================================================================================
+// 1.9.0: ОТЧЁТ (его слова 05.11: «След кнопка внизу - репорт с возможность копировать в буфер.»): таблица — как во вкладке
+// Report окна Manage и в её PDF: те же разделы (материал и кромка — первым, петли, направляющие, шканты, другие
+// комплектующие), только отмеченное, его имена и числа, Итого и Листы — тем же счётом (KTNium Report 1.8.29 report_tab.js:
+// groups, model, exportData); данные и правки — из выгрузки (Phone 1.7.0 'report'). Кнопки: «Копировать список» — как Copy
+// окна List отчёта (имя модели, пустая строка, «- материал: листы; кромка - метры», пустая, «- комплектующее - шт.»; его
+// галочки и правки списка), «Копировать таблицу» — строки таблицы через Tab (в Google-таблицу и Excel — столбиками)
+const rpEl = $('rp');
+const RPU = RU ? { prod: 'Изделие', tot: 'Итого', sh: 'Листы', noname: '(без имени)', newrow: 'Новая строка', newcol: 'Новый столбик',
+  g: { mat: 'Материал и кромка', hinge: 'Петли, шт.', runner: 'Направляющие ящиков, компл.', dowel: 'Шканты, шт.', other: 'Другие комплектующие, шт.' },
+  u: { sh: 'л', rem: ' ост.', m: 'м', pcs: 'шт.', sets: 'компл.' }, title: 'Отчёт', cl: 'Копировать список', ct: 'Копировать таблицу',
+  ok: 'Скопировано', no: 'Не скопировано', none: 'Нечего копировать', empty: 'В отчёте пусто — в выгрузке нет деталей' }
+  : { prod: 'Product', tot: 'Total', sh: 'Sheets', noname: '(no name)', newrow: 'New row', newcol: 'New column',
+  g: { mat: 'Material and edge banding', hinge: 'Hinges, pcs', runner: 'Drawer runners, sets', dowel: 'Dowels, pcs', other: 'Other fittings, pcs' },
+  u: { sh: ' sh.', rem: ' rem.', m: ' m', pcs: 'pcs', sets: 'sets' }, title: 'Report', cl: 'Copy list', ct: 'Copy table',
+  ok: 'Copied', no: 'Not copied', none: 'Nothing to copy', empty: 'The report is empty - no parts in the export' };
+const RCU = '\u0002', RSEP = '\u0001';
+let RST = null, RPX = null;
+const rpHas = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+function rpCmp(a, b) { if (a === b) return 0; if (a === '') return 1; if (b === '') return -1; return a.localeCompare(b, 'ru', { numeric: true, sensitivity: 'base' }); }
+function rpFmt(v, kind) {
+  if (!v || Math.abs(v) < 1e-9) return '';
+  if (kind === 'm2') return v.toFixed(2).replace('.', ',');
+  if (kind === 'edge') return String(Math.ceil(v - 1e-9));   // кромка — целые метры вверх
+  const r = Math.round(v * 2) / 2;
+  return (r % 1 ? r.toFixed(1) : String(r)).replace('.', ',');
+}
+const rpNoMark = t => String(t || '').replace(/^\s*\([^()]{1,6}\)\s*/, '');
+const rpRuHinge = t => String(t).replace(/\bBC IN\b/g, 'ФЛ ВК').replace(/\bOL\b/g, 'НК').replace(/\bDU\b/g, 'ПНК').replace(/\bIN\b/g, 'ВК');
+const rpProdLabel = p => (p === '' ? RPU.noname : (p.charAt(0) === RCU ? RPU.newrow : p));
+const rpRkey = p => 'r:' + p;
+const rpCkey = (g, c) => 'c:' + g.id + '|' + (c ? c.name : 'Σ');
+const rpShown = k => !rpHas(RST.hide, k) && !rpHas(RST.del, k);
+const rpTicked = k => !rpHas(RST.off, k);
+const rpEdv = (r, c) => { const k = r + RSEP + c; return rpHas(RST.val, k) ? String(RST.val[k]) : null; };
+const rpNum = t => { const v = parseFloat(String(t == null ? '' : t).replace(/\s+/g, '').replace(',', '.')); return isFinite(v) ? v : 0; };
+const rpNameOf = (k, orig) => (rpHas(RST.name, k) ? String(RST.name[k]) : orig);
+const rpSheetsTxt = (n, rem) => String(n) + (rem ? ' + ' + rem + (RU ? ' ост.' : ' rem.') : '');
+const rpSheetsNum = t => { const m = /(\d+(?:[.,]\d+)?)(?:\s*\+\s*(\d+(?:[.,]\d+)?))?/.exec(String(t || '')); return m ? [rpNum(m[1]), m[2] ? rpNum(m[2]) : 0] : [0, 0]; };
+const rpObj = x => x && typeof x === 'object' && !Array.isArray(x);
+function rpLoadST(e) {
+  const st = { v: 1, off: {}, hide: {}, del: {}, name: {}, val: {}, add: { rows: [], cols: [], n: 0 }, list: { off: {}, name: {}, val: {}, add: [], n: 0 } };
+  if (rpObj(e)) ['off', 'hide', 'del', 'name', 'val'].forEach(k => { if (rpObj(e[k])) st[k] = e[k]; });
+  const okId = x => rpObj(x) && typeof x.id === 'string';
+  const a = e && e.add, l = e && e.list;
+  if (rpObj(a)) {
+    st.add.rows = Array.isArray(a.rows) ? a.rows.filter(okId) : [];
+    st.add.cols = Array.isArray(a.cols) ? a.cols.filter(x => okId(x) && typeof x.g === 'string') : [];
+  }
+  if (rpObj(l)) ['off', 'name', 'val'].forEach(k => { if (rpObj(l[k])) st.list[k] = l[k]; });
+  return st;
+}
+function rpGroups(d) {
+  const out = [];
+  const kitGroup = (kind, unit) => {
+    const cols = (d.kits || []).filter(k => k.kind === kind).sort((a, b) => rpCmp(a.name, b.name)).map(k => {
+      const vals = {};
+      Object.keys(k.by || {}).forEach(p => { vals[p] = k.pair ? k.by[p] / 2 : k.by[p]; });
+      return { name: k.name, label: kind === 'hinge' && RU ? rpRuHinge(k.name) : undefined, vals };
+    });
+    out.push({ id: kind, title: RPU.g[kind], unit, cols });
+  };
+  kitGroup('hinge', 'pcs');
+  kitGroup('runner', 'pcs');
+  kitGroup('dowel', 'pcs');
+  kitGroup('other', 'pcs');
+  const bandCols = d.bands ? Object.keys(d.bands).sort((a, b) => { const x = a.split('\t'), y = b.split('\t'); return rpCmp(x[0], y[0]) || rpCmp(x[1] || '', y[1] || ''); }).map(k => {
+    const x = k.split('\t'), mat = (x[0] || '').replace(/^\((?:m|M|м|М)\)\s*/, ''), code = x[1] || '', vals = {};
+    Object.keys(d.bands[k]).forEach(p => { vals[p] = d.bands[k][p] / 1000 * 1.2; });
+    return { name: mat + ' · ' + code, mat: rpNoMark(x[0] || ''), code, vals, unit: 'edge', edge: true };
+  }) : [];
+  const mcols = [];
+  Object.keys(d.mats || {}).sort(rpCmp).forEach(m9 => {
+    mcols.push({ name: m9, label: rpNoMark(m9), vals: (d.mcnt && d.mcnt[m9]) || {}, unit: 'pcs' });
+    const key = rpNoMark(m9).toLowerCase();
+    bandCols.forEach(c => { if (!c.used && c.mat.toLowerCase() === key) { c.used = true; mcols.push(c); } });
+  });
+  bandCols.forEach(c => { if (!c.used) mcols.push(c); });
+  out.unshift({ id: 'mat', title: RPU.g.mat, unit: 'pcs', cols: mcols, nosum: true });
+  (RST.add.cols || []).forEach(a => {
+    let g = null;
+    out.forEach(x => { if (x.id === a.g) g = x; });
+    if (!g) return;
+    const c = { name: RCU + a.id, label: RPU.newcol, vals: {}, custom: true };
+    let i = -1;
+    g.cols.forEach((x, j) => { if (rpCkey(g, x) === a.at) i = j; });
+    if (i < 0) g.cols.push(c); else g.cols.splice(i + 1, 0, c);
+  });
+  return out;
+}
+function rpModel() {
+  const data = K.report, gs = rpGroups(data), prods = (data.products || []).slice().sort(rpCmp);
+  const G = gs.map(g => {
+    const cols = g.cols.map(c => ({ g, c, k: rpCkey(g, c) })).filter(x => rpShown(x.k)), sk = rpCkey(g, null);
+    return { g, cols, sum: rpShown(sk) && !g.nosum ? { g, c: null, k: sk } : null };
+  }).filter(x => x.cols.length || x.sum);
+  const rows = prods.filter(p => rpShown(rpRkey(p))).map(p => ({ p, k: rpRkey(p), cells: {} }));
+  RST.add.rows.forEach(a => {   // свои строки — ниже той, у которой добавлены
+    const r = { p: RCU + a.id, k: rpRkey(RCU + a.id), cells: {}, custom: true };
+    if (!rpShown(r.k)) return;
+    let i = -1;
+    rows.forEach((x, j) => { if (x.k === a.at) i = j; });
+    if (i < 0) rows.push(r); else rows.splice(i + 1, 0, r);
+  });
+  const cell = (rk, x, baseTxt, origTxt, own) => { const e = rpEdv(rk, x.k), t = e !== null ? e : baseTxt; return { t, ed: e !== null && !own }; };
+  const sumCell = t => ({ t, ed: false });
+  const mv = (c, p, g) => (c.custom || p.charAt(0) === RCU ? rpNum(rpEdv(rpRkey(p), rpCkey(g, c))) : (c.vals[p] || 0));
+  rows.forEach(r => {
+    G.forEach(X => {
+      let sm = 0;
+      X.cols.forEach(x => {
+        const own = !!(r.custom || x.c.custom), o = own ? 0 : (x.c.vals[r.p] || 0), ot = own ? '' : rpFmt(o, x.c.unit || X.g.unit);
+        const cl = cell(r.k, x, ot, ot, own);
+        cl.n = cl.ed || own ? rpNum(cl.t) : o;
+        r.cells[x.k] = cl;
+        if (rpTicked(x.k)) sm += cl.n;
+      });
+      if (X.sum) { const sc = sumCell(rpFmt(sm, X.g.unit)); sc.n = sm; r.cells[X.sum.k] = sc; }
+    });
+  });
+  const tot = { k: 'f:total', cells: {} };
+  G.forEach(X => {
+    X.cols.concat(X.sum ? [X.sum] : []).forEach(x => {
+      let n = 0;
+      rows.forEach(r => { if (rpTicked(r.k)) n += r.cells[x.k].n; });
+      const cl = sumCell(rpFmt(n, (x.c && x.c.unit) || X.g.unit));
+      cl.n = n;
+      tot.cells[x.k] = cl;
+    });
+  });
+  let sh = null;
+  if (data.sheets) {   // листы карты раскроя — только у материалов
+    sh = { k: 'f:sheets', cells: {} };
+    G.forEach(X => {
+      if (X.g.id !== 'mat') return;
+      X.cols.forEach(x => {
+        if (x.c.edge) { sh.cells[x.k] = { t: '' }; return; }
+        if (x.c.custom) { sh.cells[x.k] = cell(sh.k, x, '', '', true); return; }
+        const r = data.sheets[x.c.name];
+        let txt;
+        if (!r || (!r.n && !r.rem)) txt = '—';
+        else { txt = rpSheetsTxt(r.n, r.rem); if (r.miss || r.extra) txt += '*'; }
+        sh.cells[x.k] = cell(sh.k, x, txt, txt);
+      });
+    });
+  }
+  return { G, rows, tot, sh };
+}
+// таблица — как exportData окна Report: отмеченные разделы, столбики и изделия; строки — и для буфера
+function rpExport() {
+  const d = K.report;
+  if (!d || !(d.products || []).length) return null;
+  const M = rpModel();
+  const EG = M.G.map(X => ({ g: X.g, cols: X.cols.filter(x => rpTicked(x.k)), sum: X.sum && rpTicked(X.sum.k) ? X.sum : null })).filter(X => X.cols.length || X.sum);
+  const ER = M.rows.filter(r => rpTicked(r.k));
+  const rows = [], h1 = [rpNameOf('h:prod', RPU.prod)], h2 = [''];
+  let th1 = '<tr><th class="p" rowspan="2">' + htm(h1[0]) + '</th>', th2 = '<tr>';
+  EG.forEach(X => {
+    const gt = rpNameOf('g:' + X.g.id, X.g.title);
+    X.cols.forEach((x, i) => {
+      const nm = rpNameOf(x.k, x.c.label || x.c.name);
+      h1.push(i === 0 ? gt : '');
+      h2.push(nm);
+      th2 += '<th class="c' + (i === 0 ? ' g0' : '') + (x.c.edge ? ' e' : '') + '">' + htm(nm).replace(/\//g, '/<wbr>') + '</th>';
+    });
+    if (X.sum) {
+      const sn = rpNameOf(X.sum.k, 'Σ');
+      h1.push(X.cols.length ? '' : gt);
+      h2.push(sn);
+      th2 += '<th class="c' + (X.cols.length ? '' : ' g0') + '">' + htm(sn) + '</th>';
+    }
+    th1 += '<th class="g g0" colspan="' + (X.cols.length + (X.sum ? 1 : 0)) + '">' + htm(gt) + '</th>';
+  });
+  rows.push(h1);
+  rows.push(h2);
+  const line = (label, cells, mat) => {
+    const r = [label];
+    let h = '<tr><td class="p">' + htm(label) + '</td>';
+    EG.forEach(X => {
+      const use = !mat || X.g.id === 'mat';
+      X.cols.forEach((x, ci) => { const t = use && cells[x.k] ? cells[x.k].t : ''; r.push(t); h += '<td class="' + (ci === 0 ? 'g0' : '') + (x.c.edge ? ' e' : '') + '">' + htm(t) + '</td>'; });
+      if (X.sum) { const t = use && cells[X.sum.k] ? cells[X.sum.k].t : ''; r.push(t); h += '<td class="' + (X.cols.length ? '' : 'g0') + '">' + htm(t) + '</td>'; }
+    });
+    rows.push(r);
+    return h + '</tr>';
+  };
+  let body = '', foot = '';
+  ER.forEach(r => { body += line(rpNameOf(r.k, rpProdLabel(r.p)), r.cells, false); });
+  if (rpShown('f:total') && rpTicked('f:total')) foot += line(rpNameOf('f:total', RPU.tot), M.tot.cells, false);
+  if (M.sh && rpShown('f:sheets') && rpTicked('f:sheets')) foot += line(rpNameOf('f:sheets', RPU.sh), M.sh.cells, true);
+  return { rows, html: '<table><thead>' + th1 + '</tr>' + th2 + '</tr></thead><tbody>' + body + '</tbody><tfoot>' + foot + '</tfoot></table>' };
+}
+// список — как окно List отчёта: из таблицы (отмеченное; материал одной строкой: листы; код кромки - метры), его правки списка
+const rpJoin = (b, n, d) => (n && d ? n + (b === 'm' ? ': ' : ' - ') + d : (n || d));
+function rpSplit(b, t) {
+  t = String(t || '');
+  if (b === 'm') { const i = t.indexOf(':'); return i < 0 ? [t.trim(), ''] : [t.slice(0, i).trim(), t.slice(i + 1).trim()]; }
+  const j = t.lastIndexOf(' - ');
+  return j < 0 ? [t.trim(), ''] : [t.slice(0, j).trim(), t.slice(j + 3).trim()];
+}
+function rpListRows() {
+  const d = K.report;
+  if (!d || !d.products) return [];
+  const M = rpModel(), shOn = M.sh && rpShown('f:sheets') && rpTicked('f:sheets'), U = RPU.u;
+  const mats = [], byMat = {}, fit = [];
+  const matRow = name => { const nm = rpNoMark(name), key = nm.toLowerCase(); if (!byMat[key]) { byMat[key] = { n: nm, sh: '', ed: [] }; mats.push(byMat[key]); } return byMat[key]; };
+  M.G.forEach(X => {
+    const id = X.g.id;
+    X.cols.forEach(x => {
+      if (!rpTicked(x.k)) return;
+      const tc = M.tot.cells[x.k], n = tc ? tc.n || 0 : 0, nm = rpNameOf(x.k, x.c.label || x.c.name);
+      if (id === 'mat' && !x.c.edge) {
+        const r = matRow(nm);
+        if (shOn && M.sh.cells[x.k]) {
+          const q = rpSheetsNum(M.sh.cells[x.k].t);
+          if (q[0] || q[1]) r.sh = String(q[0]).replace('.', ',') + U.sh + (q[1] ? ' + ' + String(q[1]).replace('.', ',') + U.rem : '');
+        }
+      } else if (x.c.edge) {
+        if (!(n > 1e-9)) return;
+        const mm = Math.ceil(n - 1e-9) + U.m;
+        if (x.c.custom) matRow(nm).ed.push(mm); else matRow(x.c.mat || nm).ed.push(x.c.code + ' - ' + mm);
+      } else {
+        if (!(n > 1e-9)) return;
+        fit.push({ b: 'f', t: rpJoin('f', nm, tc.t + ' ' + (id === 'runner' ? U.sets : U.pcs)) });
+      }
+    });
+  });
+  const out = [];
+  mats.forEach(r => { const parts = (r.sh ? [r.sh] : []).concat(r.ed); if (parts.length) out.push({ b: 'm', t: rpJoin('m', r.n, parts.join('; ')) }); });
+  return out.concat(fit);
+}
+function rpLines() {
+  const L = RST.list, M = { m: [], f: [] }, seen = {};
+  rpListRows().forEach(r => {
+    const b = r.b === 'm' ? 'm' : 'f', sp = rpSplit(b, r.t);
+    let k = b + ':' + sp[0];
+    seen[k] = (seen[k] || 0) + 1;
+    if (seen[k] > 1) k += '#' + seen[k];
+    M[b].push({ n: rpHas(L.name, k) ? String(L.name[k]) : sp[0], d: rpHas(L.val, k) ? String(L.val[k]) : sp[1], on: !rpHas(L.off, k) });
+  });
+  let out = [];
+  ['m', 'f'].forEach(b => {
+    const ls = M[b].filter(r => r.on && (r.n || r.d)).map(r => '- ' + rpJoin(b, r.n, r.d));
+    if (ls.length && out.length) out.push('');
+    out = out.concat(ls);
+  });
+  return out;
+}
+function rpOpen() {
+  if (!K || !K.report) return;
+  if (typeof nsClose === 'function') nsClose(true);
+  RST = rpLoadST(K.report.edits);
+  RPX = rpExport();
+  rpEl.querySelector('.ph b').textContent = RPU.title + (K.report.model ? ' · ' + K.report.model : '');
+  rpEl.querySelector('.rw').innerHTML = RPX ? RPX.html : '<div class="re">' + htm(RPU.empty) + '</div>';
+  const bs = rpEl.querySelectorAll('.rb button');
+  bs[0].textContent = RPU.cl;
+  bs[1].textContent = RPU.ct;
+  pnOpen(rpEl);
+  const tr = rpEl.querySelector('thead tr');
+  if (tr) rpEl.querySelector('.rw').style.setProperty('--h1', tr.getBoundingClientRect().height + 'px');   // вторая строка шапки — под первой
+  rpBtn.classList.add('on');
+}
+function rpClose(now) { pnClose(rpEl, now); rpBtn.classList.remove('on'); }
+async function rpCopy(what) {
+  if (!RST) return;
+  const title = (K.report && K.report.model) || document.title;
+  let txt = '';
+  if (what === 'table') txt = RPX ? [title].concat(RPX.rows.map(r => r.map(c => String(c).replace(/[\t\r\n]+/g, ' ')).join('\t'))).join('\n') : '';
+  else { const ls = rpLines(); txt = ls.length ? (title ? title + '\n\n' : '') + ls.join('\n') : ''; }
+  if (!txt) { pnToast(rpEl, RPU.none); return; }
+  pnToast(rpEl, (await clipPut(txt)) ? RPU.ok : RPU.no);
+}
+rpBtn.addEventListener('click', () => { if (pnIsOn(rpEl)) rpClose(); else rpOpen(); });
+rpEl.querySelectorAll('.rb button').forEach(b => b.addEventListener('click', () => rpCopy(b.getAttribute('data-w'))));
+pnTouch(rpEl, { sc: () => rpEl.querySelector('.rw'), close: () => rpClose() });
+window.addEventListener('resize', () => { if (pnIsOn(rpEl)) rpEl.style.top = ($('bar').getBoundingClientRect().bottom + 8) + 'px'; });
+// =====================================================================================================================
+// 1.9.0: РАСКРОЙ (его слова 05.11: «След кнлпка внизу. Раскрой. Открывается окно с листами как в поле раскроя, с названиями и
+// один столбик на экране. Свайп влево, второй материал. Свайп вниз, закрывает.»): карта раскроя — из выгрузки (Phone 1.7.0
+// 'nest', как поле Nesting окна Manage). На экране один столбик — листы материала сверху вниз (листаются пальцем), лист — по
+// ширине экрана; свайп влево — следующий материал, вправо — прежний (точки под названием — какой); свайп вниз у верха —
+// закрыть. Лист — как в поле раскроя (KTNium Nesting nest_tab.js: drawSheet, drawPart0, drawMill, drawHoles, drawBends,
+// drawBands, drawLabel): рамка листа, детали цветом материала с контуром, пазы и скосы цветом паза, отверстия (сквозные на
+// материале фасада — красным), кромки — подписью у торца (когда крупно), номер детали в «таблетке» и имя; номер листа — в
+// кружке, рядом — размер листа
+const nsEl = $('ns');
+const NS = { cols: [], i: 0, W: 0, wt: 0 };
+const NSC = { sheetLine: '#6f7378', part: '#2b2d31', hole: '#2b2d31', text: '#202124', muted: '#5f6368', red: '#e61e1e' };
+const NS_FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+const NS_MILL = /^\.\.\.(?:FREZ|mlg)\.\.\./i, NS_BEV = /^\.\.\.45(?:°|гр)\.\.\./, NS_THH = /^\.\.\.\d+(?:[.,]\d+)?\.\.\.(?:thh|skv)(?:\.\.\.|$)/i;
+function nsTrp(q, p) {   // точка детали -> оси листа: p' = R(rot)·p + (x, y)
+  let x = +q[0], y = +q[1], t;
+  const r = ((+p.rot || 0) % 360 + 360) % 360;
+  if (r === 180) { x = -x; y = -y; } else if (r === 90) { t = x; x = -y; y = t; } else if (r === 270) { t = x; x = y; y = -t; }
+  else if (r !== 0) { const a = r * Math.PI / 180, c = Math.cos(a), sn = Math.sin(a); t = x * c - y * sn; y = x * sn + y * c; x = t; }
+  return [x + (+p.x || 0), y + (+p.y || 0)];
+}
+function nsBox(pts) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const q of pts) { if (q[0] < x0) x0 = q[0]; if (q[0] > x1) x1 = q[0]; if (q[1] < y0) y0 = q[1]; if (q[1] > y1) y1 = q[1]; }
+  return [x0, y0, x1, y1];
+}
+function nsIn(pt, poly) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i], b = poly[j];
+    if ((a[1] > pt[1]) !== (b[1] > pt[1]) && pt[0] < (b[0] - a[0]) * (pt[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c;
+  }
+  return c;
+}
+// отрезки [x1, y1, x2, y2] — в контуры по общим концам (до 0,01 мм)
+function nsChain(segs) {
+  const adj = {}, pt = {}, es = [], used = [], out = [], seen = {};
+  const key = (x, y) => Math.round(+x * 100) + ',' + Math.round(+y * 100);
+  segs.forEach(l => {
+    const a = key(l[0], l[1]), b = key(l[2], l[3]), sk = a < b ? a + '|' + b : b + '|' + a;
+    if (a === b || seen[sk]) return;
+    seen[sk] = true;
+    (adj[a] = adj[a] || []).push(es.length);
+    (adj[b] = adj[b] || []).push(es.length);
+    if (!pt[a]) pt[a] = [+l[0], +l[1]];
+    if (!pt[b]) pt[b] = [+l[2], +l[3]];
+    es.push([a, b]);
+  });
+  const walk = (st, ei) => {
+    const ch = [st];
+    let cur = st;
+    for (;;) {
+      used[ei] = true;
+      cur = es[ei][0] === cur ? es[ei][1] : es[ei][0];
+      ch.push(cur);
+      if ((adj[cur] || []).length !== 2) break;
+      let nx = -1;
+      adj[cur].forEach(x => { if (!used[x] && nx < 0) nx = x; });
+      if (nx < 0) break;
+      ei = nx;
+    }
+    return ch.map(q => pt[q]);
+  };
+  Object.keys(adj).forEach(q => { if (adj[q].length === 2) return; adj[q].forEach(ei => { if (!used[ei]) out.push(walk(q, ei)); }); });
+  es.forEach((e, ei) => { if (!used[ei]) out.push(walk(e[0], ei)); });
+  return out.filter(l => l.length >= 3);
+}
+function nsMillLoops(p) {   // контуры пазов детали в её осях — по записи присадки
+  if (p._ml) return p._ml;
+  const out = [];
+  (p.holes || []).forEach(hh => {
+    const lays = hh.lay || {}, lps = [];
+    Object.keys(lays).forEach(ln => {
+      if (!NS_MILL.test(ln)) return;
+      const v = lays[ln] || {};
+      nsChain(v.l || []).forEach(l => lps.push(l));
+      (v.c || []).forEach(c => { const pts = []; for (let k = 0; k < 32; k++) { const a = 2 * Math.PI * k / 32; pts.push([+c[0] + +c[2] * Math.cos(a), +c[1] + +c[2] * Math.sin(a)]); } lps.push(pts); });
+    });
+    if (lps.length) out.push(lps);
+  });
+  p._ml = out;
+  return out;
+}
+const nsLum = c => (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255;
+const nsRgba = c => 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + (c[3] == null ? 1 : c[3]) + ')';
+function nsMat(nm) { const c = (K.nest.pal || {})[nm]; if (!c) return [222, 222, 222, 1]; const a = c[3] == null ? 1 : +c[3]; return [c[0] | 0, c[1] | 0, c[2] | 0, a < 0.35 ? 0.35 : a]; }
+const nsFont = (cap, w) => (w ? w + ' ' : '') + Math.max(1, cap / 0.7).toFixed(1) + 'px ' + NS_FONT;
+const nsStem = fs => fs * 0.08;
+function nsMillCss() { const c = K.nest.mill; return c && c.length >= 3 ? 'rgb(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ')' : 'rgb(255,231,15)'; }
+function nsSheets(n) {
+  if (!RU) return n + (n === 1 ? ' sheet' : ' sheets');
+  const a = n % 10, b = n % 100;
+  return n + (a === 1 && b !== 11 ? ' лист' : a >= 2 && a <= 4 && (b < 12 || b > 14) ? ' листа' : ' листов');
+}
+const nsNoName = p => /^(?:\?(?:\.\.\.)?\d*|no name(?: \d+)?)$/i.test(String(p.name == null ? '' : p.name).trim());
+function nsPill(ctx, x, y, w, h) {
+  const r = h / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arc(x + w - r, y + r, r, -Math.PI / 2, Math.PI / 2);
+  ctx.lineTo(x + r, y + h);
+  ctx.arc(x + r, y + r, r, Math.PI / 2, Math.PI * 1.5);
+  ctx.closePath();
+}
+function nsPrep(sh, cw) {   // лист — по ширине столбика: сверху место под номер листа
+  const poly = sh.poly && sh.poly.length >= 3 ? sh.poly.map(q => [+q[0], +q[1]]) : [[0, 0], [+sh.W || 0, 0], [+sh.W || 0, +sh.L || 0], [0, +sh.L || 0]];
+  const b = nsBox(poly), w = Math.max(1, b[2] - b[0]), l = Math.max(1, b[3] - b[1]);
+  const PAD = 1.5, TOP = 34, BOT = 12, sc = (cw - 2 * PAD) / w;
+  return { poly, b, s: sc, PAD, TOP, cw, H: Math.ceil(TOP + l * sc + BOT), dpr: Math.min(window.devicePixelRatio || 1, 2) };
+}
+function nsDraw(S) {
+  const g = S.g, cv = S.cv, sc = g.s;
+  cv.width = Math.round(g.cw * g.dpr);
+  cv.height = Math.round(g.H * g.dpr);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(g.dpr, 0, 0, g.dpr, 0, 0);
+  ctx.clearRect(0, 0, g.cw, g.H);
+  const X = x => g.PAD + (x - g.b[0]) * sc, Y = y => g.TOP + (g.b[3] - y) * sc;
+  const path = (pts, close) => { for (let i = 0; i < pts.length; i++) { const a = X(pts[i][0]), b = Y(pts[i][1]); if (i) ctx.lineTo(a, b); else ctx.moveTo(a, b); } if (close) ctx.closePath(); };
+  // номер листа — в кружке у левого верхнего угла (как в поле раскроя), рядом — размер листа
+  const fs = 13, nt = String(S.si + 1);
+  ctx.font = '600 ' + fs + 'px ' + NS_FONT;
+  const pth = fs * 1.45, ptw = Math.max(pth, ctx.measureText(nt).width + fs * 0.95), cxv = X(g.b[0]) + ptw / 2 + 1, cyv = g.TOP - pth / 2 - 7;
+  nsPill(ctx, cxv - ptw / 2, cyv - pth / 2, ptw, pth);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = NSC.text;
+  ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = NSC.text;
+  ctx.fillText(nt, cxv, cyv + 0.5);
+  ctx.font = fs + 'px ' + NS_FONT;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = NSC.muted;
+  ctx.fillText(Math.round(g.b[2] - g.b[0]) + ' × ' + Math.round(g.b[3] - g.b[1]), cxv + ptw / 2 + 8, cyv + 0.5);
+  ctx.beginPath();   // лист — рамка, внутри — фон поля
+  path(g.poly, true);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = NSC.sheetLine;
+  ctx.stroke();
+  for (const p of S.sh.parts || []) nsPart(ctx, p, X, Y, sc, path);
+}
+function nsPart(ctx, p, X, Y, sc, path) {
+  const o = (p.ct || []).map(q => nsTrp(q, p));
+  if (o.length < 3) return;
+  const inn = (p.inner || []).map(l => l.map(q => nsTrp(q, p)));
+  const bb = nsBox(o), big = (bb[2] - bb[0]) * sc > 24 && (bb[3] - bb[1]) * sc > 24;
+  const fc = p.back ? [230, 120, 120, 1] : nsMat(p.mat);
+  ctx.beginPath();
+  path(o, true);
+  inn.forEach(l => path(l, true));
+  ctx.fillStyle = nsRgba(fc);
+  ctx.fill('evenodd');
+  ctx.lineWidth = Math.max(0.6, Math.min(1, sc / 0.3));
+  ctx.strokeStyle = NSC.part;
+  ctx.stroke();
+  nsMillDraw(ctx, p, X, Y, sc, path);
+  if (big) {
+    nsBends(ctx, p, X, Y);
+    nsHoles(ctx, p, X, Y, sc);
+    nsBands(ctx, p, o, fc, X, Y, sc);
+    nsLabel(ctx, p, fc, X, Y, sc);
+  }
+}
+function nsMillDraw(ctx, p, X, Y, sc, path) {   // пазы и фрезеровка — заливкой цвета паза, скос 45° — жирно им же
+  const hs = p.holes || [];
+  if (!hs.length) return;
+  const ml = nsMillLoops(p), mc = nsMillCss(), bev = [];
+  if (ml.length) {
+    ctx.fillStyle = mc;
+    ctx.strokeStyle = mc;
+    ctx.lineWidth = Math.max(0.8, Math.min(2, 0.8 + sc * 4));
+    ctx.lineJoin = 'round';
+    ml.forEach(lps => { ctx.beginPath(); lps.forEach(l => path(l.map(q => nsTrp(q, p)), true)); ctx.fill('evenodd'); ctx.stroke(); });
+    ctx.lineJoin = 'miter';
+  }
+  hs.forEach(hh => { const lays = hh.lay || {}; Object.keys(lays).forEach(ln => { if (NS_BEV.test(ln)) bev.push(lays[ln] || {}); }); });
+  if (bev.length) {
+    ctx.strokeStyle = mc;
+    ctx.lineWidth = Math.max(1, Math.min(3, 1 + sc * 8));
+    ctx.beginPath();
+    bev.forEach(v => {
+      (v.l || []).forEach(l => { const a = nsTrp([l[0], l[1]], p), c = nsTrp([l[2], l[3]], p); ctx.moveTo(X(a[0]), Y(a[1])); ctx.lineTo(X(c[0]), Y(c[1])); });
+      (v.c || []).forEach(c => { const q = nsTrp([c[0], c[1]], p), r = Math.max(+c[2] * sc, 0.6), x = X(q[0]), y = Y(q[1]); ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2); });
+    });
+    ctx.stroke();
+  }
+  ctx.lineWidth = 1;
+}
+function nsHoles(ctx, p, X, Y, sc) {
+  const hs = p.holes || [];
+  if (!hs.length || sc < 0.03) return;
+  ctx.strokeStyle = NSC.hole;
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  hs.forEach(hh => {
+    const lays = hh.lay || {};
+    Object.keys(lays).forEach(ln => {
+      if (NS_BEV.test(ln)) return;
+      const v = lays[ln] || {};
+      (v.c || []).forEach(c => { const q = nsTrp([c[0], c[1]], p), r = Math.max(+c[2] * sc, 0.6), x = X(q[0]), y = Y(q[1]); ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2); });
+      (v.l || []).forEach(l => { const a = nsTrp([l[0], l[1]], p), c = nsTrp([l[2], l[3]], p); ctx.moveTo(X(a[0]), Y(a[1])); ctx.lineTo(X(c[0]), Y(c[1])); });
+    });
+  });
+  ctx.stroke();
+  if ((K.nest.thhw || []).indexOf(p.mat) >= 0) {   // материал фасада — сквозные красным
+    ctx.strokeStyle = '#e8261c';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    hs.forEach(hh => {
+      const lays = hh.lay || {};
+      Object.keys(lays).forEach(ln => {
+        if (!NS_THH.test(ln)) return;
+        ((lays[ln] || {}).c || []).forEach(c => { const q = nsTrp([c[0], c[1]], p), r = Math.max(+c[2] * sc, 1.5), x = X(q[0]), y = Y(q[1]); ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2); });
+      });
+    });
+    ctx.stroke();
+  }
+  ctx.lineWidth = 1;
+}
+function nsBends(ctx, p, X, Y) {
+  const bl = p.bend || [];
+  if (!bl.length) return;
+  ctx.save();
+  ctx.setLineDash([6, 4]);
+  ctx.strokeStyle = NSC.part;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  bl.forEach(ab => { const a = nsTrp(ab[0], p), c = nsTrp(ab[1], p); ctx.moveTo(X(a[0]), Y(a[1])); ctx.lineTo(X(c[0]), Y(c[1])); });
+  ctx.stroke();
+  ctx.restore();
+}
+// подписи кромок вдоль торцов: цвет — по контрасту с деталью; легла на номер, имя или отверстие — сдвиг вдоль торца
+function nsBandObs(p) {
+  const out = [], lb = p.lb, px = +p.x || 0, py = +p.y || 0;
+  if (lb && typeof lb === 'object' && lb.at) {
+    const cx = +lb.at[0] + px, cy = +lb.at[1] + py, ws = +lb.ws || 0, hs = +lb.hs || 0, bx = lb.box;
+    if (bx && bx.length === 4) out.push({ r: [cx + +bx[0] - 2, cy + +bx[1] - 2, cx + +bx[2] + 2, cy + +bx[3] + 2] });
+    else out.push({ r: [cx - ws / 2 - 2, cy - hs / 2 - 2, cx + ws / 2 + 2, cy + hs / 2 + 2] });
+    const nm = lb.name;
+    if (nm && nm.lines && nm.at) {
+      const nx = +nm.at[0] + px, ny = +nm.at[1] + py, th = +nm.th || 0;
+      nm.lines.forEach(l => {
+        const off = +l[2] || 0, w = (+l[1] || 0) * 1.05, ox = lb.vert ? nx - off : nx, oy = lb.vert ? ny : ny + off;
+        out.push({ r: lb.vert ? [ox - th / 2 - 2, oy - w / 2 - 2, ox + th / 2 + 2, oy + w / 2 + 2] : [ox - w / 2 - 2, oy - th / 2 - 2, ox + w / 2 + 2, oy + th / 2 + 2] });
+      });
+    }
+  }
+  (p.holes || []).forEach(hh => {
+    const lays = hh.lay || {};
+    Object.keys(lays).forEach(ln => {
+      if (NS_BEV.test(ln)) return;
+      const v = lays[ln] || {}, cs = v.c || [];
+      cs.forEach(c => out.push({ c: nsTrp([c[0], c[1]], p), rr: +c[2] + 1.5 }));
+      if (cs.length) (v.l || []).forEach(l => {
+        const a = nsTrp([l[0], l[1]], p), b = nsTrp([l[2], l[3]], p), n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 3));
+        for (let i = 0; i <= n; i++) out.push({ c: [a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n], rr: 1.5 });
+      });
+    });
+  });
+  return out;
+}
+function nsBandHits(obs, mid, dir, nin, shf, tw, hb) {
+  const ex = tw / 2 + 1, ey = hb / 2, cx = mid[0] + dir[0] * shf + nin[0] * (4 + ey), cy = mid[1] + dir[1] * shf + nin[1] * (4 + ey);
+  let n = 0;
+  obs.forEach(ob => {
+    if (ob.c) {
+      const qx = ob.c[0] - cx, qy = ob.c[1] - cy, u = qx * dir[0] + qy * dir[1], v = qx * nin[0] + qy * nin[1];
+      const cu = Math.max(-ex, Math.min(ex, u)), cv = Math.max(-ey, Math.min(ey, v));
+      if ((u - cu) * (u - cu) + (v - cv) * (v - cv) < ob.rr * ob.rr) n++;
+      return;
+    }
+    const r = ob.r, tx = (r[0] + r[2]) / 2 - cx, ty = (r[1] + r[3]) / 2 - cy, hx = (r[2] - r[0]) / 2, hy = (r[3] - r[1]) / 2;
+    const sep = [[1, 0], [0, 1], dir, nin].some(A => {
+      const r1 = ex * Math.abs(dir[0] * A[0] + dir[1] * A[1]) + ey * Math.abs(nin[0] * A[0] + nin[1] * A[1]);
+      return Math.abs(tx * A[0] + ty * A[1]) > r1 + hx * Math.abs(A[0]) + hy * Math.abs(A[1]);
+    });
+    if (!sep) n++;
+  });
+  return n;
+}
+function nsBands(ctx, p, o, fc, X, Y, sc) {
+  const segs = p.segs || [];
+  if (!segs.length || 20 * sc < 5) return;
+  const ink = fc && nsLum(fc) < 0.45 ? '#ffffff' : '#000000';
+  let obs = null;
+  segs.forEach(sg => {
+    const txt = String(sg[3] == null ? '' : sg[3]);
+    if (!txt) return;
+    const a = nsTrp(sg[0], p), b = nsTrp(sg[1], p);
+    let dx = b[0] - a[0], dy = b[1] - a[1];
+    const ln = Math.hypot(dx, dy);
+    if (ln < 20) return;
+    dx /= ln;
+    dy /= ln;
+    let nin = [-dy, dx];
+    const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    if (!nsIn([mid[0] + nin[0] * 5, mid[1] + nin[1] * 5], o)) nin = [-nin[0], -nin[1]];
+    let ht = 20;
+    ctx.font = nsFont(ht * sc);
+    let tw = ctx.measureText(txt).width / sc;
+    if (tw > ln * 0.6 && tw > 0) { ht *= (ln * 0.6) / tw; tw = ln * 0.6; }
+    if (ht * sc < 4.5) return;
+    if (!obs) obs = nsBandObs(p);
+    let best = 0, bestN = -1;
+    [1, 0.85, 0.7].some(f => {
+      const h9 = ht * f, w9 = tw * f;
+      if (f < 1 && h9 * sc < 4.5) return true;
+      const room = (ln - w9) / 2 - 2, step = Math.max(4, Math.min(20, w9 * 0.15));
+      for (let k = 0; k <= 80; k++) {
+        const mg = Math.ceil(k / 2) * step;
+        if (k && mg > room) break;
+        const shf = k ? (k % 2 ? mg : -mg) : 0, nOv = nsBandHits(obs, mid, [dx, dy], nin, shf, w9, h9 * 1.25);
+        if (!nOv) { best = shf; ht = h9; return true; }
+        if (f === 1 && (bestN < 0 || nOv < bestN)) { bestN = nOv; best = shf; }
+      }
+      return false;
+    });
+    const org = [mid[0] + dx * best + nin[0] * 4, mid[1] + dy * best + nin[1] * 4];
+    let dir = [dx, dy];
+    if (dir[0] < -0.1 || (Math.abs(dir[0]) <= 0.1 && dir[1] < 0)) dir = [-dir[0], -dir[1]];
+    const upv = [-dir[1], dir[0]], top = upv[0] * nin[0] + upv[1] * nin[1] < 0;
+    ctx.save();
+    ctx.translate(X(org[0]), Y(org[1]));
+    ctx.rotate(Math.atan2(-dir[1], dir[0]));
+    ctx.font = nsFont(ht * sc);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = top ? 'top' : 'alphabetic';
+    ctx.fillStyle = ink;
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = Math.max(0.4, nsStem(ht * sc / 0.7));
+    ctx.lineJoin = 'round';
+    ctx.strokeText(txt, 0, 0);
+    ctx.fillText(txt, 0, 0);
+    ctx.restore();
+  });
+}
+// номер детали — в «таблетке», стрелки волокон, имя — по плану раскроя (lb)
+function nsLabel(ctx, p, fc, X, Y, sc) {
+  const lb = p.lb;
+  if (!lb || typeof lb !== 'object' || !lb.at) return;
+  const x = +p.x || 0, y = +p.y || 0, cxs = X(+lb.at[0] + x), cys = Y(+lb.at[1] + y);
+  const hs = +lb.hs * sc, ws = +lb.ws * sc;
+  if (hs < 4) return;
+  const r = hs / 2, hx = Math.max((ws - hs) / 2, 0), h = +lb.h * sc, ink = nsLum(fc) < 0.45 ? '#ffffff' : '#000000';
+  const dr = lb.dir && lb.dir.length === 2 ? lb.dir : null, ang = dr ? -Math.atan2(+dr[1], +dr[0]) : 0;
+  ctx.save();
+  ctx.translate(cxs, cys);
+  if (ang) ctx.rotate(ang);
+  ctx.beginPath();
+  ctx.arc(hx, 0, r, -Math.PI / 2, Math.PI / 2);
+  ctx.arc(-hx, 0, r, Math.PI / 2, Math.PI * 1.5);
+  ctx.closePath();
+  ctx.lineWidth = Math.max(0.5, nsStem(Math.max(h, 3.5)));
+  ctx.strokeStyle = ink;
+  ctx.stroke();
+  if (h >= 3.5) {
+    ctx.font = nsFont(h, '600');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = ink;
+    ctx.fillText(String(lb.num), 0, h / 2, Math.max(ws * 0.9, 1));
+  }
+  ctx.restore();
+  const poly9 = poly => { poly.forEach((q, i) => { const a = cxs + q[0] * sc, b = cys - q[1] * sc; if (i) ctx.lineTo(a, b); else ctx.moveTo(a, b); }); ctx.closePath(); };
+  if (lb.afill && lb.afill.length) {
+    ctx.beginPath();
+    lb.afill.forEach(poly => { if (poly && poly.length >= 3) poly9(poly); });
+    ctx.fillStyle = ink;
+    ctx.fill();
+  }
+  (lb.arrows || []).forEach(pr => { const poly = pr[0]; if (!poly || poly.length < 3) return; ctx.beginPath(); poly9(poly); ctx.fillStyle = ink; ctx.fill(); });
+  const nm = lb.name;
+  if (nm && nm.lines && nm.lines.length && nm.at) {
+    const th = +nm.th * sc;
+    if (th >= 3.5) {
+      const nx = +nm.at[0] + x, ny = +nm.at[1] + y;
+      ctx.font = nsFont(th);
+      ctx.fillStyle = nsNoName(p) ? NSC.red : ink;   // без имени — красным
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      nm.lines.forEach(ln => {
+        const off = +ln[2] || 0, ox = lb.vert ? nx - off : nx, oy = lb.vert ? ny : ny + off;
+        ctx.save();
+        ctx.translate(X(ox), Y(oy));
+        if (lb.vert) ctx.rotate(-Math.PI / 2);
+        ctx.fillText(String(ln[0]), 0, th / 2, Math.max(+ln[1] * sc * 1.05, 1));
+        ctx.restore();
+      });
+    }
+  }
+}
+function nsOpen() {
+  if (!K || !K.nest) return;
+  rpClose(true);
+  NS.cols = [];
+  (K.nest.cols || []).forEach(c => NS.cols.push({ c, add: null }));
+  (K.nest.addons || []).forEach(b => (b.cols || []).forEach(c => NS.cols.push({ c, add: b.k })));
+  NS.cols = NS.cols.filter(x => (x.c.sheets || []).length);
+  if (!NS.cols.length) return;
+  NS.i = Math.max(0, Math.min(NS.i, NS.cols.length - 1));
+  pnOpen(nsEl);
+  nsBuild();
+  nsBtn.classList.add('on');
+}
+function nsClose(now) { pnClose(nsEl, now); nsBtn.classList.remove('on'); }
+function nsBuild() {   // столбики материалов в ряд, по ширине окна; листы — холстами, рисуются, когда столбик рядом
+  const v = nsEl.querySelector('.nv'), row = nsEl.querySelector('.nr');
+  NS.W = v.clientWidth || (window.innerWidth - 16);
+  row.innerHTML = '';
+  const cw = Math.max(120, NS.W - 20);
+  NS.cols.forEach(x => {
+    const col = document.createElement('div');
+    col.className = 'nc';
+    col.style.width = NS.W + 'px';
+    x.el = col;
+    x.cv = (x.c.sheets || []).map((sh, si) => {
+      const cv = document.createElement('canvas'), g = nsPrep(sh, cw);
+      cv.style.width = g.cw + 'px';
+      cv.style.height = g.H + 'px';
+      col.appendChild(cv);
+      return { cv, sh, si, g, done: false };
+    });
+    row.appendChild(col);
+  });
+  row.style.width = (NS.W * NS.cols.length) + 'px';
+  nsGo(NS.i, true);
+}
+function nsGo(i, now) {
+  NS.i = Math.max(0, Math.min(NS.cols.length - 1, i));
+  const row = nsEl.querySelector('.nr');
+  row.style.transition = now ? 'none' : 'transform .36s cubic-bezier(.2,1.05,.35,1)';
+  row.style.transform = 'translate3d(' + (-NS.i * NS.W) + 'px,0,0)';
+  nsHead();
+  for (let j = NS.i - 1; j <= NS.i + 1; j++) {
+    const x = NS.cols[j];
+    if (x) x.cv.forEach(S => { if (!S.done) { S.done = true; try { nsDraw(S); } catch (err) { console.error('nest draw', err); } } });
+  }
+}
+function nsHead() {
+  const x = NS.cols[NS.i], c = x.c, N = K.nest;
+  const t = (N.titles && N.titles[c.key]) || rpNoMark(c.mat);
+  nsEl.querySelector('.ph b').textContent = t + (x.add != null ? (RU ? ' · дозаказ ' : ' · add-on ') + x.add : '');
+  nsEl.querySelector('.ph span').textContent = nsSheets((c.sheets || []).length);
+  const tx = nsEl.querySelector('.ph .tx'), u = N.tex && N.tex[c.mat];
+  tx.style.backgroundImage = u ? 'url("' + u + '")' : 'none';
+  tx.style.backgroundColor = nsRgba(nsMat(c.mat));
+  nsEl.querySelector('.dt').innerHTML = NS.cols.length > 1 ? NS.cols.map((_, j) => '<i' + (j === NS.i ? ' class="on"' : '') + ' data-i="' + j + '"></i>').join('') : '';
+}
+nsBtn.addEventListener('click', () => { if (pnIsOn(nsEl)) nsClose(); else nsOpen(); });
+nsEl.querySelector('.dt').addEventListener('click', e => { const i = e.target && e.target.getAttribute ? e.target.getAttribute('data-i') : null; if (i !== null) nsGo(+i); });
+pnTouch(nsEl, {
+  sc: () => NS.cols[NS.i] && NS.cols[NS.i].el,
+  h: {
+    start: () => { nsEl.querySelector('.nr').style.transition = 'none'; },
+    move: dx => {
+      let d = dx;
+      if ((NS.i === 0 && d > 0) || (NS.i === NS.cols.length - 1 && d < 0)) d *= 0.3;   // у края — резинкой
+      nsEl.querySelector('.nr').style.transform = 'translate3d(' + (-NS.i * NS.W + d) + 'px,0,0)';
+    },
+    end: (dx, vx) => {
+      let j = NS.i;
+      if (dx < -NS.W * 0.2 || (vx < -0.45 && dx < -12)) j++;   // влево — следующий материал
+      else if (dx > NS.W * 0.2 || (vx > 0.45 && dx > 12)) j--;
+      nsGo(j);
+    }
+  },
+  close: () => nsClose()
+});
+nsEl.addEventListener('wheel', e => {   // ПК: колесо / тачпад вбок — другой материал
+  if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 20) {
+    e.preventDefault();
+    const now = performance.now();
+    if (now - NS.wt > 450) { NS.wt = now; nsGo(NS.i + (e.deltaX > 0 ? 1 : -1)); }
+  }
+}, { passive: false });
+window.addEventListener('resize', () => { if (pnIsOn(nsEl)) { nsEl.style.top = ($('bar').getBoundingClientRect().bottom + 8) + 'px'; nsBuild(); } });
+window.addEventListener('keydown', e => {   // ПК: Esc — закрыть окно, стрелки — другой материал
+  if (e.key === 'Escape') { if (pnIsOn(nsEl)) nsClose(); if (pnIsOn(rpEl)) rpClose(); }
+  else if (pnIsOn(nsEl) && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) nsGo(NS.i + (e.key === 'ArrowRight' ? 1 : -1));
+});
 // фокус: деталь — своими (непрозрачными) копиями материалов, остальное — рентгеном; камера — к детали, не вплотную
 function focOn(o) {
   if (!o) return;
@@ -1613,8 +2636,23 @@ function focOn(o) {
   fc.style.display = fc.childNodes.length ? 'block' : 'none';
   pwLayout();
 }
+// 1.9.0: второе нажатие на номер (его слова 05.11: «Второе нажатие на номер прячет все кроме детали. Дальше возвращает и так
+// зацикленно»): спрятано всё, кроме детали (от неё вверх до корня — всё соседнее), третье — вернуть (рентгеном), и так по кругу
+function isoSet(on) {
+  if (!foc) return;
+  if (on && !foc.iso) {
+    foc.iso = [];
+    for (let o = foc.o; o && o !== root && o.parent; o = o.parent) for (const sb of o.parent.children) if (sb !== o && sb.visible) { sb.visible = false; foc.iso.push(sb); }
+  } else if (!on && foc.iso) {
+    for (const sb of foc.iso) sb.visible = true;
+    foc.iso = null;
+  }
+  dirty = true;
+  pwLayout();
+}
 function focOff() {
   if (!foc) return;
+  if (foc.iso) isoSet(false);   // 1.9.0: спрятанное — вернуть
   for (const [m, mt] of foc.keep) { for (const c of [].concat(m.material)) c.dispose(); m.material = mt; }
   const x0 = foc.xray0;
   foc = null;
@@ -1893,8 +2931,8 @@ function show(i, instant) {
   const s = K.scenes[i];
   if (!s) return;
   finishMotion();
+  if (typeof foc !== 'undefined' && foc) focOff();   // 1.7.0: другая сцена — без фокуса (1.9.0: сперва — спрятанное вернётся)
   const v0 = new Map(AN.map(e => [e, shown(e.o)]));
-  if (typeof foc !== 'undefined' && foc) focOff();   // 1.7.0: другая сцена — без фокуса
   apply(s.hidden_tags !== undefined ? s.hidden_tags : K.hidden_tags, s.hidden_pids || []);
   if (PW.pool.length) pwBuild();   // 1.7.0: капсулы — деталей этой сцены
   setClip(s);
@@ -2129,12 +3167,35 @@ function addHoles(r) {
   }
 }
 // рёбра, как в SketchUp: где грани сходятся под углом больше 20°; 1.6.1: сплошные линии поверх граней
+// 1.9.0: рёбра из выгрузки (Phone 1.7.0, K.edges): линии SketchUp — видимые, не смягчённые; рисуются толстыми линиями у
+// первой сетки той же детали (или у самих линий, если граней нет); прежняя выгрузка — рёбра по углу граней, как было
 function addEdges(r) {
-  const cache = new Map(), ms = [];
+  const cache = new Map(), ms = [], own = !!(K && K.edges);
   r.traverse(o => { if (o.isMesh) ms.push(o); });
+  if (own && EW > 0) {
+    const ls = [];
+    r.traverse(o => { if (o.isLineSegments && !o.isLineSegments2) ls.push(o); });
+    ls.forEach(o => {
+      if (o.material) o.material.visible = false;   // тонкие линии glTF — не видны, вместо них — толстые
+      let g = cache.get(o.geometry);
+      if (g === undefined) {
+        const pa = o.geometry.attributes.position, ix = o.geometry.index;
+        let arr = pa.array;
+        if (ix) { arr = new Float32Array(ix.count * 3); for (let i = 0; i < ix.count; i++) { const k = ix.getX(i); arr[i * 3] = pa.getX(k); arr[i * 3 + 1] = pa.getY(k); arr[i * 3 + 2] = pa.getZ(k); } }
+        g = arr.length >= 6 ? new LineSegmentsGeometry().setPositions(arr) : null;
+        cache.set(o.geometry, g);
+      }
+      if (!g) return;
+      const l = new LineSegments2(g, edgeMat);
+      l.raycast = () => {};
+      const host = o.userData.nm === undefined && o.parent ? o.parent.children.find(c => c.isMesh && !c.isLineSegments2 && c.userData.nm === undefined && !c.userData.hole) : null;
+      (host || o).add(l);   // часть детали (сетка без имени) — у её первой сетки: Part info, рулетка находят рёбра детали
+      edgeN++;
+    });
+  }
   ms.forEach(m => {
     for (const mt of [].concat(m.material)) { mt.polygonOffset = true; mt.polygonOffsetFactor = 1; mt.polygonOffsetUnits = 1; }   // 1.6.1: грани — чуть глубже рёбер
-    if (!(EW > 0)) return;
+    if (!(EW > 0) || own) return;
     let g = cache.get(m.geometry);
     if (g === undefined) {
       const e = new THREE.EdgesGeometry(m.geometry, 20);
@@ -2202,7 +3263,7 @@ async function open(id) {
     window.__ready = true;
   }
 }
-window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
+window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
 if (cfg.id) {
   open(cfg.id);
 } else {
