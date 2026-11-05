@@ -327,6 +327,12 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.5 (05.11): ОДИНОЧНЫЕ РЁБРА И ГРАНИ СЦЕН (к Phone 1.7.1; его слова 05.11: «Не все линии отображаются в
+// кух»; «И пчт в некоторых сценах отображены не все объекты.»). Phone 1.7.1 выгружает одиночные рёбра и грани, которые
+// помнят сцены SketchUp (одна сцена прячет, другая показывает), своими узлами (extras pid, 'loose'). Было бы: такой узел —
+// как деталь (капсула «без имени», Part info — он один), а рёбра узла без имени уходили бы к соседней сетке группы и
+// по сцене не прятались. Теперь: узел 'loose' — без имени, как часть своей группы (капсулы, Part info, рулетка, заливка
+// разреза — по группе), его рёбра — у него самого: прячутся и показываются по сцене вместе с ним.
 // KTNium Viewer 1.9.4 (05.11): ВЫБОР ДЕТАЛИ БЕЗ ПЛАШКИ, НОМЕР ПОДСВЕЧЕН; ЛУПЫ НЕТ (его слова 05.11: «Когда выбираю деталь,
 // появляется лишняя плагка. Убери. Должен выделяться ее номер.»; «Что там с двойным тапом и лупой? Можно убрать лупу?»).
 // Было: Part info — тап по детали открывал плашку справа сверху (имя, размер, материал), номер детали в капсулах не
@@ -3414,7 +3420,7 @@ function addEdges(r) {
       if (!g) return;
       const l = new LineSegments2(g, edgeMat);
       l.raycast = () => {};
-      const host = o.userData.nm === undefined && o.parent ? o.parent.children.find(c => c.isMesh && !c.isLineSegments2 && c.userData.nm === undefined && !c.userData.hole) : null;
+      const host = o.userData.nm === undefined && !o.userData.loose && o.parent ? o.parent.children.find(c => c.isMesh && !c.isLineSegments2 && c.userData.nm === undefined && !c.userData.hole) : null;   // 1.9.5: 'loose' — свои
       (host || o).add(l);   // часть детали (сетка без имени) — у её первой сетки: Part info, рулетка находят рёбра детали
       edgeN++;
     });
@@ -3454,7 +3460,7 @@ async function open(id) {
     const g = await new Promise((ok, no) => new GLTFLoader().parse(bin.buffer, '', ok, no));
     root = g.scene;
     { const J = g.parser.json, AS = g.parser.associations;   // 1.7.0: имя узла как в SketchUp (для Part info)
-      root.traverse(o => { const a = AS.get(o); if (a && a.nodes !== undefined && J.nodes[a.nodes]) o.userData.nm = String(J.nodes[a.nodes].name || ''); }); }
+      root.traverse(o => { const a = AS.get(o); if (a && a.nodes !== undefined && J.nodes[a.nodes] && !o.userData.loose) o.userData.nm = String(J.nodes[a.nodes].name || ''); }); }   // 1.9.5: 'loose' — часть своей группы
     K = (g.parser.json.extras && g.parser.json.extras.ktn) || {};
     K.scenes = K.scenes || [];
     K.hidden_tags = K.hidden_tags || [];
