@@ -59,6 +59,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 #pw .c.nb { min-width: 44px; text-align: center; padding: 0 12px; font-size: 18px; font-weight: 700; color: #000;
   font-variant-numeric: tabular-nums; }   /* 1.8.2: номера — 18 пт жирно (его слова 05.11: «номера в капсулах пусть будут виднее») */
 #pw .c.hold { box-shadow: 0 0 0 2px rgba(47,109,181,.75), 0 8px 22px rgba(0,0,0,.25); }
+#pw.pws .c { transition: transform .34s cubic-bezier(.2,.9,.25,1); }   /* 1.9.6: капсулы уезжают за край и обратно */
 /* 1.8.0: деталь как в раскрое — карточка из капсулы */
 #sh { position: fixed; z-index: 5; display: none; flex-direction: column; overflow: hidden; border-radius: 22px; color: #1c1c1e;
   transform-origin: 100% 50%; transition: transform .46s cubic-bezier(.2,1.25,.35,1), opacity .22s ease; touch-action: none;
@@ -327,6 +328,15 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.6 (05.11): РЁБРА ЗЕРКАЛЬНЫХ ГРУПП; КАПСУЛЫ ПРЯЧУТСЯ (его слова 05.11: «Вот тут есть линии. Пч их нет в
+// телефоне?» — снимок высоких шкафов кух; «Стч капсулы справа долгое нажатие и свайп вправо прятал их так, что видны были
+// только кусочкки и все в один ровный столбик»). Было: рёбра рисуются полосками (LineSegments2 — сетка); у группы,
+// отражённой в SketchUp (Flip / масштаб -1: кух — высокий шкаф Group#14, мойка, смеситель, торец острова), three.js
+// разворачивает лицо сеток, и полоски рёбер оказывались изнанкой — их отбрасывало (в выгрузке рёбра есть: 71 у шкафа, на
+// экране — ни одного: ни контура, ни линий дверей на 515, 1115, 1565). Капсулы прятать было нельзя. Теперь: материалы линий
+// — с двух сторон (side: DoubleSide), рёбра отражённых групп видны; удержание капсулы и свайп вправо — капсулы уезжают за
+// правый край, видны кусочки по 14 точек ровным столбиком (номер детали в фокусе — синим кусочком); тап или свайп влево
+// по кусочкам — капсулы обратно. Удержание и свайп влево — карточка раскроя, как было.
 // KTNium Viewer 1.9.5 (05.11): ОДИНОЧНЫЕ РЁБРА И ГРАНИ СЦЕН (к Phone 1.7.1; его слова 05.11: «Не все линии отображаются в
 // кух»; «И пчт в некоторых сценах отображены не все объекты.»). Phone 1.7.1 выгружает одиночные рёбра и грани, которые
 // помнят сцены SketchUp (одна сцена прячет, другая показывает), своими узлами (extras pid, 'loose'). Было бы: такой узел —
@@ -600,14 +610,16 @@ function setupAO() {
   }
 }
 setupAO();
-const cutMat = new LineMaterial({ color: 0x1c1c1c, linewidth: 2.4, worldUnits: false });
+// 1.9.6: линии — с двух сторон (side: DoubleSide): у группы, отражённой в SketchUp, three.js разворачивает лицо сеток, и
+// полоски рёбер (LineSegments2 — сетка) отбрасывались как изнанка
+const cutMat = new LineMaterial({ color: 0x1c1c1c, linewidth: 2.4, worldUnits: false, side: THREE.DoubleSide });
 // 1.6.1: рёбра — сплошные, в 1 точку экрана (было: полупрозрачные, в 1 пиксель кадра, наполовину под гранями)
 // 1.9.0: в 1 пиксель кадра — на телефоне вдвое тоньше (его слова 05.11: «...и потоньше»)
 const EW = QS.get('ew') !== null && isFinite(+QS.get('ew')) ? +QS.get('ew') : 1 / renderer.getPixelRatio();
-const edgeMat = new LineMaterial({ color: 0x1c1c1c, linewidth: EW, worldUnits: false });
+const edgeMat = new LineMaterial({ color: 0x1c1c1c, linewidth: EW, worldUnits: false, side: THREE.DoubleSide });
 let edgeN = 0;
-const selMat = new LineMaterial({ color: 0x2f6db5, linewidth: 2.2, worldUnits: false });   // 1.7.0: Part info — рёбра детали
-const wireMat = new LineMaterial({ color: 0x2f6db5, linewidth: 1.6, worldUnits: false, transparent: true, opacity: 0.85 });   // 1.7.0: грани угла сечения
+const selMat = new LineMaterial({ color: 0x2f6db5, linewidth: 2.2, worldUnits: false, side: THREE.DoubleSide });   // 1.7.0: Part info — рёбра детали
+const wireMat = new LineMaterial({ color: 0x2f6db5, linewidth: 1.6, worldUnits: false, transparent: true, opacity: 0.85, side: THREE.DoubleSide });   // 1.7.0: грани угла сечения
 function resize() {
   const w = window.innerWidth, h = window.innerHeight;
   renderer.setSize(w, h, false);
@@ -1566,6 +1578,16 @@ function infoTap(x, y) {
 const pwEl = $('pw');
 const PW = { w: 0, v: 0, to: null, t: 0, raf: 0, n: 0, items: [], pool: [], drag: null, span: 3, wt: 0 };
 const PSH = 40, PK = 5;   // шаг капсулы, капсул в запасе — по PK вверх и вниз
+const SLV = 14;   // 1.9.6: спрятанные капсулы — кусочек у правого края, точек
+// 1.9.6: спрятать капсулы за правый край (видны кусочки ровным столбиком) / вернуть
+function pwHide(on) {
+  if (!!PW.hid === !!on) return;
+  PW.hid = !!on;
+  pwEl.classList.add('pws');
+  clearTimeout(PW.st);
+  PW.st = setTimeout(() => pwEl.classList.remove('pws'), 400);
+  pwLayout();
+}
 const pmod = (i, n) => ((i % n) + n) % n;
 let foc = null;   // деталь в фокусе: { o, keep: [[сетка, её материал]], xray0 }
 function pwBuild() {
@@ -1583,7 +1605,7 @@ function pwBuild() {
   PW.n = items.length;
   PW.w = 0; PW.v = 0; PW.to = null;
   if (!PW.pool.length) for (let j = 0; j < 2 * PK + 1; j++) { const c = document.createElement('div'); c.className = 'c'; pwEl.appendChild(c); PW.pool.push(c); }
-  PW.pool.forEach(c => { c.__i = undefined; });
+  PW.pool.forEach(c => { c.__i = undefined; c.__w = undefined; });
   pwEl.style.display = PW.n ? 'block' : 'none';
   pwPlace();
 }
@@ -1605,9 +1627,12 @@ function pwLayout() {
     const k = j - PK, d = k - fr, a = Math.abs(d);
     if (!(d > -n / 2 - 1e-6 && d <= n / 2 + 1e-6) || a > lim) { el.style.display = 'none'; return; }   // мало деталей — без повторов
     const i = pmod(base + k, n);
-    if (el.__i !== i) { el.__i = i; el.textContent = PW.items[i].t; el.title = PW.items[i].full || PW.items[i].t; el.classList.toggle('nb', !!PW.nb); }
+    if (el.__i !== i) { el.__i = i; el.textContent = PW.items[i].t; el.title = PW.items[i].full || PW.items[i].t; el.classList.toggle('nb', !!PW.nb); el.__w = undefined; }
     el.style.display = 'block';
-    el.style.transform = 'translateY(' + (d * PSH).toFixed(2) + 'px)';   // 1.8.0: чёткие сверху донизу — без затухания и уменьшения
+    if (el.__w === undefined) el.__w = el.offsetWidth;
+    // 1.9.6: спрятаны — левый край каждой у правого края экрана (кусочек SLV), ровным столбиком; #pw стоит в 8 от края
+    const hx = PW.hid ? Math.max(0, el.__w + 8 - SLV) : 0;
+    el.style.transform = 'translate(' + hx.toFixed(1) + 'px,' + (d * PSH).toFixed(2) + 'px)';   // 1.8.0: чёткие сверху донизу — без затухания и уменьшения
     el.style.opacity = '1';
     el.style.zIndex = String(100 - Math.round(a * 10));
     el.classList.toggle('on', i === fi);
@@ -1639,7 +1664,8 @@ pwEl.addEventListener('pointerdown', e => {
   PW.drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, w0: PW.w, moved: false, h: [[t, PW.w]], el: c, held: false, done: false };
   PW.to = null;
   PW.v = 0;
-  const dd = PW.drag;   // 1.8.0: удержание 0,3 с — капсулу можно вести влево (карточка раскроя)
+  const dd = PW.drag;   // 1.8.0: удержание 0,3 с — капсулу можно вести влево (карточка раскроя); 1.9.6: вправо — спрятать капсулы
+  if (PW.hid) return;   // 1.9.6: спрятаны — тап или свайп влево по кусочкам вернёт
   dd.ht = setTimeout(() => { if (PW.drag === dd && !dd.moved) { dd.held = true; c.classList.add('hold'); } }, 300);
 });
 pwEl.addEventListener('pointermove', e => {
@@ -1647,8 +1673,15 @@ pwEl.addEventListener('pointermove', e => {
   if (!d || e.pointerId !== d.id) return;
   if (d.done) return;
   const dy = e.clientY - d.y0, dx = e.clientX - d.x0;
+  if (PW.hid) {   // 1.9.6: спрятаны — повёл влево: вернуть; вверх-вниз — ничего
+    if (dx < -16 && Math.abs(dx) > Math.abs(dy)) { d.done = true; pwHide(false); }
+    else if (Math.abs(dx) > 10 || Math.abs(dy) > 10) d.moved = true;
+    return;
+  }
+  if (!d.held && Math.abs(dx) > 8) clearTimeout(d.ht);   // 1.9.6: повёл вбок до удержания — это не удержание
   if (d.held && !d.moved) {   // 1.8.0: держал и повёл влево — карточка раскроя
     if (dx < -22 && Math.abs(dx) > Math.abs(dy)) { d.done = true; d.el.classList.remove('hold'); shOpen(d.el.__i, d.el); return; }
+    if (dx > 22 && Math.abs(dx) > Math.abs(dy)) { d.done = true; d.el.classList.remove('hold'); pwHide(true); return; }   // 1.9.6: вправо — спрятать капсулы
     if (Math.abs(dy) < 10) return;
     d.held = false;
     d.el.classList.remove('hold');
@@ -1667,6 +1700,7 @@ const pwUp = e => {
   clearTimeout(d.ht);
   d.el.classList.remove('hold');
   if (d.done) return;
+  if (PW.hid) { if (!d.moved && e.type === 'pointerup') pwHide(false); return; }   // 1.9.6: тап по кусочку — капсулы обратно
   if (d.held) return;   // держал и отпустил на месте — ничего
   if (!d.moved) {   // тап по капсуле — она в середину, к детали
     if (e.type === 'pointerup' && d.el.__i !== undefined && PW.n) {
@@ -3495,7 +3529,7 @@ async function open(id) {
     window.__ready = true;
   }
 }
-window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, pinfo: () => (pinfo && pinfo.o ? pinfo.o.userData.nm : null), pwon: () => [...document.querySelectorAll('#pw .c.on')].map(c => c.textContent), top: () => ({ tw: Math.round(titleEl.getBoundingClientRect().width), open: titleEl.classList.contains('open'), hid: titleEl.classList.contains('hid'), tl: titleEl.querySelector('.tl').textContent, tt: titleEl.querySelector('.tt').textContent, dm: dmEl.classList.contains('on') ? dmIn.textContent : null, mat: dmEl.classList.contains('mat'), dmw: Math.round(dmEl.getBoundingClientRect().width), sw: dmIn.scrollWidth, cw: dmIn.clientWidth, pn: pnEl.style.display === 'block' ? pnEl.textContent : null, fc: $('fc').style.display }), capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
+window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, pinfo: () => (pinfo && pinfo.o ? pinfo.o.userData.nm : null), pwon: () => [...document.querySelectorAll('#pw .c.on')].map(c => c.textContent), pwh: () => ({ hid: !!PW.hid, L: PW.pool.filter(c => c.style.display === 'block').map(c => Math.round(c.getBoundingClientRect().left)), W: window.innerWidth }), top: () => ({ tw: Math.round(titleEl.getBoundingClientRect().width), open: titleEl.classList.contains('open'), hid: titleEl.classList.contains('hid'), tl: titleEl.querySelector('.tl').textContent, tt: titleEl.querySelector('.tt').textContent, dm: dmEl.classList.contains('on') ? dmIn.textContent : null, mat: dmEl.classList.contains('mat'), dmw: Math.round(dmEl.getBoundingClientRect().width), sw: dmIn.scrollWidth, cw: dmIn.clientWidth, pn: pnEl.style.display === 'block' ? pnEl.textContent : null, fc: $('fc').style.display }), capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
 if (cfg.id) {
   open(cfg.id);
 } else {
