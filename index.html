@@ -327,6 +327,14 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.4 (05.11): ВЫБОР ДЕТАЛИ БЕЗ ПЛАШКИ, НОМЕР ПОДСВЕЧЕН; ЛУПЫ НЕТ (его слова 05.11: «Когда выбираю деталь,
+// появляется лишняя плагка. Убери. Должен выделяться ее номер.»; «Что там с двойным тапом и лупой? Можно убрать лупу?»).
+// Было: Part info — тап по детали открывал плашку справа сверху (имя, размер, материал), номер детали в капсулах не
+// подсвечивался; при рулетке двойной тап и держать — лупа (мешала двойному тапу и сдвигу — ближе / дальше); системная лупа
+// iOS могла вылезти на двойном тапе с удержанием. Теперь: плашки нет — размер и имя детали в строке у кружка названия (как у
+// детали по номеру; материал — нажатием на размер), её номер в капсулах подсвечен синим, капсулы едут к нему; лупы рулетки
+// нет (двойной тап и сдвиг — ближе / дальше при любой кнопке); касание модели, ленты сцен, капсул, карточки и ручки куба
+// забирает себе страница — системной лупе и выделению iOS не достаётся.
 // KTNium Viewer 1.9.3 (05.11): НАЗВАНИЕ — КРУЖКОМ, РАЗМЕР И ИМЯ ДЕТАЛИ, МАТЕРИАЛ ПО НАЖАТИЮ (его слова 05.11: «Сверни в кружок
 // влево название проекта. Одно нажатие разворачивает вправо название, второе сворачивает. После ккружка размеры детали. Ниже
 // название детали. Нажатие на размер разворачивает на всю ширину название маиериала. Если не помещается, тянем влево и
@@ -783,6 +791,9 @@ function begin(e) {
 // 1.3.2: движение пальца — модели, а не окну (шторка Safari в приложении закрывалась движением вниз); 1.8.0: и полоса
 // сцен, капсулы, карточка — свои (в 1.7.0 эта строка выпала при переделке жестов — вернул)
 document.addEventListener('touchmove', e => { const t = e.target; if (t && t.closest && t.closest('#cmt, #rp, #ns, #dm') && e.touches.length < 2) return; if (e.cancelable) e.preventDefault(); }, { passive: false });   // текст комментария листается
+// 1.9.4: касание модели, ленты сцен, капсул, карточки раскроя и ручки куба — себе целиком (preventDefault на touchstart):
+// системной лупе, выделению и увеличению iOS не достаётся (жесты — на pointer-событиях, им это не мешает)
+for (const el9 of [canvas, $('scenes'), $('pw'), $('sh'), $('hdm')]) if (el9) el9.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });
 // 1.8.0: двойной тап — без системной лупы, выделения и увеличения страницы (iPhone: щипок страницы — тоже нет)
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
@@ -802,11 +813,8 @@ canvas.addEventListener('pointerdown', e => {
     mode = 'zrect';
     zr = { x0: e.clientX, y0: e.clientY, x1: e.clientX, y1: e.clientY };
   } else if (zr && mode !== 'zrect') zrHide();   // второй палец — щипок
-  if (mode === 'wait' && meas && down0 && down0.dbl && e.pointerType !== 'mouse') {   // 1.7.0: рулетка — двойной тап и держать — лупа
-    tapCancel();
-    const id = e.pointerId;
-    lpT = setTimeout(() => { lpT = 0; if (mode === 'wait' && pts.size === 1 && pts.has(id)) { const q = pts.get(id); lpStart(q.x, q.y); } }, LP_HOLD);
-  }
+  // 1.9.4: лупы рулетки нет (было 1.7.0: двойной тап и держать — лупа; его слова 05.11: «Можно убрать лупу?») — двойной тап и
+  // сдвиг — ближе / дальше и при рулетке
   if (mode === 'wait' && !(down0 && down0.dbl)) {   // 1.8.2: после двойного тапа удержания нет — повёл и после паузы: ближе / дальше
     const id = e.pointerId;
     holdT = setTimeout(() => {   // 1.8.2: постоял на месте — сдвиг
@@ -1509,10 +1517,11 @@ function partInfo(p) {
   return { sz: sz.slice(0, 2), mats: main ? [main] : [] };
 }
 function infoSel(p) {
+  const had = !!(pinfo && pinfo.o);
   if (pinfo) { for (const [l, m] of pinfo.keep) l.material = m; pinfo.keep = []; pinfo.o = null; }
   piCard.style.display = 'none';
   dirty = true;
-  if (!p || !pinfo) return;
+  if (!p || !pinfo) { if (had) { dmPart(foc ? foc.o : null); pwLayout(); } return; }   // 1.9.4: снят выбор — строка у кружка и номер — как были
   pinfo.o = p;
   const bb = new THREE.Box3(), tb = new THREE.Box3(), inv = p.matrixWorld.clone().invert(), mats = new Set();
   for (const m of ownMeshes(p)) {
@@ -1522,16 +1531,22 @@ function infoSel(p) {
     for (const mt of [].concat(m.material)) if (mt && mt.name) mats.add(mt.name);
     for (const l of m.children) if (l.isLineSegments2) { pinfo.keep.push([l, l.material]); l.material = selMat; }
   }
-  const pi9 = partInfo(p), sz = pi9.sz;   // 1.8.0: без толщины, материал — главный (без кромки)
-  mats.clear();
-  pi9.mats.forEach(x => mats.add(x));
-  piCard.textContent = '';
-  const add = (c, t) => { const d = document.createElement('div'); d.className = c; d.textContent = t; piCard.appendChild(d); };
-  add('t', p.userData.nm || (RU ? 'без имени' : 'no name'));
-  if (sz.length) add('s', sz.join(' × ') + (RU ? ' мм' : ' mm'));
-  if (mats.size) add('m', [...mats].join(', '));
-  piCard.style.top = ($('bar').getBoundingClientRect().bottom + 10) + 'px';
-  piCard.style.display = 'block';
+  // 1.9.4: плашки нет (его слова 05.11: «Когда выбираю деталь, появляется лишняя плагка. Убери. Должен выделяться ее номер.»):
+  // размер и имя — в строке у кружка названия, материал — нажатием на размер; номер детали в капсулах подсвечен, капсулы — к нему
+  dmPart(p);
+  pwTo(p);
+}
+// 1.9.4: размер, материал и имя детали o — в строке у кружка названия; null — пусто
+function dmPart(o) {
+  if (!o) { dmSet('', '', ''); return; }
+  const pi = partInfo(o);
+  dmSet(pi.sz.length ? pi.sz.join(' × ') + (RU ? ' мм' : ' mm') : '', pi.mats.join(', '), String(o.userData.nm || '').split('\\').filter(Boolean).pop() || '');
+}
+// 1.9.4: капсулы — к номеру детали o (он подсвечен)
+function pwTo(o) {
+  const i = PW.items.findIndex(it => it.o === o);
+  if (i >= 0 && PW.n) { let dl = pmod(i - PW.w, PW.n); if (dl > PW.n / 2) dl -= PW.n; PW.to = Math.round(PW.w + dl); pwKick(); }
+  pwLayout();
 }
 function infoTap(x, y) {
   if (!pinfo || !root) return;
@@ -1579,7 +1594,7 @@ function pwLayout() {
   const n = PW.n;
   if (!n) return;
   const base = Math.floor(PW.w), fr = PW.w - base, lim = Math.min(PW.span, PK) + 0.5;
-  const fi = foc ? PW.items.findIndex(it => it.o === foc.o) : -1;
+  const so = foc ? foc.o : (pinfo && pinfo.o) || null, fi = so ? PW.items.findIndex(it => it.o === so) : -1;   // 1.9.4: и деталь Part info
   PW.pool.forEach((el, j) => {
     const k = j - PK, d = k - fr, a = Math.abs(d);
     if (!(d > -n / 2 - 1e-6 && d <= n / 2 + 1e-6) || a > lim) { el.style.display = 'none'; return; }   // мало деталей — без повторов
@@ -3474,7 +3489,7 @@ async function open(id) {
     window.__ready = true;
   }
 }
-window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, top: () => ({ tw: Math.round(titleEl.getBoundingClientRect().width), open: titleEl.classList.contains('open'), hid: titleEl.classList.contains('hid'), tl: titleEl.querySelector('.tl').textContent, tt: titleEl.querySelector('.tt').textContent, dm: dmEl.classList.contains('on') ? dmIn.textContent : null, mat: dmEl.classList.contains('mat'), dmw: Math.round(dmEl.getBoundingClientRect().width), sw: dmIn.scrollWidth, cw: dmIn.clientWidth, pn: pnEl.style.display === 'block' ? pnEl.textContent : null, fc: $('fc').style.display }), capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
+window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, pinfo: () => (pinfo && pinfo.o ? pinfo.o.userData.nm : null), pwon: () => [...document.querySelectorAll('#pw .c.on')].map(c => c.textContent), top: () => ({ tw: Math.round(titleEl.getBoundingClientRect().width), open: titleEl.classList.contains('open'), hid: titleEl.classList.contains('hid'), tl: titleEl.querySelector('.tl').textContent, tt: titleEl.querySelector('.tt').textContent, dm: dmEl.classList.contains('on') ? dmIn.textContent : null, mat: dmEl.classList.contains('mat'), dmw: Math.round(dmEl.getBoundingClientRect().width), sw: dmIn.scrollWidth, cw: dmIn.clientWidth, pn: pnEl.style.display === 'block' ? pnEl.textContent : null, fc: $('fc').style.display }), capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
 if (cfg.id) {
   open(cfg.id);
 } else {
