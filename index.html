@@ -330,6 +330,11 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.9 (05.11): ССЫЛКА ПО НАЗВАНИЮ (его слова 05.11: «А возможно стч в ссылке было название проекта?»; «Давай
+// без метки. А можно перед и после названия поставить по 5 слешов?»; «А можно заглавными?»; «Тире, не дефис»; «Перед и после
+// названия. В названии нижний дефис норм»). Ссылка — …/viewer/?m=—————BONITA_TUMBA_1104————— (Phone 1.7.3): тире (и слеши,
+// подчёркивания) вокруг названия страница снимает, название уходит скрипту Google (Код.gs 1.4.0 ищет файл по названию
+// латиницей, _ = -). Прежние ссылки ?m=<метка> — как были.
 // KTNium Viewer 1.9.8 (05.11): ПЕРСПЕКТИВА 25° (его слова 05.11: «Сделай перспективу 25 градусов»). Было (1.8.0): большая
 // сторона кадра — не шире 20°, у сцены с углом шире глаз отходил назад по той же линии (кадр у цели тот же). Теперь — не
 // шире 25°: глаз отходит меньше, перспектива сильнее; у сцены с рамкой (кух_1) кадр тоже ровно 25° (было: 9° — глаз
@@ -551,6 +556,7 @@ const cfg = $('cfg').dataset;
 // адреса, данные — запросом без входа)
 const GS = !!(window.google && google.script && google.script.run);
 if (!cfg.id || cfg.id.charAt(0) === '<') cfg.id = (new URLSearchParams(location.search).get('m') || '').trim();   // 1.4.0: метка — из адреса страницы
+cfg.id = String(cfg.id || '').replace(/^[\s\/_\-\u2013\u2014]+|[\s\/_\-\u2013\u2014]+$/g, '');   // 1.9.9: —————НАЗВАНИЕ————— — без тире (и слешей, подчёркиваний) по краям
 function call(fn, ...a) {
   return new Promise((ok, no) => google.script.run.withSuccessHandler(ok).withFailureHandler(no)[fn](...a));
 }
