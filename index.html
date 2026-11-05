@@ -289,6 +289,9 @@ body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: сле�
 #dm::after, #pn::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: .7px; pointer-events: none;
   background: var(--lgr); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
+/* 1.9.16: круглые кнопки, «+»/«−», кружок названия и плашки сцен — без размытия под стеклом (его «…не вижу разницы по
+   круглым кнопкам. Они такие же мутные, и за ними не видна текстура.»): заливка, кант и тень — прежние */
+#title, #sw .b, .fb, #zm .zb { -webkit-backdrop-filter: none; backdrop-filter: none; }
 </style>
 <script type="importmap">
 { "imports": {
@@ -353,6 +356,13 @@ body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: сле�
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.16 (05.11): КРУГЛЫЕ КНОПКИ — БЕЗ РАЗМЫТИЯ ПОД СТЕКЛОМ (его слова 05.11: «Не понимаю почему, но не вижу
+// разницы по круглым кнопкам. Они такие же мутные, и за ними не видна текстура.»). Механизм: стекло (--lgb, 1.9.2) размывает
+// то, что под кнопкой, на 3 точки (на iPhone — 6 точек экрана) с насыщенностью и яркостью — мелкая текстура модели под
+// кнопкой пропадает, остаётся муть; 1.9.15 сравнял только заливку и кант. Плашки сцен стоят в ленте с обрезкой по бокам
+// (clip-path, 1.9.11) — в Safari, похоже, размытие под ними не работает, и они показывают модель как есть (облачный
+// Chrome размывает и их). Теперь размытия нет ни у круглых кнопок (и «+»/«−», кружка названия), ни у плашек сцен: та же
+// светлая заливка --lgf, кант --lgr и тень — модель под ними видна, как под плашками.
 // KTNium Viewer 1.9.15 (05.11): ДВУМЯ ПАЛЬЦАМИ — КАК СТАНДАРТНО; КРУГЛЫЕ КНОПКИ — СТЕКЛО КАК У ПЛАШЕК СЦЕН (его слова 05.11:
 // «Ты изменил прозрачность только у капсул сцен, а надо и у круглых кнопок тоже сделать такую же прозрачность. И почему-то
 // двумя пальцами сейчас нельзя делать пан. Оставь, чтобы можно было двумя пальцами делать пан, потому что это стандартная
