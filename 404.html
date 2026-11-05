@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KTNium Viewer</title>
+<script>
+// KTNium Viewer 404 (05.11): ссылка …/viewer/—НАЗВАНИЕ — без «?m=» и без тире в конце (его слова 05.11: «Тогда последнее тире
+// не нужно. А ?m= обязательно?»). GitHub Pages отдаёт эту страницу на любой путь под /viewer/, которого нет: название из пути
+// (тире, слеши, подчёркивания по краям — прочь) уходит странице просмотра как ?m=НАЗВАНИЕ; остальное — как у index.html.
+(function () {
+  var base = '/viewer/', p = location.pathname, i = p.indexOf(base);
+  var rest = i >= 0 ? p.slice(i + base.length) : p.replace(/^\/+/, '');
+  try { rest = decodeURIComponent(rest); } catch (e) {}
+  rest = rest.replace(/^[\s\/_\-–—]+|[\s\/_\-–—]+$/g, '');
+  var q = location.search ? '&' + location.search.slice(1) : '';
+  location.replace(base + (rest ? '?m=' + encodeURIComponent(rest) + q : (location.search || '')) + location.hash);
+})();
+</script>
+</head>
+<body style="margin:0;background:#d4d1ae"></body>
+</html>
