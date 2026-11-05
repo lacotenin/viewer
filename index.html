@@ -289,6 +289,8 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
   stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v10.5H11l-4.5 3.5V16H4z"/><path d="M8 9.5h8M8 12.5h5.5"/></svg></button>
 <button id="rpb" class="fb" type="button" aria-label="Report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
   stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.5" width="15" height="17" rx="2.6"/><path d="M8.2 8.3h7.6M8.2 12h7.6M8.2 15.7h4.6"/></svg></button>
+<button id="pwb" class="fb" type="button" aria-label="Part numbers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+  stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3.6" width="12" height="4.6" rx="2.3"/><rect x="6" y="9.7" width="12" height="4.6" rx="2.3"/><rect x="6" y="15.8" width="12" height="4.6" rx="2.3"/></svg></button>
 <button id="nsb" class="fb" type="button" aria-label="Nesting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
   stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 12.5h8.5v8M12 3.5v9M12 8.5h8.5M16 8.5v12"/></svg></button>
 <div id="ring"></div>
@@ -328,6 +330,16 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.8 (05.11): ПЕРСПЕКТИВА 25° (его слова 05.11: «Сделай перспективу 25 градусов»). Было (1.8.0): большая
+// сторона кадра — не шире 20°, у сцены с углом шире глаз отходил назад по той же линии (кадр у цели тот же). Теперь — не
+// шире 25°: глаз отходит меньше, перспектива сильнее; у сцены с рамкой (кух_1) кадр тоже ровно 25° (было: 9° — глаз
+// отходил с перебором); сцены уже 25° — как были; параллельные — как были.
+// KTNium Viewer 1.9.7 (05.11): КНОПКА СПИСКА НОМЕРОВ (его слова 05.11: «Пусть над последней кнопкой будет кнопка которая будет
+// разворачивать список номеров вверх. По умолчанию он свернут.»). Было: капсулы номеров (имён) справа видны всегда, посередине
+// между названием и кнопками. Теперь: над последней кнопкой ряда — кнопка списка (три капсулы); при открытии ссылки список
+// свёрнут; нажатие — капсулы разворачиваются вверх из кнопки (ближние первыми) и стоят столбиком над ней (номер — по её
+// середине, длинное имя — не дальше правого края), кнопка синяя; ещё нажатие — сворачиваются в кнопку. Листание, тап,
+// удержание и свайпы капсул — как были; свёрнутый список при смене сцены остаётся свёрнутым.
 // KTNium Viewer 1.9.6 (05.11): РЁБРА ЗЕРКАЛЬНЫХ ГРУПП; КАПСУЛЫ ПРЯЧУТСЯ (его слова 05.11: «Вот тут есть линии. Пч их нет в
 // телефоне?» — снимок высоких шкафов кух; «Стч капсулы справа долгое нажатие и свайп вправо прятал их так, что видны были
 // только кусочкки и все в один ровный столбик»). Было: рёбра рисуются полосками (LineSegments2 — сетка); у группы,
@@ -742,7 +754,7 @@ const ringEl = $('ring');
 // что в пряямоугольнике зумируетсяна весь экран»): кнопка — инструмент; палец рисует прямоугольник; отпустил — что в нём, на
 // весь видимый экран: камера едет (0,45 с) без поворота — середина прямоугольника встаёт в середину; после зума кнопка гаснет;
 // крошечный прямоугольник (тап) — ничего; второй палец — щипок, как всегда
-const zwBtn = $('zwb'), zrEl = $('zr'), rpBtn = $('rpb'), nsBtn = $('nsb');
+const zwBtn = $('zwb'), zrEl = $('zr'), rpBtn = $('rpb'), nsBtn = $('nsb'), pwBtn = $('pwb');   // 1.9.7: pwb — список номеров
 let zr = null;
 function zrShow() {
   if (!zr) return;
@@ -939,6 +951,15 @@ function fbPlace() {   // кнопки — над полосой сцен (не�
     const sv = el.querySelector('svg');
     if (sv) sv.style.width = sv.style.height = Math.round(sz * 0.59) + 'px';
   });
+  // 1.9.7: кнопка списка номеров — над последней кнопкой ряда, того же размера (видна, когда есть капсулы: pwBuild)
+  if (n) {
+    pwBtn.style.left = (10 + (n - 1) * st).toFixed(1) + 'px';
+    pwBtn.style.bottom = b.replace(/\)$/, ' + ' + (sz + 8) + 'px)');
+    pwBtn.style.width = pwBtn.style.height = sz + 'px';
+    pwBtn.style.borderRadius = sz / 2 + 'px';
+    const sv = pwBtn.querySelector('svg');
+    if (sv) sv.style.width = sv.style.height = Math.round(sz * 0.59) + 'px';
+  }
 }
 window.addEventListener('resize', () => { if (K && root) fbPlace(); });
 // кнопки — по одной: tool — нажатая (meas — рулетка, info — Part info, sec — сечение-куб)
@@ -1576,7 +1597,7 @@ function infoTap(x, y) {
 // 1.7.0: справа — капсулы деталей сцены, листаются по кругу пальцем (пружиной); тап по капсуле — к детали (не вплотную),
 // деталь — как есть, всё остальное — рентгеном; тап по модели — как было
 const pwEl = $('pw');
-const PW = { w: 0, v: 0, to: null, t: 0, raf: 0, n: 0, items: [], pool: [], drag: null, span: 3, wt: 0 };
+const PW = { w: 0, v: 0, to: null, t: 0, raf: 0, n: 0, items: [], pool: [], drag: null, span: 3, wt: 0, open: false, of: 0, bx: 0, by: 0, h: 0 };   // 1.9.7: open — развёрнут (по умолчанию нет), of — доля разворота
 const PSH = 40, PK = 5;   // шаг капсулы, капсул в запасе — по PK вверх и вниз
 const SLV = 14;   // 1.9.6: спрятанные капсулы — кусочек у правого края, точек
 // 1.9.6: спрятать капсулы за правый край (видны кусочки ровным столбиком) / вернуть
@@ -1588,6 +1609,14 @@ function pwHide(on) {
   PW.st = setTimeout(() => pwEl.classList.remove('pws'), 400);
   pwLayout();
 }
+// 1.9.7: развернуть / свернуть список номеров (кнопка над последней кнопкой); свёрнут — и без кусочков у края
+function pwOpen(on) {
+  PW.open = !!on;
+  if (!PW.open && PW.hid) { PW.hid = false; pwEl.classList.remove('pws'); }
+  pwBtn.classList.toggle('on', PW.open);
+  pwKick();
+}
+pwBtn.addEventListener('click', () => pwOpen(!PW.open));
 const pmod = (i, n) => ((i % n) + n) % n;
 let foc = null;   // деталь в фокусе: { o, keep: [[сетка, её материал]], xray0 }
 function pwBuild() {
@@ -1607,14 +1636,22 @@ function pwBuild() {
   if (!PW.pool.length) for (let j = 0; j < 2 * PK + 1; j++) { const c = document.createElement('div'); c.className = 'c'; pwEl.appendChild(c); PW.pool.push(c); }
   PW.pool.forEach(c => { c.__i = undefined; c.__w = undefined; });
   pwEl.style.display = PW.n ? 'block' : 'none';
+  pwBtn.style.display = PW.n ? 'flex' : 'none';   // 1.9.7
+  pwBtn.classList.toggle('on', PW.open);
   pwPlace();
 }
 function pwPlace() {   // между полосой названия и кнопками
   const tb = $('bar').getBoundingClientRect().bottom + 42, H = window.innerHeight;   // 1.8.2: и ниже плашки материала — капсулы под неё не заходят
-  const bt = msEl.style.display === 'flex' ? msEl.getBoundingClientRect().top : H - 80;
+  // 1.9.7: снизу — кнопка номеров (список стоит над ней вплотную); её нет — ряд кнопок
+  const pb = pwBtn.style.display === 'flex' ? pwBtn.getBoundingClientRect() : null;
+  const bt = pb ? pb.top : (msEl.style.display === 'flex' ? msEl.getBoundingClientRect().top : H - 80);
   const free = Math.max(120, bt - tb - 20), h = Math.min(free, (2 * PK + 1) * PSH);
-  pwEl.style.top = (tb + 10 + (free - h) / 2) + 'px';
+  const top = pb ? bt - 10 - h : tb + 10 + (free - h) / 2;
+  pwEl.style.top = top + 'px';
   pwEl.style.height = h + 'px';
+  PW.h = h;
+  PW.bx = pb ? pb.left + pb.width / 2 : window.innerWidth - 30;   // середина кнопки (экран)
+  PW.by = pb ? pb.top + pb.height / 2 - (top + h / 2) : h / 2;   // от середины столбика до середины кнопки
   PW.span = Math.max(0.5, (h / 2 - PSH / 2) / PSH);
   pwLayout();
 }
@@ -1626,14 +1663,25 @@ function pwLayout() {
   PW.pool.forEach((el, j) => {
     const k = j - PK, d = k - fr, a = Math.abs(d);
     if (!(d > -n / 2 - 1e-6 && d <= n / 2 + 1e-6) || a > lim) { el.style.display = 'none'; return; }   // мало деталей — без повторов
+    if (PW.of <= 0.001) { el.style.display = 'none'; return; }   // 1.9.7: список свёрнут
     const i = pmod(base + k, n);
     if (el.__i !== i) { el.__i = i; el.textContent = PW.items[i].t; el.title = PW.items[i].full || PW.items[i].t; el.classList.toggle('nb', !!PW.nb); el.__w = undefined; }
     el.style.display = 'block';
     if (el.__w === undefined) el.__w = el.offsetWidth;
-    // 1.9.6: спрятаны — левый край каждой у правого края экрана (кусочек SLV), ровным столбиком; #pw стоит в 8 от края
-    const hx = PW.hid ? Math.max(0, el.__w + 8 - SLV) : 0;
-    el.style.transform = 'translate(' + hx.toFixed(1) + 'px,' + (d * PSH).toFixed(2) + 'px)';   // 1.8.0: чёткие сверху донизу — без затухания и уменьшения
-    el.style.opacity = '1';
+    // 1.9.7: над кнопкой номеров — по её середине, длинное имя — не дальше правого края (#pw стоит в 8 от края)
+    const W8 = window.innerWidth - 8, hb = PW.bx + el.__w / 2 - W8;
+    let hx = Math.min(0, hb), y = d * PSH, op = 1;
+    // 1.9.6: спрятаны — левый край каждой у правого края экрана (кусочек SLV), ровным столбиком
+    if (PW.hid) hx = Math.max(0, el.__w + 8 - SLV);
+    if (PW.of < 0.999) {   // 1.9.7: разворот вверх из кнопки — ближние первыми; сворачиваются обратно в кнопку
+      const s9 = Math.min(1, Math.max(0, (PW.by - y) / Math.max(1, PW.by + PW.h / 2)));
+      const t9 = Math.min(1, Math.max(0, (PW.of - 0.45 * s9) / 0.55)), e9 = 1 - Math.pow(1 - t9, 3);
+      hx = hb + (hx - hb) * e9;
+      y = PW.by + (y - PW.by) * e9;
+      op = Math.min(1, t9 * 3);
+    }
+    el.style.transform = 'translate(' + hx.toFixed(1) + 'px,' + y.toFixed(2) + 'px)';   // 1.8.0: чёткие сверху донизу — без затухания и уменьшения
+    el.style.opacity = op.toFixed(3);
     el.style.zIndex = String(100 - Math.round(a * 10));
     el.classList.toggle('on', i === fi);
     el.classList.toggle('iso', i === fi && !!(foc && foc.iso));   // 1.9.0: остальное спрятано
@@ -1645,6 +1693,11 @@ function pwTick() {
   const dt = Math.min(0.034, Math.max(0.001, (now - (PW.t || now)) / 1000 || 0.016));
   PW.t = now;
   let go = false;
+  const of9 = PW.open ? 1 : 0;   // 1.9.7: разворот 0,36 с, свёртка 0,28 с
+  if (PW.of !== of9) {
+    PW.of = of9 > PW.of ? Math.min(1, PW.of + dt / 0.36) : Math.max(0, PW.of - dt / 0.28);
+    if (PW.of !== of9) go = true;
+  }
   if (PW.to !== null && !PW.drag) {   // пружиной: чуть за место и назад
     const KS = 240, CS = 2 * 0.62 * Math.sqrt(KS);
     PW.v += (-KS * (PW.w - PW.to) - CS * PW.v) * dt;
@@ -3039,12 +3092,17 @@ function viewOf(s) {
   };
   // 1.8.0: перспектива — 20° (его слова 05.11: «Перспективу сделай 20 градусов»): большая сторона кадра на этом экране — не
   // шире 20°; шире — глаз отходит назад по той же линии, кадр у цели тот же, искажение меньше
-  const T20 = Math.tan(10 * Math.PI / 180);
+  // 1.9.8: 25° (его слова 05.11: «Сделай перспективу 25 градусов»)
+  const T20 = Math.tan(12.5 * Math.PI / 180);
+  // 1.9.8: глаз дальше от цели в k раз; у сцены с рамкой (fit) рамка сужается быстрее, чем в k раз (цель далеко за рамкой), —
+  // k ищется делением пополам, кадр выходит ровно в предел (было: 4 шага по пропорции — у кух_1 кадр 9° вместо 20°)
+  const hmOf = v => Math.max(v.win.h, v.win.h * a), at = k => persp(Tg.clone().add(E.clone().sub(Tg).multiplyScalar(k)));
   let vw = persp(E);
-  for (let it = 0; it < 4; it++) {
-    const hm = Math.max(vw.win.h, vw.win.h * a);
-    if (hm <= T20 * 1.002) break;
-    vw = persp(Tg.clone().add(vw.E.clone().sub(Tg).multiplyScalar(hm / T20)));
+  if (hmOf(vw) > T20 * 1.002) {
+    let lo = 1, hi = hmOf(vw) / T20, vh = at(hi);
+    for (let g = 0; g < 12 && hmOf(vh) > T20; g++) { lo = hi; hi *= 2; vh = at(hi); }
+    for (let it = 0; it < 40 && hi - lo > 1e-4 * hi; it++) { const k = (lo + hi) / 2, v = at(k); if (hmOf(v) > T20) lo = k; else { hi = k; vh = v; } }
+    vw = vh;
   }
   return vw;
 }
@@ -3529,7 +3587,7 @@ async function open(id) {
     window.__ready = true;
   }
 }
-window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, pinfo: () => (pinfo && pinfo.o ? pinfo.o.userData.nm : null), pwon: () => [...document.querySelectorAll('#pw .c.on')].map(c => c.textContent), pwh: () => ({ hid: !!PW.hid, L: PW.pool.filter(c => c.style.display === 'block').map(c => Math.round(c.getBoundingClientRect().left)), W: window.innerWidth }), top: () => ({ tw: Math.round(titleEl.getBoundingClientRect().width), open: titleEl.classList.contains('open'), hid: titleEl.classList.contains('hid'), tl: titleEl.querySelector('.tl').textContent, tt: titleEl.querySelector('.tt').textContent, dm: dmEl.classList.contains('on') ? dmIn.textContent : null, mat: dmEl.classList.contains('mat'), dmw: Math.round(dmEl.getBoundingClientRect().width), sw: dmIn.scrollWidth, cw: dmIn.clientWidth, pn: pnEl.style.display === 'block' ? pnEl.textContent : null, fc: $('fc').style.display }), capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
+window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, pinfo: () => (pinfo && pinfo.o ? pinfo.o.userData.nm : null), pwon: () => [...document.querySelectorAll('#pw .c.on')].map(c => c.textContent), pwh: () => ({ hid: !!PW.hid, open: PW.open, of: PW.of, L: PW.pool.filter(c => c.style.display === 'block').map(c => Math.round(c.getBoundingClientRect().left)), C: PW.pool.filter(c => c.style.display === 'block').map(c => { const r = c.getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), Math.round(r.width)]; }), B: (() => { const r = pwBtn.getBoundingClientRect(); return pwBtn.style.display === 'flex' ? [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), Math.round(r.width), pwBtn.classList.contains('on')] : null; })(), N: (() => { const r = nsBtn.getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2)]; })(), W: window.innerWidth }), top: () => ({ tw: Math.round(titleEl.getBoundingClientRect().width), open: titleEl.classList.contains('open'), hid: titleEl.classList.contains('hid'), tl: titleEl.querySelector('.tl').textContent, tt: titleEl.querySelector('.tt').textContent, dm: dmEl.classList.contains('on') ? dmIn.textContent : null, mat: dmEl.classList.contains('mat'), dmw: Math.round(dmEl.getBoundingClientRect().width), sw: dmIn.scrollWidth, cw: dmIn.clientWidth, pn: pnEl.style.display === 'block' ? pnEl.textContent : null, fc: $('fc').style.display }), capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
 if (cfg.id) {
   open(cfg.id);
 } else {
