@@ -367,6 +367,21 @@ body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
 #hp .shc { animation: hpShc 2.8s ease-out infinite; }
 @keyframes hpShc { 0%, 44% { transform: scale(.6); opacity: 0; } 58%, 84% { transform: scale(1); opacity: 1; } 94%, 100% { transform: scale(1); opacity: 0; } }
 #hp .ms { animation: hpMs 2.8s ease-in-out infinite; }
+/* 1.9.23: книжный — «+» справа (−, когда есть, левее него), лента сцен от края; сфера вращения — по центру над рядом кнопок */
+body:not(.land) #zm { left: auto; right: calc(10px + env(safe-area-inset-right)); flex-direction: row-reverse; }
+body:not(.land) #sw, body:not(.land) #scenes.zm2 #sw { margin-left: 0; }
+#orb { position: fixed; left: 50%; bottom: calc(126px + env(safe-area-inset-bottom)); z-index: 3; display: none; width: 64px; height: 64px;
+  margin-left: -32px; border-radius: 50%; touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 7px 18px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.12); }
+#orb.dn { cursor: grabbing; box-shadow: 0 9px 22px rgba(40,66,74,.3), 0 1px 3px rgba(0,0,0,.14); }
+#orb svg { display: block; width: 100%; height: 100%; pointer-events: none; }
+#orb .om path, #orb .ol { fill: none; stroke: rgb(40,66,74); stroke-width: 1.3; }
+#orb .ol { stroke-opacity: .22; }
+/* 1.9.23: кружок названия — 44, как круглые кнопки (его «Сделай кнопку M такого же размера, как и все кнопки.»); развёрнутое
+   название — той же высоты */
+#title { width: 44px; height: 44px; line-height: 44px; border-radius: 22px; }
+#title .tl { width: 44px; font-size: 19px; }
+#title .tt { padding: 0 16px; font-size: 14px; }
 @keyframes hpMs { 0%, 100% { opacity: .35; } 20%, 70% { opacity: 1; } }
 </style>
 <script type="importmap">
@@ -420,6 +435,12 @@ body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
   stroke-linejoin="round"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg></div>
 <button id="hlb" class="fb" type="button" aria-label="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
   stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 9.3a2.9 2.9 0 1 1 4.3 2.6c-.95.55-1.5 1.25-1.5 2.35v.45"/><circle cx="12" cy="17.7" r="1.1" fill="currentColor" stroke="none"/></svg></button>
+<div id="orb" aria-label="Orbit"><svg viewBox="-50 -50 100 100"><defs>
+  <radialGradient id="orbg" cx="36%" cy="30%" r="78%"><stop offset="0" stop-color="#fff" stop-opacity=".82"/><stop offset=".38" stop-color="#fff" stop-opacity=".30"/>
+  <stop offset=".78" stop-color="#6c98a3" stop-opacity=".30"/><stop offset="1" stop-color="#284248" stop-opacity=".48"/></radialGradient>
+  <radialGradient id="orbh" cx="34%" cy="26%" r="22%"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+  <circle r="47" fill="url(#orbg)"/><ellipse class="ol" rx="47" ry="9"/><ellipse class="ol" cy="-24" rx="40.5" ry="7"/><ellipse class="ol" cy="24" rx="40.5" ry="7"/>
+  <g class="om"></g><circle r="47" fill="url(#orbh)"/><circle r="47" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.4"/></svg></div>
 <div id="hps"></div>
 <div id="hp" role="dialog" aria-modal="true"><div class="hh"><b></b><button class="hx" type="button" aria-label="Close"><svg viewBox="0 0 16 16" fill="none"
   stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg></button></div><div class="hb"></div></div>
@@ -437,6 +458,15 @@ body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.23 (21.11): СФЕРА ВРАЩЕНИЯ ПО ЦЕНТРУ; «+» СПРАВА, НОМЕРА СЛЕВА; «?» НАЖИМАЕТСЯ. Его слова 21.11:
+// «Перенеси, пожалуйста, плюсик в правую сторону, а кнопку с номерами в левую сторону. А прямо по центру сделай такую сферу
+// полупрозрачную, но с такими тенями… чтобы было видно, что это сфера. И это будет наша орбита… Плюс-минус мы будем
+// увеличивать… А панорамирование будем делать, как оно сейчас есть, пальцем… И орбита должна крутить модель вокруг одной
+// оси. По центру. И кнопка знак вопроса не работает.» Книжный: над рядом кнопок — ряд управления: номера слева, шар 64 по
+// центру, «+» справа («−» — левее него); лента сцен — от левого края. Шар: ведёшь влево-вправо — модель вокруг вертикальной
+// оси через середину экрана. Альбомный: «+» и номера — как были, шар — по центру над лентой. «?» на телефоне не нажимался:
+// touchstart с preventDefault (1.9.22, от лупы iOS) глушил click — у кнопки снят. Кружок названия (буква) — 44, как кнопки
+// (его «Сделай кнопку M такого же размера, как и все кнопки.»).
 // KTNium Viewer 1.9.22 (21.11): КНОПКА «?» И ОКНО «КАК ПОЛЬЗОВАТЬСЯ». Его слова 21.11: «Справа сверху в углу сделай кнопку
 // новую, добавь круглую, в таком же стиле. Пускай там будет знак вопроса… открывается такое окошечко, красивое, с округлыми
 // краями… в таком же стиле, как и кнопки фон. И там визуальная инструкция, как пользоваться. Покажи там все жесты.» Кнопка —
@@ -1218,6 +1248,7 @@ function fbPlace() {   // кнопки — над полосой сцен и «+
       size9(el, sz9);
     });
     zmE.style.left = zmE.style.bottom = '';   // «+» и «−» — в ряду сцен слева, как в книжном
+    orbEl.style.bottom = 'calc(' + bot + 'px + env(safe-area-inset-bottom))';   // 1.9.23: сфера — по центру над лентой
     zbs.forEach(el => { size9(el, 40); el.style.fontSize = ''; });
     if (n) {
       pwBtn.style.left = 'auto';
@@ -1230,11 +1261,14 @@ function fbPlace() {   // кнопки — над полосой сцен и «+
   zmE.style.left = zmE.style.bottom = '';   // книжный — у низа слева, перед лентой (как в CSS)
   zbs.forEach(el => { size9(el, 40); el.style.fontSize = ''; });
   pwBtn.style.right = '';
-  // 1.9.20: кнопка номеров — в ряду у правого края, если ряд с ней входит по 44 с зазором 6; ряд — левее её
-  const inRow = n > 0 && (n + 1) * 44 + n * 6 <= av, avR = inRow ? av - 50 : av;
-  const sz = Math.max(34, Math.min(44, Math.floor((avR - (n - 1) * 6) / n))), st = n > 1 ? Math.min(52, (avR - sz) / (n - 1)) : 0;
+  // 1.9.23: над рядом кнопок — ряд управления: номера слева, сфера по центру, «+» справа (его «Перенеси… плюсик в правую
+  // сторону, а кнопку с номерами в левую сторону. А прямо по центру сделай такую сферу…»)
+  const sz = Math.max(34, Math.min(44, Math.floor((av - (n - 1) * 6) / n))), st = n > 1 ? Math.min(52, (av - sz) / (n - 1)) : 0;
   for (const [el, on] of all) { el.style.bottom = b; el.style.display = on ? 'flex' : 'none'; }
-  if (one) zmE.style.bottom = 'calc(' + (14 + sz + 10) + 'px + env(safe-area-inset-bottom))';   // 1.9.22: «+» — над рядом
+  const cb = (one ? 14 : 72) + sz + 10;   // низ ряда управления (сфера 64)
+  orbEl.style.bottom = 'calc(' + cb + 'px + env(safe-area-inset-bottom))';
+  zmE.style.left = 'auto';
+  zmE.style.bottom = 'calc(' + (cb + 12) + 'px + env(safe-area-inset-bottom))';
   vis.forEach((el, i) => {
     el.style.left = (10 + i * st).toFixed(1) + 'px';
     el.style.width = el.style.height = sz + 'px';
@@ -1242,12 +1276,12 @@ function fbPlace() {   // кнопки — над полосой сцен и «+
     const sv = el.querySelector('svg');
     if (sv) sv.style.width = sv.style.height = Math.round(sz * 0.59) + 'px';
   });
-  // 1.9.7: кнопка списка номеров — над последней кнопкой ряда, того же размера (видна, когда есть капсулы: pwBuild)
-  // 1.9.20: есть место — в том же ряду у правого края (его «…спусти ее вниз и поставь справа, там есть место»)
+  // 1.9.7: кнопка списка номеров — над последней кнопкой ряда (видна, когда есть капсулы: pwBuild); 1.9.20 — в ряду справа;
+  // 1.9.23: слева в ряду управления, по высоте — по середине сферы
   if (n) {
-    pwBtn.style.left = inRow ? 'auto' : (10 + (n - 1) * st).toFixed(1) + 'px';
-    pwBtn.style.right = inRow ? 'calc(10px + env(safe-area-inset-right))' : '';
-    pwBtn.style.bottom = inRow ? b : b.replace(/\)$/, ' + ' + (sz + 8) + 'px)');
+    pwBtn.style.left = 'calc(10px + env(safe-area-inset-left))';
+    pwBtn.style.right = '';
+    pwBtn.style.bottom = 'calc(' + (cb + (64 - sz) / 2) + 'px + env(safe-area-inset-bottom))';
     pwBtn.style.width = pwBtn.style.height = sz + 'px';
     pwBtn.style.borderRadius = sz / 2 + 'px';
     const sv = pwBtn.querySelector('svg');
@@ -1966,7 +2000,7 @@ function pwLayout() {
     if (el.__w === undefined) el.__w = el.offsetWidth;
     // 1.9.7: над кнопкой номеров — по её середине, длинное имя — не дальше правого края (#pw стоит в 8 от края)
     const W8 = window.innerWidth - 8, hb = PW.bx + el.__w / 2 - W8;
-    let hx = Math.min(0, hb), y = d * PSH, op = 1;
+    let hx = Math.max(Math.min(0, hb), 8 + el.__w - W8), y = d * PSH, op = 1;   // 1.9.23: и не дальше левого края (кнопка слева)
     // 1.9.6: спрятаны — левый край каждой у правого края экрана (кусочек SLV), ровным столбиком
     if (PW.hid) hx = Math.max(0, el.__w + 8 - SLV);
     if (PW.of < 0.999) {   // 1.9.7: разворот вверх из кнопки — ближние первыми; сворачиваются обратно в кнопку
@@ -2297,7 +2331,7 @@ cmBtn.addEventListener('click', () => {
   const on = cmEl.style.display !== 'block';
   if (on) {
     cmEl.textContent = (K && K.comment) || '';
-    cmEl.style.bottom = (window.innerHeight - cmBtn.getBoundingClientRect().top + 10) + 'px';
+    cmEl.style.bottom = (window.innerHeight - Math.min(cmBtn.getBoundingClientRect().top, orbEl.style.display === 'block' ? orbEl.getBoundingClientRect().top : 1e9) + 10) + 'px';   // 1.9.23: и над сферой
   }
   cmEl.style.display = on ? 'block' : 'none';
   cmBtn.classList.toggle('on', on);
@@ -3193,8 +3227,8 @@ function titleToggle() {
     titleEl.style.transition = 'none';
     titleEl.style.width = 'auto';
     const bs9 = getComputedStyle($('bar')), bw = $('bar').clientWidth - parseFloat(bs9.paddingLeft) - parseFloat(bs9.paddingRight), dw = dmEl.classList.contains('on') ? Math.min(dmEl.scrollWidth, 120) + 10 : 0;
-    const w = Math.max(30, Math.min(titleEl.scrollWidth, bw - dw));
-    titleEl.style.width = '30px';
+    const w = Math.max(44, Math.min(titleEl.scrollWidth, bw - dw));   // 1.9.23: кружок — 44
+    titleEl.style.width = '44px';
     void titleEl.offsetWidth;
     titleEl.style.transition = '';
     titleEl.style.width = w + 'px';
@@ -3880,6 +3914,8 @@ async function open(id) {
     fbPlace();   // 1.7.0: кнопки над сценами слева
     pwBuild();   // 1.7.0: капсулы деталей сцены справа
     hlBtn.style.display = 'flex';   // 1.9.22: «?» — когда модель открылась
+    orbEl.style.display = 'block';   // 1.9.23: сфера вращения
+    orbDraw();
     document.body.classList.add('hlp');
     if (K.scenes.length) {
       show(0, true);
@@ -3926,6 +3962,68 @@ for (const [b9, f9] of [[zpBtn, 1.25], [zmBtn, 1 / 1.25]]) {
   b9.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });   // без лупы и двойного тапа iOS
 }
 // =====================================================================================================================
+// 1.9.23: СФЕРА ВРАЩЕНИЯ (его слова 21.11: «…прямо по центру сделай такую сферу полупрозрачную, но с такими тенями… чтобы было
+// видно, что это сфера. И это будет наша орбита… крутя по ней… как будто бы крутим по модели… панорамирование… как оно
+// сейчас есть, пальцем… И орбита должна крутить модель вокруг одной оси. По центру.»): шар 64 (стекло, блик, тень,
+// меридианы и параллели); ведёшь пальцем по шару влево-вправо — модель поворачивается вокруг вертикальной оси через середину
+// экрана (его уточнение 21.11: «…центр орбиты должен быть по центру экрана. И в зависимости от того, как мы панорамой
+// смещаем изделие, изделие будет крутиться в зависимости от того, как оно расположено по отношению к центру экрана.»): ось —
+// через точку модели под серединой экрана (нет там модели — на глубине середины модели), берётся в начале движения; камера
+// обходит ось по кругу на той же высоте; шар крутится с моделью (меридианы бегут за пальцем); вверх-вниз — ничего (одна
+// ось); палец можно увести за шар — поворот продолжается, пока не отпустишь. Скорость — 0,63° на точку экрана.
+const orbEl = $('orb'), orbM = orbEl.querySelector('.om');
+let orbPhi = 0, orbD = null;
+const ORB_K = 0.011;
+function orbDraw() {
+  let d = '';
+  for (let i = 0; i < 12; i++) {
+    const l = orbPhi + i * Math.PI / 6, c = Math.cos(l), sn = Math.sin(l);
+    if (c <= 0.03) continue;   // задняя половина не видна
+    const rx = Math.abs(47 * sn);
+    d += `<path d="M0 -47A${rx.toFixed(2)} 47 0 0 ${sn > 0 ? 1 : 0} 0 47" stroke-opacity="${(0.1 + 0.4 * c).toFixed(3)}"/>`;
+  }
+  orbM.innerHTML = d;
+}
+function orbAxis() {   // точка оси: модель под серединой экрана, иначе — на луче середины на глубине середины модели
+  const x = window.innerWidth / 2, y = window.innerHeight / 2;
+  const P = pick(x, y);
+  if (P) return P;
+  ray.setFromCamera(ndc(x, y), cam);
+  const dv = ray.ray.direction.clone();
+  return cam.position.clone().addScaledVector(dv, depthTo(bs.center) / Math.max(1e-6, dv.dot(fwd())));
+}
+function spin(a, c) {   // поворот вида вокруг вертикальной оси через точку c
+  const q = new THREE.Quaternion().setFromAxisAngle(UP, a);
+  const off = cam.position.clone().sub(c);
+  off.applyQuaternion(q);
+  cam.position.set(c.x, cam.position.y, c.z).add(new V3(off.x, 0, off.z));
+  cam.quaternion.premultiply(q);
+  if (pivotOk) { const pv = pivot.clone().sub(c).applyQuaternion(q); pivot.set(c.x + pv.x, pivot.y, c.z + pv.z); }
+  proj();
+}
+orbEl.addEventListener('pointerdown', e => {
+  if (!root) return;
+  e.preventDefault();
+  e.stopPropagation();
+  orbEl.setPointerCapture(e.pointerId);
+  anim = null;
+  untouched = false;
+  orbD = { id: e.pointerId, x: e.clientX, c: orbAxis() };
+  orbEl.classList.add('dn');
+});
+orbEl.addEventListener('pointermove', e => {
+  if (!orbD || e.pointerId !== orbD.id) return;
+  const dx = e.clientX - orbD.x;
+  orbD.x = e.clientX;
+  if (!dx) return;
+  spin(-dx * ORB_K, orbD.c);   // повёл вправо — перед модели едет вправо (как у вращения пальцем)
+  orbPhi += dx * ORB_K;
+  orbDraw();
+});
+for (const ev of ['pointerup', 'pointercancel']) orbEl.addEventListener(ev, e => { if (orbD && e.pointerId === orbD.id) { orbD = null; orbEl.classList.remove('dn'); } });
+orbEl.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });   // без лупы и прокрутки iOS
+window.__orb = () => ({ phi: +orbPhi.toFixed(4), r: (() => { const r = orbEl.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width)]; })() });
+// =====================================================================================================================
 // 1.9.22: КНОПКА «?» И ОКНО «КАК ПОЛЬЗОВАТЬСЯ» (его слова 21.11: «Справа сверху в углу сделай кнопку новую, добавь круглую, в
 // таком же стиле. Пускай там будет знак вопроса… И когда нажимаешь на нее, открывается такое окошечко, красивое, с округлыми
 // краями. И, наверное, тоже в таком же стиле, как и кнопки фон. И там визуальная инструкция, как пользоваться. Покажи там все
@@ -3937,6 +4035,7 @@ let hpOn = false, hpT = 0;
 const HPX = RU ? {
   title: 'Как пользоваться', touch: 'Жесты', mouse: 'Мышь', btns: 'Кнопки',
   pan: ['Сдвиг', 'Веди одним пальцем'],
+  sph: ['Поворот сферой', 'Веди пальцем по шару внизу — модель поворачивается вокруг оси по центру экрана'],
   orbit: ['Вращение', 'Двойной тап и веди — вокруг точки под пальцем'],
   zin: ['Ближе в 2 раза', 'Двойной тап — к точке под пальцем'],
   zout: ['Дальше в 2 раза', 'Тройной тап'],
@@ -3956,6 +4055,7 @@ const HPX = RU ? {
 } : {
   title: 'How to use', touch: 'Gestures', mouse: 'Mouse', btns: 'Buttons',
   pan: ['Pan', 'Drag with one finger'],
+  sph: ['Turn with the ball', 'Drag the ball at the bottom — the model turns around the vertical axis at the screen center'],
   orbit: ['Orbit', 'Double tap, then drag — around the point under the finger'],
   zin: ['Zoom in ×2', 'Double tap — toward the point under the finger'],
   zout: ['Zoom out ×2', 'Triple tap'],
@@ -3995,6 +4095,8 @@ const hpMouse = (k) => {
 };
 const HPG = {
   pan: hpAr('M16 32h32M44 28l4 4-4 4') + hpDot(32, 32, 'mvx'),
+  sph: '<circle cx="32" cy="32" r="17" fill="rgba(255,255,255,.55)" stroke="#fff" stroke-width="1.2"/><ellipse cx="32" cy="32" rx="17" ry="3.6" fill="none" stroke="rgba(40,66,74,.3)" stroke-width="1"/>' +
+    '<path d="M32 15a8 17 0 0 1 0 34M32 15a8 17 0 0 0 0 34" fill="none" stroke="rgba(40,66,74,.4)" stroke-width="1"/>' + hpAr('M10 54h44M50 50l4 4-4 4') + hpDot(32, 32, 'mvx'),
   orbit: hpAr('M18 42C21 27 39 22 46 35M42.6 34.4l3.6 1.2 1-3.6') + hpRp(18, 42, 0) + hpRp(18, 42, 0.3) + hpDot(18, 42, 'orb'),
   zin: hpRp(28, 36, 0) + hpRp(28, 36, 0.3) + hpDot(28, 36, 'tp') + hpMg(46, 17, true) + hpX2(46, 54),
   zout: hpRp(28, 36, 0) + hpRp(28, 36, 0.3) + hpRp(28, 36, 0.6) + hpDot(28, 36, 'tp') + hpMg(46, 17, false) + hpX2(46, 54),
@@ -4016,7 +4118,7 @@ function hpBuild() {
   let h = '';
   if (touch || !fine) {
     h += `<h4>${HPX.touch}</h4>`;
-    for (const k of ['pan', 'orbit', 'zin', 'zout', 'pinch', 'pan2']) h += hpRow(hpS(HPG[k]), HPX[k]);
+    for (const k of ['pan', 'sph', 'orbit', 'zin', 'zout', 'pinch', 'pan2']) h += hpRow(hpS(HPG[k]), HPX[k]);
     if (K && K.scenes && K.scenes.length > 1) h += hpRow(hpS(HPG.scenes), HPX.scenes);
     if (PW.n) {
       h += hpRow(hpS(HPG.num), HPX.num) + hpRow(hpS(HPG.hide), HPX.hide);
@@ -4063,7 +4165,7 @@ function hpClose() {
 hlBtn.addEventListener('click', () => (hpOn ? hpClose() : hpOpen()));
 hpEl.querySelector('.hx').addEventListener('click', hpClose);
 hpScr.addEventListener('pointerdown', e => { e.preventDefault(); hpClose(); });
-for (const el9 of [hlBtn, hpScr]) el9.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });   // без лупы и двойного тапа iOS
+hpScr.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });   // 1.9.23: у «?» — нет (preventDefault на touchstart глушил click — кнопка не нажималась)
 window.__hp = () => ({ on: hpOn, rows: [...hpBody.querySelectorAll('.hr b')].map(b => b.textContent), btn: (() => { const r = hlBtn.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width)]; })(), box: (() => { const r = hpEl.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)]; })() });
 window.__zm = () => ({ z: zoomZ, t: zoomT, minus: zmBtn.style.display, sw: getComputedStyle($('sw') || document.body).marginLeft });
 window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, pinfo: () => (pinfo && pinfo.o ? pinfo.o.userData.nm : null), pwon: () => [...document.querySelectorAll('#pw .c.on')].map(c => c.textContent), pwh: () => ({ hid: !!PW.hid, open: PW.open, of: PW.of, L: PW.pool.filter(c => c.style.display === 'block').map(c => Math.round(c.getBoundingClientRect().left)), C: PW.pool.filter(c => c.style.display === 'block').map(c => { const r = c.getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), Math.round(r.width)]; }), B: (() => { const r = pwBtn.getBoundingClientRect(); return pwBtn.style.display === 'flex' ? [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), Math.round(r.width), pwBtn.classList.contains('on')] : null; })(), N: (() => { const r = nsBtn.getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2)]; })(), W: window.innerWidth }), top: () => ({ tw: Math.round(titleEl.getBoundingClientRect().width), open: titleEl.classList.contains('open'), hid: titleEl.classList.contains('hid'), tl: titleEl.querySelector('.tl').textContent, tt: titleEl.querySelector('.tt').textContent, dm: dmEl.classList.contains('on') ? dmIn.textContent : null, mat: dmEl.classList.contains('mat'), dmw: Math.round(dmEl.getBoundingClientRect().width), sw: dmIn.scrollWidth, cw: dmIn.clientWidth, pn: pnEl.style.display === 'block' ? pnEl.textContent : null, fc: $('fc').style.display }), capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
