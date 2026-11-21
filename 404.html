@@ -8,12 +8,14 @@
 // KTNium Viewer 404 (05.11): ссылка …/viewer/—НАЗВАНИЕ — без «?m=» и без тире в конце (его слова 05.11: «Тогда последнее тире
 // не нужно. А ?m= обязательно?»). GitHub Pages отдаёт эту страницу на любой путь под /viewer/, которого нет: название из пути
 // (тире, слеши, подчёркивания по краям — прочь) уходит странице просмотра как ?m=НАЗВАНИЕ; остальное — как у index.html.
+// 21.11: к адресу — метка времени &v=… (его «Обновил страницу, ничего не изменилось»): страницу просмотра GitHub отдаёт с
+// max-age=600, после пересылки браузер брал старую из кэша до 10 минут; с меткой — всегда свежая (адрес потом — /НАЗВАНИЕ).
 (function () {
   var base = '/viewer/', p = location.pathname, i = p.indexOf(base);
   var rest = i >= 0 ? p.slice(i + base.length) : p.replace(/^\/+/, '');
   try { rest = decodeURIComponent(rest); } catch (e) {}
   rest = rest.replace(/^[\s\/_\-–—]+|[\s\/_\-–—]+$/g, '');
-  var q = location.search ? '&' + location.search.slice(1) : '';
+  var q = (location.search ? '&' + location.search.slice(1) : '') + '&v=' + Date.now().toString(36);
   location.replace(base + (rest ? '?m=' + encodeURIComponent(rest) + q : (location.search || '')) + location.hash);
 })();
 </script>
