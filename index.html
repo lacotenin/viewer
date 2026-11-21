@@ -336,6 +336,8 @@ body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
 @keyframes hpRp { 0% { opacity: .9; transform: scale(1); } 16% { opacity: 0; transform: scale(2.5); } 100% { opacity: 0; transform: scale(2.5); } }
 #hp .mvx { animation: hpMvx 2.8s ease-in-out infinite; }
 @keyframes hpMvx { 0%, 8% { transform: translateX(-14px); opacity: 0; } 16% { transform: translateX(-14px); opacity: 1; } 70% { transform: translateX(14px); opacity: 1; } 82%, 100% { transform: translateX(14px); opacity: 0; } }
+#hp .trk { animation: hpTrk 2.8s ease-in-out infinite; }
+@keyframes hpTrk { 0%, 8% { transform: translate(-9px, 9px); opacity: 0; } 16% { transform: translate(-9px, 9px); opacity: 1; } 44% { transform: translate(9px, -9px); } 70% { transform: translate(9px, 9px); opacity: 1; } 82%, 100% { transform: translate(9px, 9px); opacity: 0; } }
 #hp .orb { animation: hpOrb 2.8s ease-in-out infinite; }
 @keyframes hpOrb { 0%, 30% { transform: translate(0, 0); opacity: 1; } 46% { transform: translate(7px, -12px); } 60% { transform: translate(18px, -15px); } 76% { transform: translate(28px, -5px); opacity: 1; } 88%, 100% { transform: translate(28px, -5px); opacity: 0; } }
 #hp .tp { animation: hpTp 2.8s ease-out infinite; }
@@ -372,11 +374,18 @@ body:not(.land) #zm { left: auto; right: calc(10px + env(safe-area-inset-right))
 body:not(.land) #sw, body:not(.land) #scenes.zm2 #sw { margin-left: 0; }
 #orb { position: fixed; left: 50%; bottom: calc(126px + env(safe-area-inset-bottom)); z-index: 3; display: none; width: 64px; height: 64px;
   margin-left: -32px; border-radius: 50%; touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 7px 18px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.12); }
-#orb.dn { cursor: grabbing; box-shadow: 0 9px 22px rgba(40,66,74,.3), 0 1px 3px rgba(0,0,0,.14); }
-#orb svg { display: block; width: 100%; height: 100%; pointer-events: none; }
-#orb .om path, #orb .ol { fill: none; stroke: rgb(40,66,74); stroke-width: 1.3; }
-#orb .ol { stroke-opacity: .22; }
+  background: radial-gradient(circle at 34% 27%, rgba(255,255,255,.40) 0%, rgba(255,255,255,.15) 30%, rgba(255,255,255,.05) 60%,
+    rgba(255,255,255,.08) 84%, rgba(255,255,255,.18) 100%);
+  box-shadow: var(--lgs); }
+/* 1.9.24: шар — стекло круглых кнопок (заливка, кант, тень); нажатый — тень кнопок «вкл» */
+#orb::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: .7px; pointer-events: none;
+  background: var(--lgr); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
+#orb.dn { cursor: grabbing; box-shadow: var(--lgso); }
+/* 1.9.24: «+» и «−» — значком по середине кнопки (знак шрифта съезжал вниз) */
+#zm .zb svg { display: block; width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round;
+  pointer-events: none; filter: drop-shadow(0 0 1.5px rgba(255,255,255,.95)); }
+#hp .hk i svg.zs { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
 /* 1.9.23: кружок названия — 44, как круглые кнопки (его «Сделай кнопку M такого же размера, как и все кнопки.»); развёрнутое
    название — той же высоты */
 #title { width: 44px; height: 44px; line-height: 44px; border-radius: 22px; }
@@ -395,7 +404,7 @@ body:not(.land) #sw, body:not(.land) #scenes.zm2 #sw { margin-left: 0; }
 <div id="bar"><div id="title"><span class="tl"></span><span class="tt"></span></div><div id="dm"><div class="dmi"></div></div></div>
 <div id="pn"></div>
 <div id="scenes"></div>
-<div id="zm"><button class="zb" id="zpl" type="button" aria-label="+">+</button><button class="zb" id="zmn" type="button" aria-label="−">−</button></div>
+<div id="zm"><button class="zb" id="zpl" type="button" aria-label="+"><svg viewBox="0 0 24 24"><path d="M12 4.5v15M4.5 12h15"/></svg></button><button class="zb" id="zmn" type="button" aria-label="−"><svg viewBox="0 0 24 24"><path d="M4.5 12h15"/></svg></button></div>
 <div id="pw"></div>
 <div id="fc" class="gl"></div>
 <div id="sh"></div>
@@ -435,12 +444,7 @@ body:not(.land) #sw, body:not(.land) #scenes.zm2 #sw { margin-left: 0; }
   stroke-linejoin="round"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg></div>
 <button id="hlb" class="fb" type="button" aria-label="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
   stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 9.3a2.9 2.9 0 1 1 4.3 2.6c-.95.55-1.5 1.25-1.5 2.35v.45"/><circle cx="12" cy="17.7" r="1.1" fill="currentColor" stroke="none"/></svg></button>
-<div id="orb" aria-label="Orbit"><svg viewBox="-50 -50 100 100"><defs>
-  <radialGradient id="orbg" cx="36%" cy="30%" r="78%"><stop offset="0" stop-color="#fff" stop-opacity=".82"/><stop offset=".38" stop-color="#fff" stop-opacity=".30"/>
-  <stop offset=".78" stop-color="#6c98a3" stop-opacity=".30"/><stop offset="1" stop-color="#284248" stop-opacity=".48"/></radialGradient>
-  <radialGradient id="orbh" cx="34%" cy="26%" r="22%"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
-  <circle r="47" fill="url(#orbg)"/><ellipse class="ol" rx="47" ry="9"/><ellipse class="ol" cy="-24" rx="40.5" ry="7"/><ellipse class="ol" cy="24" rx="40.5" ry="7"/>
-  <g class="om"></g><circle r="47" fill="url(#orbh)"/><circle r="47" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.4"/></svg></div>
+<div id="orb" aria-label="Orbit"></div>
 <div id="hps"></div>
 <div id="hp" role="dialog" aria-modal="true"><div class="hh"><b></b><button class="hx" type="button" aria-label="Close"><svg viewBox="0 0 16 16" fill="none"
   stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg></button></div><div class="hb"></div></div>
@@ -458,6 +462,16 @@ body:not(.land) #sw, body:not(.land) #scenes.zm2 #sw { margin-left: 0; }
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.24 (21.11): ШАР — ТРЕКБОЛ, БЕЗ ЛИНИЙ. Его слова 21.11: «Про орбиту как-то ты не совсем правильно
+// сделал… она должна быть как шар, то есть вверх-вниз, по диагонали. То есть этот шарик должен быть как трекбол.» и «И убери
+// эти экваторы и параллели. Выглядит как глобус, не надо так.» Ведёшь по шару в любую сторону — модель поворачивается вокруг
+// точки по середине экрана: влево-вправо — вокруг вертикали, вверх-вниз — вокруг горизонтали экрана, по диагонали — сразу оба
+// (сверху и снизу — до 86°, через верх не переворачивается, как вращение двойным тапом). Шар — стекло с бликом и тенью, без
+// меридианов, параллелей и экватора (его «Нет, меридианы тоже надо убрать. Сделай просто шар и сделай его, пожалуйста,
+// полупрозрачным, чтобы он был в стиле кнопок.»): заливка — то же полупрозрачное белое стекло, кант и тень, что у круглых
+// кнопок, блик сверху-слева — чтобы читался шаром. Было (1.9.23): только влево-вправо, на шаре — линии глобуса, заливка
+// плотнее и с бирюзой. «+» и «−» — значком, точно по середине кнопки (его «…у нее плюсик не по центру кнопки, он съехал вниз
+// немножко»): знак шрифта сидит на своей строке ниже середины круга.
 // KTNium Viewer 1.9.23 (21.11): СФЕРА ВРАЩЕНИЯ ПО ЦЕНТРУ; «+» СПРАВА, НОМЕРА СЛЕВА; «?» НАЖИМАЕТСЯ. Его слова 21.11:
 // «Перенеси, пожалуйста, плюсик в правую сторону, а кнопку с номерами в левую сторону. А прямо по центру сделай такую сферу
 // полупрозрачную, но с такими тенями… чтобы было видно, что это сфера. И это будет наша орбита… Плюс-минус мы будем
@@ -3915,7 +3929,6 @@ async function open(id) {
     pwBuild();   // 1.7.0: капсулы деталей сцены справа
     hlBtn.style.display = 'flex';   // 1.9.22: «?» — когда модель открылась
     orbEl.style.display = 'block';   // 1.9.23: сфера вращения
-    orbDraw();
     document.body.classList.add('hlp');
     if (K.scenes.length) {
       show(0, true);
@@ -3971,19 +3984,11 @@ for (const [b9, f9] of [[zpBtn, 1.25], [zmBtn, 1 / 1.25]]) {
 // через точку модели под серединой экрана (нет там модели — на глубине середины модели), берётся в начале движения; камера
 // обходит ось по кругу на той же высоте; шар крутится с моделью (меридианы бегут за пальцем); вверх-вниз — ничего (одна
 // ось); палец можно увести за шар — поворот продолжается, пока не отпустишь. Скорость — 0,63° на точку экрана.
-const orbEl = $('orb'), orbM = orbEl.querySelector('.om');
-let orbPhi = 0, orbD = null;
+// 1.9.24 (его «…этот шарик должен быть как трекбол», «И убери эти экваторы и параллели»): ведёшь в любую сторону —
+// влево-вправо вокруг вертикали, вверх-вниз вокруг горизонтали экрана, по диагонали — оба; линий на шаре нет
+const orbEl = $('orb');
+let orbD = null;
 const ORB_K = 0.011;
-function orbDraw() {
-  let d = '';
-  for (let i = 0; i < 12; i++) {
-    const l = orbPhi + i * Math.PI / 6, c = Math.cos(l), sn = Math.sin(l);
-    if (c <= 0.03) continue;   // задняя половина не видна
-    const rx = Math.abs(47 * sn);
-    d += `<path d="M0 -47A${rx.toFixed(2)} 47 0 0 ${sn > 0 ? 1 : 0} 0 47" stroke-opacity="${(0.1 + 0.4 * c).toFixed(3)}"/>`;
-  }
-  orbM.innerHTML = d;
-}
 function orbAxis() {   // точка оси: модель под серединой экрана, иначе — на луче середины на глубине середины модели
   const x = window.innerWidth / 2, y = window.innerHeight / 2;
   const P = pick(x, y);
@@ -3992,13 +3997,17 @@ function orbAxis() {   // точка оси: модель под середин�
   const dv = ray.ray.direction.clone();
   return cam.position.clone().addScaledVector(dv, depthTo(bs.center) / Math.max(1e-6, dv.dot(fwd())));
 }
-function spin(a, c) {   // поворот вида вокруг вертикальной оси через точку c
-  const q = new THREE.Quaternion().setFromAxisAngle(UP, a);
-  const off = cam.position.clone().sub(c);
-  off.applyQuaternion(q);
-  cam.position.set(c.x, cam.position.y, c.z).add(new V3(off.x, 0, off.z));
+// 1.9.24: поворот вида через точку c (она остаётся на месте экрана): dx — вокруг вертикали, dy — вокруг горизонтали экрана;
+// сверху и снизу — до 86° (через верх не переворачивается, как вращение двойным тапом)
+function orbTurn(dx, dy, c) {
+  const el = Math.asin(Math.max(-1, Math.min(1, fwd().y)));
+  const a = Math.max(-1.5 - el, Math.min(1.5 - el, -dy * ORB_K));   // повёл вверх — перед модели идёт вверх
+  const right = new V3(1, 0, 0).applyQuaternion(cam.quaternion);
+  const q = new THREE.Quaternion().setFromAxisAngle(UP, -dx * ORB_K).multiply(new THREE.Quaternion().setFromAxisAngle(right, a));
+  const off = cam.position.clone().sub(c).applyQuaternion(q);   // сперва смещение, потом на место
+  cam.position.copy(c).add(off);
   cam.quaternion.premultiply(q);
-  if (pivotOk) { const pv = pivot.clone().sub(c).applyQuaternion(q); pivot.set(c.x + pv.x, pivot.y, c.z + pv.z); }
+  if (pivotOk) pivot.copy(c).add(pivot.clone().sub(c).applyQuaternion(q));
   proj();
 }
 orbEl.addEventListener('pointerdown', e => {
@@ -4008,21 +4017,20 @@ orbEl.addEventListener('pointerdown', e => {
   orbEl.setPointerCapture(e.pointerId);
   anim = null;
   untouched = false;
-  orbD = { id: e.pointerId, x: e.clientX, c: orbAxis() };
+  orbD = { id: e.pointerId, x: e.clientX, y: e.clientY, c: orbAxis() };
   orbEl.classList.add('dn');
 });
 orbEl.addEventListener('pointermove', e => {
   if (!orbD || e.pointerId !== orbD.id) return;
-  const dx = e.clientX - orbD.x;
+  const dx = e.clientX - orbD.x, dy = e.clientY - orbD.y;
   orbD.x = e.clientX;
-  if (!dx) return;
-  spin(-dx * ORB_K, orbD.c);   // повёл вправо — перед модели едет вправо (как у вращения пальцем)
-  orbPhi += dx * ORB_K;
-  orbDraw();
+  orbD.y = e.clientY;
+  if (!dx && !dy) return;
+  orbTurn(dx, dy, orbD.c);   // повёл вправо — перед модели едет вправо, вверх — вверх (как у вращения пальцем)
 });
 for (const ev of ['pointerup', 'pointercancel']) orbEl.addEventListener(ev, e => { if (orbD && e.pointerId === orbD.id) { orbD = null; orbEl.classList.remove('dn'); } });
 orbEl.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });   // без лупы и прокрутки iOS
-window.__orb = () => ({ phi: +orbPhi.toFixed(4), r: (() => { const r = orbEl.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width)]; })() });
+window.__orb = () => ({ el: +(Math.asin(Math.max(-1, Math.min(1, fwd().y))) * 180 / Math.PI).toFixed(2), r: (() => { const r = orbEl.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width)]; })() });
 // =====================================================================================================================
 // 1.9.22: КНОПКА «?» И ОКНО «КАК ПОЛЬЗОВАТЬСЯ» (его слова 21.11: «Справа сверху в углу сделай кнопку новую, добавь круглую, в
 // таком же стиле. Пускай там будет знак вопроса… И когда нажимаешь на нее, открывается такое окошечко, красивое, с округлыми
@@ -4035,7 +4043,7 @@ let hpOn = false, hpT = 0;
 const HPX = RU ? {
   title: 'Как пользоваться', touch: 'Жесты', mouse: 'Мышь', btns: 'Кнопки',
   pan: ['Сдвиг', 'Веди одним пальцем'],
-  sph: ['Поворот сферой', 'Веди пальцем по шару внизу — модель поворачивается вокруг оси по центру экрана'],
+  sph: ['Поворот шаром', 'Веди пальцем по шару в любую сторону — модель поворачивается вокруг середины экрана, как трекбол'],
   orbit: ['Вращение', 'Двойной тап и веди — вокруг точки под пальцем'],
   zin: ['Ближе в 2 раза', 'Двойной тап — к точке под пальцем'],
   zout: ['Дальше в 2 раза', 'Тройной тап'],
@@ -4055,7 +4063,7 @@ const HPX = RU ? {
 } : {
   title: 'How to use', touch: 'Gestures', mouse: 'Mouse', btns: 'Buttons',
   pan: ['Pan', 'Drag with one finger'],
-  sph: ['Turn with the ball', 'Drag the ball at the bottom — the model turns around the vertical axis at the screen center'],
+  sph: ['Turn with the ball', 'Drag the ball in any direction — the model turns around the screen center, like a trackball'],
   orbit: ['Orbit', 'Double tap, then drag — around the point under the finger'],
   zin: ['Zoom in ×2', 'Double tap — toward the point under the finger'],
   zout: ['Zoom out ×2', 'Triple tap'],
@@ -4095,8 +4103,8 @@ const hpMouse = (k) => {
 };
 const HPG = {
   pan: hpAr('M16 32h32M44 28l4 4-4 4') + hpDot(32, 32, 'mvx'),
-  sph: '<circle cx="32" cy="32" r="17" fill="rgba(255,255,255,.55)" stroke="#fff" stroke-width="1.2"/><ellipse cx="32" cy="32" rx="17" ry="3.6" fill="none" stroke="rgba(40,66,74,.3)" stroke-width="1"/>' +
-    '<path d="M32 15a8 17 0 0 1 0 34M32 15a8 17 0 0 0 0 34" fill="none" stroke="rgba(40,66,74,.4)" stroke-width="1"/>' + hpAr('M10 54h44M50 50l4 4-4 4') + hpDot(32, 32, 'mvx'),
+  sph: '<circle cx="32" cy="32" r="17" fill="rgba(255,255,255,.55)" stroke="#fff" stroke-width="1.2"/>' +
+    hpAr('M32 4.5v7M29 7.5l3-3 3 3M32 59.5v-7M29 56.5l3 3 3-3M4.5 32h7M7.5 29l-3 3 3 3M59.5 32h-7M56.5 29l3 3-3 3') + hpDot(32, 32, 'trk'),
   orbit: hpAr('M18 42C21 27 39 22 46 35M42.6 34.4l3.6 1.2 1-3.6') + hpRp(18, 42, 0) + hpRp(18, 42, 0.3) + hpDot(18, 42, 'orb'),
   zin: hpRp(28, 36, 0) + hpRp(28, 36, 0.3) + hpDot(28, 36, 'tp') + hpMg(46, 17, true) + hpX2(46, 54),
   zout: hpRp(28, 36, 0) + hpRp(28, 36, 0.3) + hpRp(28, 36, 0.6) + hpDot(28, 36, 'tp') + hpMg(46, 17, false) + hpX2(46, 54),
@@ -4135,7 +4143,7 @@ function hpBuild() {
     const sv = el.querySelector('svg');
     h += hpRow(`<i>${sv ? sv.outerHTML : ''}</i>`, HPX.b[k], true);
   }
-  h += hpRow('<i>+</i>', HPX.b.zm, true);
+  h += hpRow('<i><svg class="zs" viewBox="0 0 24 24"><path d="M12 4.5v15M4.5 12h15"/></svg></i>', HPX.b.zm, true);   // 1.9.24: «+» по середине
   h += hpRow(`<i>${titleEl.querySelector('.tl').textContent || 'K'}</i>`, HPX.b.title, true);
   hpBody.innerHTML = h;
   hpBody.scrollTop = 0;
