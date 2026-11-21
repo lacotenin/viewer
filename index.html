@@ -463,6 +463,8 @@ body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.27 (22.11): окно «?» — «Двойной тап и веди» (вращение) — в разделе «Двумя руками», первым (его слова
+// 22.11: «Двойной тап и веди должно быть в разделе двумяруками»). Было (1.9.26): в «Одной рукой».
 // KTNium Viewer 1.9.26 (22.11): ДВОЙНОЙ ТАП ПО ШАРУ — РОВНЫЙ ВИД, КАК В ЧЕРТЕЖЕ; КНОПКИ СТОЛБИКОМ; «?» СЛЕВА; ОКНО «?» — ТОЛЬКО
 // НАВИГАЦИЯ. Его слова 22.11: «орбита. Кручу так что получить любой стандартный Вид, после нажимаю двойной тап по шару - вид
 // становится параллельной проекцией с ровным видом как в чертежах. Кнопки поставь столбиком слева, минус поставь под плюс и
@@ -4233,9 +4235,9 @@ function hpBuild() {
   if (touch || !fine) {
     // 1.9.25: одним пальцем (телефон в одной руке) — и несколькими; 1.9.26: «Одной рукой» и «Двумя руками», только навигация
     h += `<h4>${HPX.touch1}</h4>`;
-    for (const k of ['pan', 'sph', 'sphd', 'orbit', 'zin', 'zout']) h += hpRow(hpS(HPG[k]), HPX[k]);
+    for (const k of ['pan', 'sph', 'sphd', 'zin', 'zout']) h += hpRow(hpS(HPG[k]), HPX[k]);
     h += `<h4>${HPX.touch2}</h4>`;
-    for (const k of ['pinch', 'pan2']) h += hpRow(hpS(HPG[k]), HPX[k]);
+    for (const k of ['orbit', 'pinch', 'pan2']) h += hpRow(hpS(HPG[k]), HPX[k]);   // 1.9.27: вращение — двумя руками
   }
   if (fine) {
     h += `<h4>${HPX.mouse}</h4>`;
