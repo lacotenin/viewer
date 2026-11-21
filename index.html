@@ -358,6 +358,20 @@ body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: сле�
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.20 (21.11): ПАЛЕЦ — СДВИГ, ПОСТОЯЛ И ПОВЁЛ — ВРАЩЕНИЕ; ДВОЙНОЙ ТАП — БЛИЖЕ В 2 РАЗА, ТРОЙНОЙ — ДАЛЬШЕ
+// В 2 РАЗА; КНОПКИ НЕ ЗАЕЗЖАЮТ НА «+». Его слова 21.11: «…то, что сейчас орбита, чтобы это было панормирование, а то, что
+// панормирование, чтобы это была орбита.»; «…двойной тап, приближение в 2 раза к точке нажатия, а тройной тап — отдаление
+// в 2 раза.»; «…кажется, там что-то съехало по кнопкам. Посмотри». 1) Палец: было (1.8.2) — повёл сразу: вращение, постоял
+// 0,45 с и повёл: сдвиг. Теперь наоборот: повёл сразу — сдвиг (точка под пальцем идёт за пальцем), постоял и повёл —
+// вращение вокруг точки под пальцем. Мышь на компьютере — как была. 2) Двойной тап: было — рентген. Теперь — камера едет
+// (0,3 с) к точке под пальцем, до неё вдвое ближе; точка остаётся под пальцем и становится опорой вращения. Двойной тап ждёт
+// 0,35 с: третий тап рядом — вдвое дальше от точки под ним (не дальше, чем позволяет щипок). Двойной тап и повёл — ближе /
+// дальше, как было. 3) Кнопки: когда сцена одна (ленты нет), ряд кнопок стоял у самого низа — на «+» масштаба (первая
+// кнопка, Область зума, была под «+»). Теперь ряд всегда над «+» и лентой — там же, где при нескольких сценах.
+// 4) Его слова 21.11: «…правая кнопка, которая сверху, которая детали показывает, спусти ее вниз и поставь справа, там есть
+// место.» Было (1.9.7): кнопка списка номеров — над последней кнопкой ряда. Теперь (книжный) — в том же ряду у правого края
+// (в 10 от края), список разворачивается вверх над ней; ряд с ней не входит без уменьшения кнопок (44 и зазор 6; узкий
+// телефон или кнопки Комментарий / Раскрой) — над последней, как было. Альбомный — как был (справа над лентой).
 // KTNium Viewer 1.9.19 (05.11): ДВОЙНОЙ ТАП И ПОВЁЛ — К СЕБЕ БЛИЖЕ, ОТ СЕБЯ ДАЛЬШЕ (его слова 05.11: «…сделай наоборот, когда я
 // тяну к себе. То модель тянется ко мне. Когда я от себя палец увожу, модель уходит от меня. И я про удаление и
 // приближение.»). Было (1.8.2): вверх — ближе, вниз — дальше. Теперь палец вниз (к себе) — модель ближе, вверх (от себя) —
@@ -862,6 +876,8 @@ let mode = null, last = null, depth = 1;
 // двойной тап — рентген.
 // 1.8.2: палец — вращение; постоял на месте и повёл — сдвиг (кружок под пальцем); двойной тап и повёл — ближе / дальше;
 // двойной тап — рентген; щипок — ближе / дальше и сдвиг.
+// 1.9.20: палец — сдвиг; постоял на месте и повёл — вращение; двойной тап — ближе в 2 раза к точке под пальцем, тройной —
+// дальше в 2 раза; двойной тап и повёл — ближе / дальше; щипок — как был.
 // tap — последнее короткое касание (первый тап двойного), down0 — нынешнее касание одним пальцем
 const TAP_MS = 350, TAP_PX = 10, DT_MS = 350, DT_PX = 40, HOLD_MS = 450;   // тап — до 0,35 с и 10 точек хода; второй — до 0,35 с и 40 точек; удержание — 0,45 с
 let tap = null, down0 = null, holdT = 0;
@@ -923,7 +939,7 @@ function begin(e) {
     if (p) { pivot.copy(p); pivotOk = true; nearFor(cam.position.distanceTo(p)); }
     else if (!pivotOk) { pivot.copy(along(a[0].x, a[0].y)); pivotOk = true; }
     if (a[0].type === 'mouse') mode = e && (e.button === 2 || e.shiftKey) ? 'pan' : 'orbit';
-    else mode = e ? 'wait' : null;   // 1.7.0: палец — ждём: пошёл — вращение, постоял — сдвиг; после щипка оставшийся палец — ничего
+    else mode = e ? 'wait' : null;   // 1.7.0: палец — ждём; 1.9.20: пошёл — сдвиг, постоял — вращение; после щипка оставшийся палец — ничего
     depth = depthTo(pivot);
     last = { x: a[0].x, y: a[0].y };
   } else if (a.length >= 2) {
@@ -949,8 +965,11 @@ canvas.addEventListener('pointerdown', e => {
   canvas.setPointerCapture(e.pointerId);
   const now = e.timeStamp || performance.now();   // время касания, а не обработки (занятая страница)
   if (pts.size === 0) down0 = { t: now, x: e.clientX, y: e.clientY, id: e.pointerId, moved: false,
-    dbl: !!(tap && now - tap.t < DT_MS && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < DT_PX) };
+    dbl: !!(tap && now - tap.t < DT_MS && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < DT_PX),
+    tpl: !!(dz && now - dz.t < DT_MS && Math.hypot(e.clientX - dz.x, e.clientY - dz.y) < DT_PX) };   // 1.9.20: третий тап
   else down0 = null;
+  if (dz) { clearTimeout(dz.T); dz = null; }   // 1.9.20: новое касание — приближение двойного тапа не ждёт (третий тап — дальше)
+  if (down0 && down0.tpl) down0.dbl = true;   // третье касание и повёл — ближе / дальше, как после двойного
   tap = null;
   holdOff();
   if (down0 && down0.dbl) tapCancel();   // 1.8.1: второе касание двойного — тап кнопки (сечение, рулетка, Part info) не ставится
@@ -964,11 +983,11 @@ canvas.addEventListener('pointerdown', e => {
   // сдвиг — ближе / дальше и при рулетке
   if (mode === 'wait' && !(down0 && down0.dbl)) {   // 1.8.2: после двойного тапа удержания нет — повёл и после паузы: ближе / дальше
     const id = e.pointerId;
-    holdT = setTimeout(() => {   // 1.8.2: постоял на месте — сдвиг
+    holdT = setTimeout(() => {   // 1.8.2: постоял на месте — сдвиг; 1.9.20: вращение
       holdT = 0;
       if (mode !== 'wait' || pts.size !== 1 || !pts.has(id)) return;
       const q = pts.get(id);
-      mode = 'pan';   // 1.8.2: постоял и повёл — сдвиг (было вращение): точка под пальцем идёт за пальцем
+      mode = 'orbit';   // 1.9.20: постоял и повёл — вращение вокруг точки под пальцем (1.8.2 — сдвиг)
       last = { x: q.x, y: q.y };   // 1.9.2: кружка нет (его слова 05.11: «Круг при удержании не нужен»)
       if (navigator.vibrate) try { navigator.vibrate(12); } catch (_) {}
     }, HOLD_MS);
@@ -978,7 +997,7 @@ canvas.addEventListener('pointermove', e => {
   if (!pts.has(e.pointerId) || !mode) return;
   if (down0 && e.pointerId === down0.id && !down0.moved && Math.hypot(e.clientX - down0.x, e.clientY - down0.y) > TAP_PX) {
     down0.moved = true;
-    if (mode === 'wait') { holdOff(); if (lpT) { clearTimeout(lpT); lpT = 0; } mode = down0.dbl ? 'zoom' : 'orbit'; zY0 = down0.y; }   // 1.8.2: пошёл сразу — вращение (было ближе / дальше); после двойного тапа — ближе / дальше (было сдвиг)
+    if (mode === 'wait') { holdOff(); if (lpT) { clearTimeout(lpT); lpT = 0; } mode = down0.dbl ? 'zoom' : 'pan'; zY0 = down0.y; }   // 1.9.20: пошёл сразу — сдвиг (1.8.2 — вращение); после двойного тапа — ближе / дальше
   }
   pts.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
   const a = [...pts.values()];
@@ -1009,11 +1028,17 @@ canvas.addEventListener('pointermove', e => {
   }
 });
 function end(e) {
-  // короткое касание одним пальцем без хода — тап; второй тап рядом и сразу — рентген (1.7.0)
+  // короткое касание одним пальцем без хода — тап; второй тап рядом и сразу — ближе в 2 раза, третий — дальше (1.9.20)
   if (down0 && e.pointerId === down0.id) {
     const now = e.timeStamp || performance.now();
     const isTap = e.type === 'pointerup' && !down0.moved && pts.size === 1 && now - down0.t < TAP_MS && (mode === 'wait' || mode === 'orbit');
-    if (isTap && down0.dbl) { tapCancel(); setXray(!xray); tap = null; }
+    if (isTap && down0.tpl) { tapCancel(); tap = null; tapZoom(e.clientX, e.clientY, 0.5); }   // 1.9.20: тройной тап — дальше в 2 раза
+    else if (isTap && down0.dbl) {   // 1.9.20: двойной тап — ближе в 2 раза (было: рентген); ждёт 0,35 с третьего тапа
+      tapCancel();
+      tap = null;
+      const x9 = e.clientX, y9 = e.clientY;
+      dz = { t: now, x: x9, y: y9, T: setTimeout(() => { dz = null; tapZoom(x9, y9, 2); }, DT_MS) };
+    }
     else {
       tap = isTap ? { t: now, x: e.clientX, y: e.clientY } : null;
       if (tap && (tool || foc)) tapLater(e.clientX, e.clientY);   // 1.7.0: рулетка / Part info / сечение / снять фокус — если это не первый тап двойного
@@ -1049,12 +1074,33 @@ function setXray(on) {
   });
   dirty = true;
 }
-// 1.7.0: тап с кнопкой (рулетка, Part info) — через 0,35 с, если второго тапа не было (двойной — рентген)
+// 1.7.0: тап с кнопкой (рулетка, Part info) — через 0,35 с, если второго тапа не было (двойной — 1.9.20: ближе в 2 раза)
 let tapT = 0;
 function tapCancel() { if (tapT) { clearTimeout(tapT); tapT = 0; } }
+// 1.9.20: двойной тап — камера к точке под пальцем, до неё вдвое ближе (f = 2); тройной — вдвое дальше (f = 0,5), но не
+// дальше предела щипка; точка остаётся под пальцем и становится опорой вращения; едет 0,3 с
+let dz = null;   // 1.9.20: двойной тап ждёт третьего: { t, x, y, T }
+function tapZoom(x, y, f) {
+  if (!root) return;
+  const P = pick(x, y) || along(x, y), p0 = cam.position.clone(), d0 = p0.distanceTo(P);
+  if (d0 < 1e-6) return;
+  let d1 = d0 / f;
+  if (f < 1) d1 = Math.min(d1, Math.max(size * 20, p0.distanceTo(bs.center) * 1.5));   // как у щипка (dollyTo)
+  if (Math.abs(d1 - d0) < d0 * 0.02) return;
+  const p1 = P.clone().add(p0.clone().sub(P).multiplyScalar(d1 / d0)), t0 = performance.now();
+  untouched = false;
+  pivot.copy(P);
+  pivotOk = true;
+  anim = () => {
+    const k = ss(Math.min(1, (performance.now() - t0) / 300));
+    cam.position.lerpVectors(p0, p1, k);
+    nearFor(Math.max(0.01, cam.position.distanceTo(P)));
+    if (k >= 1) anim = null;
+  };
+}
 function tapLater(x, y) { tapCancel(); tapT = setTimeout(() => { tapT = 0; if (tool === 'meas') measTap(x, y); else if (tool === 'info') infoTap(x, y); else if (tool === 'sec') secTap(x, y); else if (foc) focOff(); }, DT_MS); }
-function fbPlace() {   // кнопки — над полосой сцен (нет сцен — у низа)
-  const b = K && K.scenes && K.scenes.length > 1 ? 'calc(72px + env(safe-area-inset-bottom))' : 'calc(14px + env(safe-area-inset-bottom))';
+function fbPlace() {   // кнопки — над полосой сцен и «+» (1.9.20: и без сцен — над «+»; было у низа, на «+»)
+  const b = 'calc(72px + env(safe-area-inset-bottom))';
   // 1.9.0: в ряд по порядку — только те, что есть: Область зума, рулетка, Part info, сечение, вид, Комментарий (если есть),
   // Отчёт и Раскрой (если они в выгрузке); не помещаются по 44 точки — мельче (не меньше 34)
   const hasC = !!(K && typeof K.comment === 'string' && K.comment.trim());   // 1.8.0: комментарий — если есть
@@ -1097,7 +1143,9 @@ function fbPlace() {   // кнопки — над полосой сцен (не�
   zmE.style.left = zmE.style.bottom = '';   // книжный — у низа слева, перед лентой (как в CSS)
   zbs.forEach(el => { size9(el, 40); el.style.fontSize = ''; });
   pwBtn.style.right = '';
-  const sz = Math.max(34, Math.min(44, Math.floor((av - (n - 1) * 6) / n))), st = n > 1 ? Math.min(52, (av - sz) / (n - 1)) : 0;
+  // 1.9.20: кнопка номеров — в ряду у правого края, если ряд с ней входит по 44 с зазором 6; ряд — левее её
+  const inRow = n > 0 && (n + 1) * 44 + n * 6 <= av, avR = inRow ? av - 50 : av;
+  const sz = Math.max(34, Math.min(44, Math.floor((avR - (n - 1) * 6) / n))), st = n > 1 ? Math.min(52, (avR - sz) / (n - 1)) : 0;
   for (const [el, on] of all) { el.style.bottom = b; el.style.display = on ? 'flex' : 'none'; }
   vis.forEach((el, i) => {
     el.style.left = (10 + i * st).toFixed(1) + 'px';
@@ -1107,9 +1155,11 @@ function fbPlace() {   // кнопки — над полосой сцен (не�
     if (sv) sv.style.width = sv.style.height = Math.round(sz * 0.59) + 'px';
   });
   // 1.9.7: кнопка списка номеров — над последней кнопкой ряда, того же размера (видна, когда есть капсулы: pwBuild)
+  // 1.9.20: есть место — в том же ряду у правого края (его «…спусти ее вниз и поставь справа, там есть место»)
   if (n) {
-    pwBtn.style.left = (10 + (n - 1) * st).toFixed(1) + 'px';
-    pwBtn.style.bottom = b.replace(/\)$/, ' + ' + (sz + 8) + 'px)');
+    pwBtn.style.left = inRow ? 'auto' : (10 + (n - 1) * st).toFixed(1) + 'px';
+    pwBtn.style.right = inRow ? 'calc(10px + env(safe-area-inset-right))' : '';
+    pwBtn.style.bottom = inRow ? b : b.replace(/\)$/, ' + ' + (sz + 8) + 'px)');
     pwBtn.style.width = pwBtn.style.height = sz + 'px';
     pwBtn.style.borderRadius = sz / 2 + 'px';
     const sv = pwBtn.querySelector('svg');
