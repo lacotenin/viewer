@@ -294,6 +294,80 @@ body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: сле�
 #title, #sw .b, .fb, #zm .zb { -webkit-backdrop-filter: none; backdrop-filter: none; }
 /* 1.9.17: размытия нет нигде (его «Размытие везде убери. Так нормально смотрится.») */
 *, *::before, *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+/* 1.9.22: кнопка «?» справа сверху (как круглые кнопки) и окно «Как пользоваться» — скругления и стекло, как у кнопок */
+#hlb { top: calc(8px + env(safe-area-inset-top)); bottom: auto; left: auto; right: calc(10px + env(safe-area-inset-right)); }
+#hlb svg { width: 25px; height: 25px; }
+body.hlp #bar { padding-right: calc(62px + env(safe-area-inset-right)); }
+body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
+#hps { position: fixed; inset: 0; z-index: 7; display: none; background: rgba(24,34,38,.18); opacity: 0; transition: opacity .2s ease; }
+#hps.on { opacity: 1; }
+#hp { position: fixed; left: 50%; top: 50%; z-index: 8; display: none; flex-direction: column; box-sizing: border-box;
+  width: min(440px, calc(100vw - 24px)); max-height: calc(100% - 96px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  border-radius: 24px; overflow: hidden; color: #1c1c1e; opacity: 0; transform: translate(-50%, -46%) scale(.96);
+  transition: transform .32s cubic-bezier(.2,1.15,.35,1), opacity .2s ease;
+  background: linear-gradient(180deg, rgba(255,255,255,.88) 0%, rgba(255,255,255,.76) 58%, rgba(255,255,255,.82) 100%);
+  box-shadow: inset 0 .5px .5px rgba(255,255,255,.8), inset 0 -.5px .5px rgba(255,255,255,.25), 0 18px 44px rgba(0,0,0,.22), 0 1px 3px rgba(0,0,0,.1); }
+#hp::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: .7px; pointer-events: none; background: var(--lgr);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
+#hp.on { opacity: 1; transform: translate(-50%, -50%); }
+#hp .hh { flex: none; display: flex; align-items: center; gap: 8px; padding: 14px 10px 4px 18px; }
+#hp .hh b { flex: 1; font-size: 18px; font-weight: 700; }
+#hp .hx { position: relative; flex: none; width: 34px; height: 34px; border: 0; padding: 0; border-radius: 17px; cursor: pointer; color: #1c1c1e;
+  display: flex; align-items: center; justify-content: center; background: var(--lgf); box-shadow: var(--lgs); }
+#hp .hx svg { width: 16px; height: 16px; }
+#hp .hb { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  touch-action: pan-y; padding: 0 12px 14px; }
+#hp h4 { margin: 12px 6px 4px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #4d7480; }
+#hp .hr { display: flex; align-items: center; gap: 12px; padding: 7px 6px; }
+#hp .hr + .hr { border-top: 1px solid rgba(0,0,0,.06); }
+#hp .hi { flex: none; width: 64px; height: 64px; border-radius: 16px; overflow: hidden;
+  background: linear-gradient(180deg, rgba(108,152,163,.10), rgba(108,152,163,.18)); box-shadow: inset 0 0 0 1px rgba(108,152,163,.22); }
+#hp .hk { flex: none; width: 64px; display: flex; justify-content: center; }
+#hp .hk i { position: relative; width: 42px; height: 42px; border-radius: 21px; display: flex; align-items: center; justify-content: center;
+  font-style: normal; font-size: 18px; font-weight: 600; color: #1c1c1e; background: var(--lgf); box-shadow: var(--lgs), inset 0 0 0 1px rgba(0,0,0,.06); }
+#hp .hk svg { width: 24px; height: 24px; }
+#hp .ht { min-width: 0; }
+#hp .ht b { display: block; font-size: 15px; font-weight: 600; line-height: 1.25; }
+#hp .ht span { display: block; margin-top: 2px; font-size: 13px; line-height: 1.3; color: #48484a; }
+#hp .hi svg { display: block; width: 64px; height: 64px; }
+#hp .hi .a { transform-box: fill-box; transform-origin: center; }
+#hp .rp { opacity: 0; animation: hpRp 2.8s ease-out infinite; }
+@keyframes hpRp { 0% { opacity: .9; transform: scale(1); } 16% { opacity: 0; transform: scale(2.5); } 100% { opacity: 0; transform: scale(2.5); } }
+#hp .mvx { animation: hpMvx 2.8s ease-in-out infinite; }
+@keyframes hpMvx { 0%, 8% { transform: translateX(-14px); opacity: 0; } 16% { transform: translateX(-14px); opacity: 1; } 70% { transform: translateX(14px); opacity: 1; } 82%, 100% { transform: translateX(14px); opacity: 0; } }
+#hp .orb { animation: hpOrb 2.8s ease-in-out infinite; }
+@keyframes hpOrb { 0%, 30% { transform: translate(0, 0); opacity: 1; } 46% { transform: translate(7px, -12px); } 60% { transform: translate(18px, -15px); } 76% { transform: translate(28px, -5px); opacity: 1; } 88%, 100% { transform: translate(28px, -5px); opacity: 0; } }
+#hp .tp { animation: hpTp 2.8s ease-out infinite; }
+@keyframes hpTp { 0%, 40% { opacity: 1; } 52%, 100% { opacity: 0; } }
+#hp .pa { animation: hpPa 2.8s ease-in-out infinite; }
+#hp .pb { animation: hpPb 2.8s ease-in-out infinite; }
+@keyframes hpPa { 0%, 10% { transform: translate(0, 0); opacity: 0; } 18% { transform: translate(0, 0); opacity: 1; } 68% { transform: translate(-10px, 10px); opacity: 1; } 80%, 100% { transform: translate(-10px, 10px); opacity: 0; } }
+@keyframes hpPb { 0%, 10% { transform: translate(0, 0); opacity: 0; } 18% { transform: translate(0, 0); opacity: 1; } 68% { transform: translate(10px, -10px); opacity: 1; } 80%, 100% { transform: translate(10px, -10px); opacity: 0; } }
+#hp .sc { animation: hpSc 2.8s ease-in-out infinite; }
+@keyframes hpSc { 0%, 6% { transform: translateX(0); } 40%, 88% { transform: translateX(-23px); } 100% { transform: translateX(0); } }
+#hp .scd { animation: hpScd 2.8s ease-in-out infinite; }
+@keyframes hpScd { 0% { transform: translateX(0); opacity: 0; } 6% { transform: translateX(0); opacity: 1; } 40% { transform: translateX(-23px); opacity: 1; } 46% { transform: translateX(-23px); opacity: 0; } 50% { transform: translateX(0); opacity: 0; } 55%, 64% { transform: translateX(0); opacity: 1; } 70%, 100% { transform: translateX(0); opacity: 0; } }
+#hp .s3 { animation: hpS3 2.8s linear infinite; }
+#hp .s3t { animation: hpS3t 2.8s linear infinite; }
+@keyframes hpS3 { 0%, 56% { fill: #fff; } 60%, 86% { fill: #6c98a3; } 92%, 100% { fill: #fff; } }
+@keyframes hpS3t { 0%, 56% { fill: #1c1c1e; } 60%, 86% { fill: #fff; } 92%, 100% { fill: #1c1c1e; } }
+#hp .t3 { animation: hpT3 2.8s ease-out infinite; }
+@keyframes hpT3 { 0%, 18% { opacity: 0; } 21%, 32% { opacity: 1; } 38%, 100% { opacity: 0; } }
+#hp .sl { animation: hpSl 2.8s linear infinite; }
+#hp .slt { animation: hpSlt 2.8s linear infinite; }
+@keyframes hpSl { 0%, 24% { fill: #fff; } 28%, 82% { fill: #6c98a3; } 90%, 100% { fill: #fff; } }
+@keyframes hpSlt { 0%, 24% { fill: #1c1c1e; } 28%, 82% { fill: #fff; } 90%, 100% { fill: #1c1c1e; } }
+#hp .hold { opacity: 0; animation: hpHold 2.8s linear infinite; }
+@keyframes hpHold { 0% { transform: scale(.7); opacity: 0; } 4% { opacity: .9; } 26% { transform: scale(1.7); opacity: .9; } 32%, 100% { transform: scale(1.7); opacity: 0; } }
+#hp .hrt { animation: hpHrt 2.8s ease-in-out infinite; }
+@keyframes hpHrt { 0%, 30% { transform: translateX(0); opacity: 1; } 56%, 82% { transform: translateX(24px); opacity: 1; } 92% { transform: translateX(24px); opacity: 0; } 100% { transform: translateX(0); opacity: 0; } }
+#hp .hlf { animation: hpHlf 2.8s ease-in-out infinite; }
+@keyframes hpHlf { 0%, 30% { transform: translateX(0); opacity: 1; } 52%, 84% { transform: translateX(-10px); opacity: 1; } 94% { transform: translateX(-10px); opacity: 0; } 100% { transform: translateX(0); opacity: 0; } }
+#hp .shc { animation: hpShc 2.8s ease-out infinite; }
+@keyframes hpShc { 0%, 44% { transform: scale(.6); opacity: 0; } 58%, 84% { transform: scale(1); opacity: 1; } 94%, 100% { transform: scale(1); opacity: 0; } }
+#hp .ms { animation: hpMs 2.8s ease-in-out infinite; }
+@keyframes hpMs { 0%, 100% { opacity: .35; } 20%, 70% { opacity: 1; } }
 </style>
 <script type="importmap">
 { "imports": {
@@ -344,6 +418,11 @@ body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: сле�
   <g class="lk-mono"><rect x="4" y="4" width="16" height="16" rx="3"/></g></svg></button>
 <div id="hdm" class="hd" aria-label="Move section box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
   stroke-linejoin="round"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg></div>
+<button id="hlb" class="fb" type="button" aria-label="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 9.3a2.9 2.9 0 1 1 4.3 2.6c-.95.55-1.5 1.25-1.5 2.35v.45"/><circle cx="12" cy="17.7" r="1.1" fill="currentColor" stroke="none"/></svg></button>
+<div id="hps"></div>
+<div id="hp" role="dialog" aria-modal="true"><div class="hh"><b></b><button class="hx" type="button" aria-label="Close"><svg viewBox="0 0 16 16" fill="none"
+  stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg></button></div><div class="hb"></div></div>
 <div id="msg" style="display:flex">Загрузка…</div>
 <script>
 // 1.3.1: просмотр не загрузился (модули, сеть) — сказать об этом, а не оставлять пустую страницу
@@ -358,6 +437,17 @@ body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: сле�
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.22 (21.11): КНОПКА «?» И ОКНО «КАК ПОЛЬЗОВАТЬСЯ». Его слова 21.11: «Справа сверху в углу сделай кнопку
+// новую, добавь круглую, в таком же стиле. Пускай там будет знак вопроса… открывается такое окошечко, красивое, с округлыми
+// краями… в таком же стиле, как и кнопки фон. И там визуальная инструкция, как пользоваться. Покажи там все жесты.» Кнопка —
+// справа сверху (44, стекло круглых кнопок), видна, когда модель открылась; плашки сверху (название, размер, материал) до неё
+// не доходят. Окно — по середине, скругление 24, стекло и кант кнопок (белого больше — текст читается поверх модели), за ним
+// лёгкое затемнение; внутри: жесты картинками с движением (сдвиг, вращение, ближе ×2, дальше ×2, щипок, сдвиг двумя пальцами,
+// сцены, номера деталей — что есть у модели), на компьютере — мышь; кнопки этой модели — их значками и словами. Закрыть —
+// крестик, тап мимо окна, «?» ещё раз, Esc.
+// И (его слова 21.11: «…когда нету сцен, чтобы весь вот этот ряд, который идет сверху, чтобы он был внизу, а плюсик был
+// сверху, над ним.»): книжный без ленты сцен — ряд кнопок у низа (14), «+» / «−» — над ним слева (было 1.9.20: ряд над
+// «+»); есть сцены и альбомный — как были.
 // KTNium Viewer 1.9.21 (21.11): ДВОЙНОЙ ТАП И ПОВЁЛ — ОРБИТА; УДЕРЖАНИЯ НЕТ. Его слова 21.11: «Сделай двойной тап и потянул
 // орбиту. А зажатый тап пока сними.» Было (1.9.20): двойной тап и повёл — ближе / дальше (1.9.19), постоял 0,45 с и повёл —
 // орбита. Теперь: двойной тап и повёл — орбита вокруг точки под пальцем (второе касание); палец постоял и повёл — сдвиг, как
@@ -958,7 +1048,7 @@ function begin(e) {
 }
 // 1.3.2: движение пальца — модели, а не окну (шторка Safari в приложении закрывалась движением вниз); 1.8.0: и полоса
 // сцен, капсулы, карточка — свои (в 1.7.0 эта строка выпала при переделке жестов — вернул)
-document.addEventListener('touchmove', e => { const t = e.target; if (t && t.closest && t.closest('#cmt, #rp, #ns, #dm') && e.touches.length < 2) return; if (e.cancelable) e.preventDefault(); }, { passive: false });   // текст комментария листается
+document.addEventListener('touchmove', e => { const t = e.target; if (t && t.closest && t.closest('#cmt, #rp, #ns, #dm, #hp') && e.touches.length < 2) return; if (e.cancelable) e.preventDefault(); }, { passive: false });   // текст комментария листается
 // 1.9.4: касание модели, ленты сцен, капсул, карточки раскроя и ручки куба — себе целиком (preventDefault на touchstart):
 // системной лупе, выделению и увеличению iOS не достаётся (жесты — на pointer-событиях, им это не мешает)
 for (const el9 of [canvas, $('scenes'), $('pw'), $('sh'), $('hdm')]) if (el9) el9.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });
@@ -1095,8 +1185,9 @@ function tapZoom(x, y, f) {
   };
 }
 function tapLater(x, y) { tapCancel(); tapT = setTimeout(() => { tapT = 0; if (tool === 'meas') measTap(x, y); else if (tool === 'info') infoTap(x, y); else if (tool === 'sec') secTap(x, y); else if (foc) focOff(); }, DT_MS); }
-function fbPlace() {   // кнопки — над полосой сцен и «+» (1.9.20: и без сцен — над «+»; было у низа, на «+»)
-  const b = 'calc(72px + env(safe-area-inset-bottom))';
+function fbPlace() {   // кнопки — над полосой сцен и «+»; 1.9.22: без сцен (книжный) — у низа, «+» над ними
+  const one = !(K && K.scenes && K.scenes.length > 1);
+  const b = one ? 'calc(14px + env(safe-area-inset-bottom))' : 'calc(72px + env(safe-area-inset-bottom))';
   // 1.9.0: в ряд по порядку — только те, что есть: Область зума, рулетка, Part info, сечение, вид, Комментарий (если есть),
   // Отчёт и Раскрой (если они в выгрузке); не помещаются по 44 точки — мельче (не меньше 34)
   const hasC = !!(K && typeof K.comment === 'string' && K.comment.trim());   // 1.8.0: комментарий — если есть
@@ -1143,6 +1234,7 @@ function fbPlace() {   // кнопки — над полосой сцен и «+
   const inRow = n > 0 && (n + 1) * 44 + n * 6 <= av, avR = inRow ? av - 50 : av;
   const sz = Math.max(34, Math.min(44, Math.floor((avR - (n - 1) * 6) / n))), st = n > 1 ? Math.min(52, (avR - sz) / (n - 1)) : 0;
   for (const [el, on] of all) { el.style.bottom = b; el.style.display = on ? 'flex' : 'none'; }
+  if (one) zmE.style.bottom = 'calc(' + (14 + sz + 10) + 'px + env(safe-area-inset-bottom))';   // 1.9.22: «+» — над рядом
   vis.forEach((el, i) => {
     el.style.left = (10 + i * st).toFixed(1) + 'px';
     el.style.width = el.style.height = sz + 'px';
@@ -3076,7 +3168,7 @@ nsEl.addEventListener('wheel', e => {   // ПК: колесо / тачпад в�
 }, { passive: false });
 window.addEventListener('resize', () => { if (pnIsOn(nsEl)) { nsEl.style.top = ($('bar').getBoundingClientRect().bottom + 8) + 'px'; nsBuild(); } });
 window.addEventListener('keydown', e => {   // ПК: Esc — закрыть окно, стрелки — другой материал
-  if (e.key === 'Escape') { if (pnIsOn(nsEl)) nsClose(); if (pnIsOn(rpEl)) rpClose(); }
+  if (e.key === 'Escape') { if (pnIsOn(nsEl)) nsClose(); if (pnIsOn(rpEl)) rpClose(); if (hpOn) hpClose(); }
   else if (pnIsOn(nsEl) && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) nsGo(NS.i + (e.key === 'ArrowRight' ? 1 : -1));
 });
 // =====================================================================================================================
@@ -3100,7 +3192,7 @@ function titleToggle() {
     titleEl.classList.add('open');
     titleEl.style.transition = 'none';
     titleEl.style.width = 'auto';
-    const bw = $('bar').getBoundingClientRect().width - 20, dw = dmEl.classList.contains('on') ? Math.min(dmEl.scrollWidth, 120) + 10 : 0;
+    const bs9 = getComputedStyle($('bar')), bw = $('bar').clientWidth - parseFloat(bs9.paddingLeft) - parseFloat(bs9.paddingRight), dw = dmEl.classList.contains('on') ? Math.min(dmEl.scrollWidth, 120) + 10 : 0;
     const w = Math.max(30, Math.min(titleEl.scrollWidth, bw - dw));
     titleEl.style.width = '30px';
     void titleEl.offsetWidth;
@@ -3787,6 +3879,8 @@ async function open(id) {
     buttons();   // сперва полосы — рамка сцены вписывается между ними
     fbPlace();   // 1.7.0: кнопки над сценами слева
     pwBuild();   // 1.7.0: капсулы деталей сцены справа
+    hlBtn.style.display = 'flex';   // 1.9.22: «?» — когда модель открылась
+    document.body.classList.add('hlp');
     if (K.scenes.length) {
       show(0, true);
     } else {
@@ -3831,6 +3925,146 @@ for (const [b9, f9] of [[zpBtn, 1.25], [zmBtn, 1 / 1.25]]) {
   for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) b9.addEventListener(ev, () => b9.classList.remove('dn'));
   b9.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });   // без лупы и двойного тапа iOS
 }
+// =====================================================================================================================
+// 1.9.22: КНОПКА «?» И ОКНО «КАК ПОЛЬЗОВАТЬСЯ» (его слова 21.11: «Справа сверху в углу сделай кнопку новую, добавь круглую, в
+// таком же стиле. Пускай там будет знак вопроса… И когда нажимаешь на нее, открывается такое окошечко, красивое, с округлыми
+// краями. И, наверное, тоже в таком же стиле, как и кнопки фон. И там визуальная инструкция, как пользоваться. Покажи там все
+// жесты.»). Окно — по середине экрана, скругление 24, стекло и кант — как у кнопок (белого больше — читается поверх модели);
+// жесты — картинками с движением (точка — палец, круги — тапы), к ним — кнопки, что есть у этой модели, их же значками;
+// на компьютере — ещё мышь. Закрыть: крестик, тап мимо окна, «?» ещё раз, Esc.
+const hlBtn = $('hlb'), hpEl = $('hp'), hpScr = $('hps'), hpBody = hpEl.querySelector('.hb');
+let hpOn = false, hpT = 0;
+const HPX = RU ? {
+  title: 'Как пользоваться', touch: 'Жесты', mouse: 'Мышь', btns: 'Кнопки',
+  pan: ['Сдвиг', 'Веди одним пальцем'],
+  orbit: ['Вращение', 'Двойной тап и веди — вокруг точки под пальцем'],
+  zin: ['Ближе в 2 раза', 'Двойной тап — к точке под пальцем'],
+  zout: ['Дальше в 2 раза', 'Тройной тап'],
+  pinch: ['Ближе / дальше', 'Разведи или сведи два пальца'],
+  pan2: ['Сдвиг двумя пальцами', 'Веди двумя пальцами'],
+  scenes: ['Сцены', 'Лента внизу листается пальцем, тап — сцена'],
+  num: ['Номер детали', 'Тап — к детали; ещё тап — только она; ещё — всё. Тап по модели — назад'],
+  hide: ['Спрятать номера', 'Удержи номер и веди вправо; вернуть — тап по краю справа'],
+  sheet: ['Деталь как в раскрое', 'Удержи номер и веди влево'],
+  mL: ['Вращение', 'Левая кнопка — веди'], mR: ['Сдвиг', 'Правая кнопка или Shift + левая — веди'],
+  mW: ['Ближе / дальше', 'Колесо — к точке под курсором'], mD: ['Ближе / дальше в 2 раза', 'Двойной щелчок — ближе, тройной — дальше'],
+  b: { zwb: ['Область зума', 'Обведи пальцем прямоугольник — он на весь экран'], ms: ['Рулетка', 'Тап по двум точкам — расстояние'],
+    pib: ['О детали', 'Тап по детали — размер и имя наверху'], scb: ['Сечение', 'Тап по модели — вырез углом, точку можно вести; ещё нажатие — без выреза'],
+    lkb: ['Вид', 'Текстуры → цвет → монохром'], cmb: ['Комментарий', 'Заметка к модели'], rpb: ['Отчёт', 'Список деталей и фурнитуры'],
+    nsb: ['Раскрой', 'Листы раскроя: свайп влево — другой материал, вниз — закрыть'], pwb: ['Номера деталей', 'Список номеров справа'],
+    zm: ['+ / −', 'Картинка крупнее / мельче на всех сценах'], title: ['Кружок с буквой', 'Тап — название проекта'] }
+} : {
+  title: 'How to use', touch: 'Gestures', mouse: 'Mouse', btns: 'Buttons',
+  pan: ['Pan', 'Drag with one finger'],
+  orbit: ['Orbit', 'Double tap, then drag — around the point under the finger'],
+  zin: ['Zoom in ×2', 'Double tap — toward the point under the finger'],
+  zout: ['Zoom out ×2', 'Triple tap'],
+  pinch: ['Zoom', 'Spread or pinch two fingers'],
+  pan2: ['Pan with two fingers', 'Drag with two fingers'],
+  scenes: ['Scenes', 'Swipe the strip at the bottom, tap a scene'],
+  num: ['Part number', 'Tap — fly to the part; again — only this part; again — all. Tap the model — back'],
+  hide: ['Hide numbers', 'Hold a number and swipe right; tap the right edge to bring them back'],
+  sheet: ['Part as in nesting', 'Hold a number and swipe left'],
+  mL: ['Orbit', 'Drag with the left button'], mR: ['Pan', 'Drag with the right button or Shift + left'],
+  mW: ['Zoom', 'Wheel — toward the point under the cursor'], mD: ['Zoom ×2', 'Double click — in, triple click — out'],
+  b: { zwb: ['Zoom window', 'Draw a rectangle — it fills the screen'], ms: ['Tape measure', 'Tap two points — distance'],
+    pib: ['Part info', 'Tap a part — size and name at the top'], scb: ['Section', 'Tap the model — corner cut; drag the dot; press again — no cut'],
+    lkb: ['Look', 'Textures → colors → monochrome'], cmb: ['Comment', 'Note to the model'], rpb: ['Report', 'Parts and hardware list'],
+    nsb: ['Nesting', 'Sheets: swipe left — next material, down — close'], pwb: ['Part numbers', 'Number list on the right'],
+    zm: ['+ / −', 'Bigger / smaller picture in all scenes'], title: ['Letter circle', 'Tap — project name'] }
+};
+const hpS = x => '<svg viewBox="0 0 64 64" aria-hidden="true">' + x + '</svg>';
+const hpDot = (x, y, c) => `<circle class="a ${c || ''}" cx="${x}" cy="${y}" r="5.5" fill="#6c98a3" stroke="#fff" stroke-width="2"/>`;
+const hpRp = (x, y, d) => `<circle class="a rp" cx="${x}" cy="${y}" r="6" fill="none" stroke="#6c98a3" stroke-width="2" style="animation-delay:${d}s"/>`;
+const hpAr = d => `<path d="${d}" fill="none" stroke="rgba(28,28,30,.32)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>`;
+const hpPl = (x, y, w, t, rc, tc) => `<rect class="${rc || ''}" x="${x}" y="${y}" width="${w}" height="11" rx="5.5" fill="#fff" stroke="rgba(0,0,0,.18)" stroke-width=".8"/>` +
+  `<text class="${tc || ''}" x="${x + w / 2}" y="${y + 8.1}" text-anchor="middle" font-size="7.5" font-weight="700" fill="#1c1c1e">${t}</text>`;
+const hpMg = (x, y, plus) => `<g fill="none" stroke="#1c1c1e" stroke-width="1.7" stroke-linecap="round"><circle cx="${x}" cy="${y}" r="5.2"/>` +
+  `<path d="M${x + 3.8} ${y + 3.8}l3.4 3.4M${x - 2.5} ${y}h5${plus ? `M${x} ${y - 2.5}v5` : ''}"/></g>`;
+const hpX2 = (x, y) => `<text x="${x}" y="${y}" text-anchor="middle" font-size="9" font-weight="700" fill="#4d7480">×2</text>`;
+const hpHold = (x, y) => `<circle class="a hold" cx="${x}" cy="${y}" r="6" fill="none" stroke="#6c98a3" stroke-width="2"/>`;
+const hpMouse = (k) => {
+  let x = '<rect x="22" y="12" width="20" height="34" rx="10" fill="#fff" stroke="#1c1c1e" stroke-width="1.6"/>';
+  if (k === 'L' || k === 'D') x += '<path class="ms" d="M31.2 12.9a9.2 9.2 0 0 0-8.4 9.1v1.2h8.4z" fill="#6c98a3"/>';
+  if (k === 'R') x += '<path class="ms" d="M32.8 12.9a9.2 9.2 0 0 1 8.4 9.1v1.2h-8.4z" fill="#6c98a3"/>';
+  x += '<path d="M32 12.5v10.7M22.4 23.2h19.2" stroke="#1c1c1e" stroke-width="1.2"/>';
+  x += k === 'W' ? '<rect class="ms" x="30.2" y="15" width="3.6" height="7" rx="1.8" fill="#6c98a3"/>' + hpAr('M32 3.5v5M29.5 6l2.5-2.5 2.5 2.5M32 50v6M29.5 53.5L32 56l2.5-2.5') : '<rect x="30.6" y="15.5" width="2.8" height="5.5" rx="1.4" fill="#1c1c1e"/>';
+  if (k === 'R') x += '<text x="50" y="58" text-anchor="middle" font-size="7.5" font-weight="700" fill="#4d7480">Shift</text>';
+  if (k === 'D') x += hpX2(50, 58);
+  return hpS(x);
+};
+const HPG = {
+  pan: hpAr('M16 32h32M44 28l4 4-4 4') + hpDot(32, 32, 'mvx'),
+  orbit: hpAr('M18 42C21 27 39 22 46 35M42.6 34.4l3.6 1.2 1-3.6') + hpRp(18, 42, 0) + hpRp(18, 42, 0.3) + hpDot(18, 42, 'orb'),
+  zin: hpRp(28, 36, 0) + hpRp(28, 36, 0.3) + hpDot(28, 36, 'tp') + hpMg(46, 17, true) + hpX2(46, 54),
+  zout: hpRp(28, 36, 0) + hpRp(28, 36, 0.3) + hpRp(28, 36, 0.6) + hpDot(28, 36, 'tp') + hpMg(46, 17, false) + hpX2(46, 54),
+  pinch: hpAr('M22 42l-7 7M15 44v5h5M42 22l7-7M44 15h5v5') + hpDot(29, 35, 'pa') + hpDot(35, 29, 'pb'),
+  pan2: hpAr('M14 32h36M46 28l4 4-4 4') + `<g class="a mvx">${hpDot(32, 25)}${hpDot(32, 39)}</g>`,
+  scenes: '<rect x="8" y="12" width="48" height="22" rx="4" fill="none" stroke="rgba(28,28,30,.25)" stroke-width="1.4"/>' +
+    `<g class="a sc">${hpPl(10, 41, 20, '1')}${hpPl(33, 41, 20, '2')}${hpPl(56, 41, 20, '3', 's3', 's3t')}</g>` +
+    hpRp(43, 46.5, 1.54) + hpDot(43, 46.5, 'scd'),
+  num: hpPl(20, 10, 24, '7') + hpPl(20, 26.5, 24, '8', 'sl', 'slt') + hpPl(20, 43, 24, '9') + hpRp(32, 32, 0.6) + hpDot(32, 32, 't3'),
+  hide: `<g class="a hrt">${hpPl(20, 26.5, 24, '8')}${hpHold(32, 32)}${hpDot(32, 32)}</g>`,
+  sheet: '<g class="a shc"><rect x="5" y="13" width="26" height="38" rx="4" fill="#fff" stroke="#6c98a3" stroke-width="1.4"/>' +
+    '<path d="M10 19h16v26H10z" fill="rgba(108,152,163,.2)" stroke="#6c98a3" stroke-width="1"/></g>' +
+    `<g class="a hlf">${hpPl(36, 26.5, 22, '8')}${hpHold(47, 32)}${hpDot(47, 32)}</g>`
+};
+const hpRow = (pic, t, icon) => `<div class="hr">${icon ? `<div class="hk">${pic}</div>` : `<div class="hi">${pic}</div>`}<div class="ht"><b>${t[0]}</b><span>${t[1]}</span></div></div>`;
+function hpBuild() {
+  const touch = (navigator.maxTouchPoints || 0) > 0 || 'ontouchstart' in window;
+  const fine = window.matchMedia ? matchMedia('(pointer: fine)').matches : !touch;
+  let h = '';
+  if (touch || !fine) {
+    h += `<h4>${HPX.touch}</h4>`;
+    for (const k of ['pan', 'orbit', 'zin', 'zout', 'pinch', 'pan2']) h += hpRow(hpS(HPG[k]), HPX[k]);
+    if (K && K.scenes && K.scenes.length > 1) h += hpRow(hpS(HPG.scenes), HPX.scenes);
+    if (PW.n) {
+      h += hpRow(hpS(HPG.num), HPX.num) + hpRow(hpS(HPG.hide), HPX.hide);
+      if (PW.items.some(it => { const sh = it.o.userData.sheet; return sh && Array.isArray(sh.loop) && sh.loop.length > 2; })) h += hpRow(hpS(HPG.sheet), HPX.sheet);
+    }
+  }
+  if (fine) {
+    h += `<h4>${HPX.mouse}</h4>`;
+    for (const k of ['L', 'R', 'W', 'D']) h += hpRow(hpMouse(k), HPX['m' + k]);
+  }
+  h += `<h4>${HPX.btns}</h4>`;
+  for (const [el, k] of [[zwBtn, 'zwb'], [msEl, 'ms'], [piBtn, 'pib'], [scEl, 'scb'], [lkEl, 'lkb'], [cmBtn, 'cmb'], [rpBtn, 'rpb'], [nsBtn, 'nsb'], [pwBtn, 'pwb']]) {
+    if (!el || el.style.display === 'none' || getComputedStyle(el).display === 'none') continue;
+    const sv = el.querySelector('svg');
+    h += hpRow(`<i>${sv ? sv.outerHTML : ''}</i>`, HPX.b[k], true);
+  }
+  h += hpRow('<i>+</i>', HPX.b.zm, true);
+  h += hpRow(`<i>${titleEl.querySelector('.tl').textContent || 'K'}</i>`, HPX.b.title, true);
+  hpBody.innerHTML = h;
+  hpBody.scrollTop = 0;
+}
+function hpOpen() {
+  if (hpOn) return;
+  hpOn = true;
+  clearTimeout(hpT);
+  hpEl.querySelector('.hh b').textContent = HPX.title;
+  hpBuild();
+  hpScr.style.display = 'block';
+  hpEl.style.display = 'flex';
+  void hpEl.offsetWidth;
+  hpScr.classList.add('on');
+  hpEl.classList.add('on');
+  hlBtn.classList.add('on');
+}
+function hpClose() {
+  if (!hpOn) return;
+  hpOn = false;
+  hpScr.classList.remove('on');
+  hpEl.classList.remove('on');
+  hlBtn.classList.remove('on');
+  clearTimeout(hpT);
+  hpT = setTimeout(() => { if (!hpOn) { hpScr.style.display = 'none'; hpEl.style.display = 'none'; hpBody.innerHTML = ''; } }, 260);
+}
+hlBtn.addEventListener('click', () => (hpOn ? hpClose() : hpOpen()));
+hpEl.querySelector('.hx').addEventListener('click', hpClose);
+hpScr.addEventListener('pointerdown', e => { e.preventDefault(); hpClose(); });
+for (const el9 of [hlBtn, hpScr]) el9.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });   // без лупы и двойного тапа iOS
+window.__hp = () => ({ on: hpOn, rows: [...hpBody.querySelectorAll('.hr b')].map(b => b.textContent), btn: (() => { const r = hlBtn.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width)]; })(), box: (() => { const r = hpEl.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)]; })() });
 window.__zm = () => ({ z: zoomZ, t: zoomT, minus: zmBtn.style.display, sw: getComputedStyle($('sw') || document.body).marginLeft });
 window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, pinfo: () => (pinfo && pinfo.o ? pinfo.o.userData.nm : null), pwon: () => [...document.querySelectorAll('#pw .c.on')].map(c => c.textContent), pwh: () => ({ hid: !!PW.hid, open: PW.open, of: PW.of, L: PW.pool.filter(c => c.style.display === 'block').map(c => Math.round(c.getBoundingClientRect().left)), C: PW.pool.filter(c => c.style.display === 'block').map(c => { const r = c.getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), Math.round(r.width)]; }), B: (() => { const r = pwBtn.getBoundingClientRect(); return pwBtn.style.display === 'flex' ? [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), Math.round(r.width), pwBtn.classList.contains('on')] : null; })(), N: (() => { const r = nsBtn.getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2)]; })(), W: window.innerWidth }), top: () => ({ tw: Math.round(titleEl.getBoundingClientRect().width), open: titleEl.classList.contains('open'), hid: titleEl.classList.contains('hid'), tl: titleEl.querySelector('.tl').textContent, tt: titleEl.querySelector('.tt').textContent, dm: dmEl.classList.contains('on') ? dmIn.textContent : null, mat: dmEl.classList.contains('mat'), dmw: Math.round(dmEl.getBoundingClientRect().width), sw: dmIn.scrollWidth, cw: dmIn.clientWidth, pn: pnEl.style.display === 'block' ? pnEl.textContent : null, fc: $('fc').style.display }), capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
 // 1.9.10: открыта по названию на GitHub — в адресе короткая ссылка /НАЗВАНИЕ (без viewer/?m=), страница не перезагружается
