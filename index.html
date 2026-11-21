@@ -51,7 +51,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: non
   -webkit-backdrop-filter: blur(16px) saturate(180%); backdrop-filter: blur(16px) saturate(180%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.55), 0 8px 20px rgba(0,0,0,.16), 0 1px 3px rgba(0,0,0,.12); }
 #zm .zb.dn { transform: scale(.92); }
-#zm #zmn { display: none; }
+#zm #zmn { display: flex; }   /* 1.9.26: «−» всегда на виду (было: только при масштабе больше 1) */
 #sw { margin-left: 58px; -webkit-clip-path: inset(-40px 0 -40px 0); clip-path: inset(-40px 0 -40px 0); }
 #scenes.zm2 #sw { margin-left: 106px; }
 /* 1.9.12: альбомный — лента во всю ширину низа (за безопасными полями выреза); «+» и «−» — в сетке кнопок слева */
@@ -295,9 +295,9 @@ body.land #sw { margin-right: env(safe-area-inset-right); }   /* 1.9.13: сле�
 /* 1.9.17: размытия нет нигде (его «Размытие везде убери. Так нормально смотрится.») */
 *, *::before, *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
 /* 1.9.22: кнопка «?» справа сверху (как круглые кнопки) и окно «Как пользоваться» — скругления и стекло, как у кнопок */
-#hlb { top: calc(8px + env(safe-area-inset-top)); bottom: auto; left: auto; right: calc(10px + env(safe-area-inset-right)); }
+#hlb { top: calc(8px + env(safe-area-inset-top)); bottom: auto; left: 10px; right: auto; }   /* 1.9.26: «?» — слева сверху */
 #hlb svg { width: 25px; height: 25px; }
-body.hlp #bar { padding-right: calc(62px + env(safe-area-inset-right)); }
+body.hlp #bar { padding-left: 64px; padding-right: calc(62px + env(safe-area-inset-right)); }   /* 1.9.26: название — рядом с «?»; справа — номера */
 body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
 #hps { position: fixed; inset: 0; z-index: 7; display: none; background: rgba(24,34,38,.18); opacity: 0; transition: opacity .2s ease; }
 #hps.on { opacity: 1; }
@@ -370,8 +370,9 @@ body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
 @keyframes hpShc { 0%, 44% { transform: scale(.6); opacity: 0; } 58%, 84% { transform: scale(1); opacity: 1; } 94%, 100% { transform: scale(1); opacity: 0; } }
 #hp .ms { animation: hpMs 2.8s ease-in-out infinite; }
 /* 1.9.23: книжный — «+» справа (−, когда есть, левее него), лента сцен от края; сфера вращения — по центру над рядом кнопок */
-body:not(.land) #zm { left: auto; right: calc(10px + env(safe-area-inset-right)); flex-direction: row-reverse; }
-body:not(.land) #sw, body:not(.land) #scenes.zm2 #sw { margin-left: 0; }
+/* 1.9.26: «+» и «−» — справа столбиком, «−» под «+» (и в альбомном); лента сцен — от края */
+#zm, body:not(.land) #zm { left: auto; right: calc(10px + env(safe-area-inset-right)); flex-direction: column; }
+#sw, #scenes.zm2 #sw, body:not(.land) #sw, body:not(.land) #scenes.zm2 #sw { margin-left: 0; }
 #orb { position: fixed; left: 50%; bottom: calc(126px + env(safe-area-inset-bottom)); z-index: 3; display: none; width: 64px; height: 64px;
   margin-left: -32px; border-radius: 50%; touch-action: none; cursor: grab; -webkit-tap-highlight-color: transparent;
   background: radial-gradient(circle at 34% 27%, rgba(255,255,255,.40) 0%, rgba(255,255,255,.15) 30%, rgba(255,255,255,.05) 60%,
@@ -462,6 +463,25 @@ body:not(.land) #sw, body:not(.land) #scenes.zm2 #sw { margin-left: 0; }
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.26 (22.11): ДВОЙНОЙ ТАП ПО ШАРУ — РОВНЫЙ ВИД, КАК В ЧЕРТЕЖЕ; КНОПКИ СТОЛБИКОМ; «?» СЛЕВА; ОКНО «?» — ТОЛЬКО
+// НАВИГАЦИЯ. Его слова 22.11: «орбита. Кручу так что получить любой стандартный Вид, после нажимаю двойной тап по шару - вид
+// становится параллельной проекцией с ровным видом как в чертежах. Кнопки поставь столбиком слева, минус поставь под плюс и
+// подними их немного вверх. Минус всегда на виду. Шар опусти ниже. знак вопроса смести влево вместо названия проекта, а его
+// смести рядом вправо. Кнопку деталей вместо знака вопроса. В инструкции только навигация: одной рукой и двумя руками.
+// Никаких местоимений.»
+// - Двойной тап (щелчок) по шару: взгляд — к ближайшему из шести ровных видов (спереди, сзади, слева, справа, сверху,
+//   снизу; сверху и снизу верх экрана — ближайшая сторона к прежнему верху), точка под серединой экрана — на месте,
+//   0,45 с; вместе с поворотом угол сужается до параллельной (1,2°, как у параллельных сцен), камера отходит — у точки
+//   середины размер тот же. Сдвиг и приближение — в параллельной; повернул (шаром, двойным тапом и повёл, мышью) —
+//   обратно перспектива 25° (размер у точки поворота тот же). Сцена — как была (parB сброшен).
+// - Книжный: кнопки — столбиком слева у низа (по порядку сверху вниз), шар — по центру у низа, «+» и «−» — справа
+//   столбиком («−» под «+»), выше шара; «−» всегда на виду (масштаб 1 — «−» отводит камеру от точки середины, ×1,25,
+//   перспектива остаётся 25°). Альбомный: кнопки — как были (два столбика слева), шар у низа, «+» и «−» — так же справа.
+// - Слева сверху — «?», рядом справа — кружок названия; справа сверху — кнопка номеров деталей, список номеров
+//   разворачивается под ней вниз.
+// - Окно «?»: «Одной рукой» (сдвиг, шар, двойной тап по шару, вращение, двойной и тройной тап) и «Двумя руками» (щипок,
+//   сдвиг двумя пальцами); на компьютере — «Мышь» (и двойной щелчок по шару). Кнопок, сцен и номеров деталей нет; в
+//   текстах местоимений нет (было «в любую сторону», «только она», «он на весь экран»).
 // KTNium Viewer 1.9.25 (21.11): ОКНО «?» — ОДНИМ ПАЛЬЦЕМ И НЕСКОЛЬКИМИ; СНАЧАЛА ЖЕСТ, ПОД НИМ — ЧТО ДЕЛАЕТ. Его слова 21.11:
 // «Раздели, пожалуйста, инструкцию на две части… навигация одним пальцем и навигация несколькими пальцами. И наоборот
 // напиши… Сначала пиши двойной таб черным жирным, а снизу можешь писать такого же размера шрифт, только не жирный. И пиши,
@@ -984,6 +1004,7 @@ function along(x, y) {
   return ray.ray.at(pivotOk ? cam.position.distanceTo(pivot) : size, new V3());
 }
 function orbit(dx, dy) {
+  if (parB) unpar(pivotOk ? pivot : orbAxis());   // 1.9.26: повернул из ровного вида шаром — перспектива
   const k = 3.2 / Math.min(window.innerWidth, window.innerHeight);   // весь экран — около 180°
   const el = Math.asin(Math.max(-1, Math.min(1, fwd().y)));
   const a = Math.max(-1.5 - el, Math.min(1.5 - el, -dy * k));       // не через верх и низ
@@ -1269,46 +1290,43 @@ function fbPlace() {   // кнопки — над полосой сцен и «+
       el.style.bottom = 'calc(' + (bot + (rows - 1 - Math.floor(i / cols)) * st9) + 'px + env(safe-area-inset-bottom))';
       size9(el, sz9);
     });
-    zmE.style.left = zmE.style.bottom = '';   // «+» и «−» — в ряду сцен слева, как в книжном
-    orbEl.style.bottom = 'calc(' + bot + 'px + env(safe-area-inset-bottom))';   // 1.9.23: сфера — по центру над лентой
+    // 1.9.26: шар — у низа (лента сцен есть — над ней), «+» и «−» — справа столбиком выше шара
+    const ob9 = one ? 14 : bot;
+    orbEl.style.bottom = 'calc(' + ob9 + 'px + env(safe-area-inset-bottom))';
+    zmE.style.left = zmE.style.right = '';
+    zmE.style.bottom = 'calc(' + (ob9 + 76) + 'px + env(safe-area-inset-bottom))';
     zbs.forEach(el => { size9(el, 40); el.style.fontSize = ''; });
-    if (n) {
-      pwBtn.style.left = 'auto';
-      pwBtn.style.right = 'calc(10px + env(safe-area-inset-right))';
-      pwBtn.style.bottom = 'calc(' + bot + 'px + env(safe-area-inset-bottom))';
-      size9(pwBtn, sz9);
-    }
+    pwTop(size9);
     return;
   }
-  zmE.style.left = zmE.style.bottom = '';   // книжный — у низа слева, перед лентой (как в CSS)
-  zbs.forEach(el => { size9(el, 40); el.style.fontSize = ''; });
-  pwBtn.style.right = '';
-  // 1.9.23: над рядом кнопок — ряд управления: номера слева, сфера по центру, «+» справа (его «Перенеси… плюсик в правую
-  // сторону, а кнопку с номерами в левую сторону. А прямо по центру сделай такую сферу…»)
-  const sz = Math.max(34, Math.min(44, Math.floor((av - (n - 1) * 6) / n))), st = n > 1 ? Math.min(52, (av - sz) / (n - 1)) : 0;
-  for (const [el, on] of all) { el.style.bottom = b; el.style.display = on ? 'flex' : 'none'; }
-  const cb = (one ? 14 : 72) + sz + 10;   // низ ряда управления (сфера 64)
-  orbEl.style.bottom = 'calc(' + cb + 'px + env(safe-area-inset-bottom))';
-  zmE.style.left = 'auto';
-  zmE.style.bottom = 'calc(' + (cb + 12) + 'px + env(safe-area-inset-bottom))';
+  // 1.9.26 (его «Кнопки поставь столбиком слева, минус поставь под плюс и подними их немного вверх. Минус всегда на виду.
+  // Шар опусти ниже.»): кнопки — столбиком слева у низа (по порядку сверху вниз), шар — по центру у низа, «+» и «−» —
+  // справа столбиком («−» под «+»), выше шара; не входят по высоте — сперва зазор до 4, потом мельче (не меньше 30)
+  const b0 = one ? 14 : 72;
+  const top9 = $('bar').getBoundingClientRect().bottom + 10, avH = window.innerHeight - top9 - b0;
+  let gp = 8, sz = 44;
+  if (n > 1 && n * sz + (n - 1) * gp > avH) gp = Math.max(4, Math.floor((avH - n * sz) / (n - 1)));
+  if (n * sz + (n - 1) * gp > avH) sz = Math.max(30, Math.floor((avH - (n - 1) * gp) / n));
+  for (const [el, on] of all) el.style.display = on ? 'flex' : 'none';
   vis.forEach((el, i) => {
-    el.style.left = (10 + i * st).toFixed(1) + 'px';
-    el.style.width = el.style.height = sz + 'px';
-    el.style.borderRadius = sz / 2 + 'px';
-    const sv = el.querySelector('svg');
-    if (sv) sv.style.width = sv.style.height = Math.round(sz * 0.59) + 'px';
+    el.style.left = '10px';
+    el.style.bottom = 'calc(' + (b0 + (n - 1 - i) * (sz + gp)) + 'px + env(safe-area-inset-bottom))';
+    size9(el, sz);
   });
-  // 1.9.7: кнопка списка номеров — над последней кнопкой ряда (видна, когда есть капсулы: pwBuild); 1.9.20 — в ряду справа;
-  // 1.9.23: слева в ряду управления, по высоте — по середине сферы
-  if (n) {
-    pwBtn.style.left = 'calc(10px + env(safe-area-inset-left))';
-    pwBtn.style.right = '';
-    pwBtn.style.bottom = 'calc(' + (cb + (64 - sz) / 2) + 'px + env(safe-area-inset-bottom))';
-    pwBtn.style.width = pwBtn.style.height = sz + 'px';
-    pwBtn.style.borderRadius = sz / 2 + 'px';
-    const sv = pwBtn.querySelector('svg');
-    if (sv) sv.style.width = sv.style.height = Math.round(sz * 0.59) + 'px';
-  }
+  orbEl.style.bottom = 'calc(' + b0 + 'px + env(safe-area-inset-bottom))';
+  zmE.style.left = zmE.style.right = '';
+  zmE.style.bottom = 'calc(' + (b0 + 76) + 'px + env(safe-area-inset-bottom))';
+  zbs.forEach(el => { size9(el, 40); el.style.fontSize = ''; });
+  pwTop(size9);
+}
+// 1.9.26: кнопка номеров деталей — справа сверху, вместо «?» (его «Кнопку деталей вместо знака вопроса»)
+function pwTop(size9) {
+  pwBtn.style.left = 'auto';
+  pwBtn.style.right = 'calc(10px + env(safe-area-inset-right))';
+  pwBtn.style.bottom = 'auto';
+  pwBtn.style.top = 'calc(8px + env(safe-area-inset-top))';
+  size9(pwBtn, 44);
+  if (PW.n) pwPlace();
 }
 window.addEventListener('resize', () => { if (K && root) fbPlace(); });
 // 1.9.14: после поворота Safari отдаёт размер окна не сразу — раскладка кнопок ещё раз
@@ -1995,7 +2013,20 @@ function pwBuild() {
 function pwPlace() {   // между полосой названия и кнопками
   const tb = $('bar').getBoundingClientRect().bottom + 42, H = window.innerHeight;   // 1.8.2: и ниже плашки материала — капсулы под неё не заходят
   // 1.9.7: снизу — кнопка номеров (список стоит над ней вплотную); её нет — ряд кнопок
-  const pb = pwBtn.style.display === 'flex' ? pwBtn.getBoundingClientRect() : null;
+  // 1.9.26: кнопка номеров — справа сверху: список — под ней вплотную, снизу — до «+»
+  const pb = pwBtn.style.display === 'flex' ? pwBtn.getBoundingClientRect() : null, zp = $('zpl').getBoundingClientRect();
+  if (pb && pb.top < H / 2) {
+    const t9 = pb.bottom + 10, b9 = zp.height ? zp.top - 10 : H - 80;
+    const h9 = Math.min(Math.max(120, b9 - t9), (2 * PK + 1) * PSH);
+    pwEl.style.top = t9 + 'px';
+    pwEl.style.height = h9 + 'px';
+    PW.h = h9;
+    PW.bx = pb.left + pb.width / 2;
+    PW.by = pb.top + pb.height / 2 - (t9 + h9 / 2);   // кнопка — над столбиком (меньше 0)
+    PW.span = Math.max(0.5, (h9 / 2 - PSH / 2) / PSH);
+    pwLayout();
+    return;
+  }
   const bt = pb ? pb.top : (msEl.style.display === 'flex' ? msEl.getBoundingClientRect().top : H - 80);
   const free = Math.max(120, bt - tb - 20), h = Math.min(free, (2 * PK + 1) * PSH);
   const top = pb ? bt - 10 - h : tb + 10 + (free - h) / 2;
@@ -2026,7 +2057,7 @@ function pwLayout() {
     // 1.9.6: спрятаны — левый край каждой у правого края экрана (кусочек SLV), ровным столбиком
     if (PW.hid) hx = Math.max(0, el.__w + 8 - SLV);
     if (PW.of < 0.999) {   // 1.9.7: разворот вверх из кнопки — ближние первыми; сворачиваются обратно в кнопку
-      const s9 = Math.min(1, Math.max(0, (PW.by - y) / Math.max(1, PW.by + PW.h / 2)));
+      const s9 = Math.min(1, Math.max(0, Math.abs(PW.by - y) / Math.max(1, Math.abs(PW.by) + PW.h / 2)));   // 1.9.26: кнопка и сверху
       const t9 = Math.min(1, Math.max(0, (PW.of - 0.45 * s9) / 0.55)), e9 = 1 - Math.pow(1 - t9, 3);
       hx = hb + (hx - hb) * e9;
       y = PW.by + (y - PW.by) * e9;
@@ -3470,6 +3501,7 @@ function goTo(s, instant) {
   cur = s;
   untouched = true;
   const fin = () => { anim = null; pivot.copy(v.T); pivotOk = true; nearFor(v.E.distanceTo(v.T)); };
+  parB = false;   // 1.9.26: сцена — как была
   if (instant || v.par || par) {
     par = v.par;
     place(v.E, v.T, v.win);
@@ -3957,9 +3989,7 @@ async function open(id) {
 const zpBtn = $('zpl'), zmBtn = $('zmn');
 let zmId = 0;
 function zmUi(z) {
-  const on = z > 1.0001;
-  zmBtn.style.display = on ? 'flex' : 'none';
-  $('scenes').classList.toggle('zm2', on);
+  zmBtn.style.display = 'flex';   // 1.9.26: «−» всегда на виду
   swMeasure();
 }
 function zoomTo(z1) {
@@ -3978,7 +4008,12 @@ function zoomTo(z1) {
   requestAnimationFrame(step);
 }
 for (const [b9, f9] of [[zpBtn, 1.25], [zmBtn, 1 / 1.25]]) {
-  b9.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); b9.classList.add('dn'); zoomTo(zoomT * f9); });
+  b9.addEventListener('pointerdown', e => {
+    e.preventDefault(); e.stopPropagation(); b9.classList.add('dn');
+    // 1.9.26: «−» при масштабе 1 — камера отходит от точки середины экрана (×1,25); угол перспективы — прежний
+    if (f9 < 1 && zoomT <= 1.0001) { if (root) tapZoom(window.innerWidth / 2, window.innerHeight / 2, f9); return; }
+    zoomTo(zoomT * f9);
+  });
   for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) b9.addEventListener(ev, () => b9.classList.remove('dn'));
   b9.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });   // без лупы и двойного тапа iOS
 }
@@ -3995,8 +4030,51 @@ for (const [b9, f9] of [[zpBtn, 1.25], [zmBtn, 1 / 1.25]]) {
 // 1.9.24 (его «…этот шарик должен быть как трекбол», «И убери эти экваторы и параллели»): ведёшь в любую сторону —
 // влево-вправо вокруг вертикали, вверх-вниз вокруг горизонтали экрана, по диагонали — оба; линий на шаре нет
 const orbEl = $('orb');
-let orbD = null;
+let orbD = null, orbTap = 0, parB = false;   // 1.9.26: orbTap — время прошлого тапа по шару; parB — ровный вид шаром
 const ORB_K = 0.011;
+const PAR_H = Math.tan(0.6 * Math.PI / 180);   // 1.9.26: параллельная — узкий угол издалека, как у параллельных сцен (viewOf)
+// 1.9.26: двойной тап по шару — к ближайшему из шести ровных видов, точка середины экрана на месте; вместе с поворотом угол
+// сужается до параллельной, камера отходит (у точки середины размер тот же), 0,45 с
+function orbSnap() {
+  if (!root) return;
+  untouched = false;
+  const P = orbAxis(), F0 = fwd(), U0 = new V3(0, 1, 0).applyQuaternion(cam.quaternion);
+  const AX = [new V3(1, 0, 0), new V3(-1, 0, 0), new V3(0, 1, 0), new V3(0, -1, 0), new V3(0, 0, 1), new V3(0, 0, -1)];
+  let F = AX[0], bF = -2;
+  for (const a of AX) { const d = a.dot(F0); if (d > bF) { bF = d; F = a; } }
+  let U = UP.clone();
+  if (Math.abs(F.y) > 0.5) {   // сверху и снизу: верх экрана — ближайшая сторона к прежнему верху
+    let bU = -2;
+    for (const a of AX) { if (Math.abs(a.y) > 0.5) continue; const d = a.dot(U0); if (d > bU) { bU = d; U = a; } }
+  }
+  const qT = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(F.clone().cross(U).normalize(), U, F.clone().negate()));
+  const q0 = cam.quaternion.clone(), dP = depthTo(P), h0 = win.h, cx0 = win.cx, cy0 = win.cy, t0 = performance.now();
+  pivot.copy(P);
+  pivotOk = true;
+  par = true;   // сразу: прервали — следующий поворот вернёт перспективу
+  parB = true;
+  anim = () => {
+    const k = ss(Math.min(1, (performance.now() - t0) / 450));
+    const h = h0 * Math.pow(PAR_H / h0, k), D = dP * h0 / h;   // плоскость точки P — того же размера
+    win.h = h; win.cx = cx0 * (1 - k); win.cy = cy0 * (1 - k);
+    cam.quaternion.slerpQuaternions(q0, qT, k);
+    cam.position.copy(P).addScaledVector(new V3(win.cx, win.cy, -1).applyQuaternion(cam.quaternion), -D);   // P — на середине экрана
+    nearFor(D);
+    if (k >= 1) anim = null;
+  };
+}
+// 1.9.26: из ровного вида шаром — обратно перспектива 25° (как у сцен: большая сторона кадра): плоскость точки P — того же
+// размера, середина экрана — на месте
+function unpar(P) {
+  par = false;
+  parB = false;
+  const h1 = Math.tan(12.5 * Math.PI / 180) / Math.max(1, cam.aspect), dP = depthTo(P);
+  const Q = cam.position.clone().add(new V3(win.cx, win.cy, -1).applyQuaternion(cam.quaternion).multiplyScalar(dP));
+  const D = dP * win.h / h1;
+  cam.position.copy(Q).addScaledVector(fwd(), -D);
+  win.cx = 0; win.cy = 0; win.h = h1;
+  nearFor(D);
+}
 function orbAxis() {   // точка оси: модель под серединой экрана, иначе — на луче середины на глубине середины модели
   const x = window.innerWidth / 2, y = window.innerHeight / 2;
   const P = pick(x, y);
@@ -4008,6 +4086,7 @@ function orbAxis() {   // точка оси: модель под середин�
 // 1.9.24: поворот вида через точку c (она остаётся на месте экрана): dx — вокруг вертикали, dy — вокруг горизонтали экрана;
 // сверху и снизу — до 86° (через верх не переворачивается, как вращение двойным тапом)
 function orbTurn(dx, dy, c) {
+  if (parB) unpar(c);   // 1.9.26: повернул — перспектива
   const el = Math.asin(Math.max(-1, Math.min(1, fwd().y)));
   const a = Math.max(-1.5 - el, Math.min(1.5 - el, -dy * ORB_K));   // повёл вверх — перед модели идёт вверх
   const right = new V3(1, 0, 0).applyQuaternion(cam.quaternion);
@@ -4025,18 +4104,29 @@ orbEl.addEventListener('pointerdown', e => {
   orbEl.setPointerCapture(e.pointerId);
   anim = null;
   untouched = false;
-  orbD = { id: e.pointerId, x: e.clientX, y: e.clientY, c: orbAxis() };
+  orbD = { id: e.pointerId, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, t0: performance.now(), go: false, c: orbAxis() };
   orbEl.classList.add('dn');
 });
 orbEl.addEventListener('pointermove', e => {
   if (!orbD || e.pointerId !== orbD.id) return;
+  if (!orbD.go) {   // 1.9.26: тап по шару не поворачивает — поворот с 4 точек хода
+    if (Math.hypot(e.clientX - orbD.x0, e.clientY - orbD.y0) < 4) return;
+    orbD.go = true;
+  }
   const dx = e.clientX - orbD.x, dy = e.clientY - orbD.y;
   orbD.x = e.clientX;
   orbD.y = e.clientY;
   if (!dx && !dy) return;
   orbTurn(dx, dy, orbD.c);   // повёл вправо — перед модели едет вправо, вверх — вверх (как у вращения пальцем)
 });
-for (const ev of ['pointerup', 'pointercancel']) orbEl.addEventListener(ev, e => { if (orbD && e.pointerId === orbD.id) { orbD = null; orbEl.classList.remove('dn'); } });
+for (const ev of ['pointerup', 'pointercancel']) orbEl.addEventListener(ev, e => {
+  if (!orbD || e.pointerId !== orbD.id) return;
+  const tap = ev === 'pointerup' && !orbD.go && performance.now() - orbD.t0 < TAP_MS, now = performance.now();
+  orbD = null;
+  orbEl.classList.remove('dn');
+  if (!tap) { orbTap = 0; return; }
+  if (orbTap && now - orbTap < DT_MS) { orbTap = 0; orbSnap(); } else orbTap = now;   // 1.9.26: двойной тап — ровный вид
+});
 orbEl.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });   // без лупы и прокрутки iOS
 window.__orb = () => ({ el: +(Math.asin(Math.max(-1, Math.min(1, fwd().y))) * 180 / Math.PI).toFixed(2), r: (() => { const r = orbEl.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width)]; })() });
 // =====================================================================================================================
@@ -4049,10 +4139,11 @@ window.__orb = () => ({ el: +(Math.asin(Math.max(-1, Math.min(1, fwd().y))) * 18
 const hlBtn = $('hlb'), hpEl = $('hp'), hpScr = $('hps'), hpBody = hpEl.querySelector('.hb');
 let hpOn = false, hpT = 0;
 const HPX = RU ? {
-  // 1.9.25: жирным — что сделать, под ним — что это даёт; жесты — одним пальцем и несколькими
-  title: 'Как пользоваться', touch1: 'Навигация одним пальцем', touch2: 'Навигация несколькими пальцами', mouse: 'Мышь', btns: 'Кнопки',
+  // 1.9.25: жирным — что сделать, под ним — что это даёт; 1.9.26: только навигация — одной рукой и двумя руками, без местоимений
+  title: 'Как пользоваться', touch1: 'Одной рукой', touch2: 'Двумя руками', mouse: 'Мышь', btns: 'Кнопки',
   pan: ['Веди пальцем', 'Сдвиг'],
-  sph: ['Веди пальцем по шару', 'Поворот вокруг середины экрана в любую сторону, как трекбол'],
+  sph: ['Веди пальцем по шару', 'Поворот вокруг середины экрана, как трекбол'],
+  sphd: ['Двойной тап по шару', 'Ближайший стандартный вид в параллельной проекции, как на чертеже'],
   orbit: ['Двойной тап и веди', 'Вращение вокруг точки под пальцем'],
   zin: ['Двойной тап', 'Приближение ×2 к точке под пальцем'],
   zout: ['Тройной тап', 'Отдаление ×2'],
@@ -4064,15 +4155,17 @@ const HPX = RU ? {
   sheet: ['Удержи номер и веди влево', 'Деталь как в раскрое'],
   mL: ['Левая кнопка — веди', 'Вращение'], mR: ['Правая кнопка или Shift + левая — веди', 'Сдвиг'],
   mW: ['Колесо', 'Приближение / отдаление к точке под курсором'], mD: ['Двойной щелчок', 'Приближение ×2; тройной щелчок — отдаление ×2'],
+  mB: ['Двойной щелчок по шару', 'Ближайший стандартный вид в параллельной проекции, как на чертеже'],
   b: { zwb: ['Область зума', 'Обведи пальцем прямоугольник — он на весь экран'], ms: ['Рулетка', 'Тап по двум точкам — расстояние'],
     pib: ['О детали', 'Тап по детали — размер и имя наверху'], scb: ['Сечение', 'Тап по модели — вырез углом, точку можно вести; ещё нажатие — без выреза'],
     lkb: ['Вид', 'Текстуры → цвет → монохром'], cmb: ['Комментарий', 'Заметка к модели'], rpb: ['Отчёт', 'Список деталей и фурнитуры'],
     nsb: ['Раскрой', 'Листы раскроя: свайп влево — другой материал, вниз — закрыть'], pwb: ['Номера деталей', 'Список номеров справа'],
     zm: ['+ / −', 'Картинка крупнее / мельче на всех сценах'], title: ['Кружок с буквой', 'Тап — название проекта'] }
 } : {
-  title: 'How to use', touch1: 'One-finger navigation', touch2: 'Multi-finger navigation', mouse: 'Mouse', btns: 'Buttons',
+  title: 'How to use', touch1: 'One hand', touch2: 'Two hands', mouse: 'Mouse', btns: 'Buttons',
   pan: ['Drag one finger', 'Pan'],
-  sph: ['Drag the ball', 'Turn around the screen center in any direction, like a trackball'],
+  sph: ['Drag the ball', 'Turn around the screen center, like a trackball'],
+  sphd: ['Double tap the ball', 'Nearest standard view in parallel projection, like a drawing'],
   orbit: ['Double tap, then drag', 'Orbit around the point under the finger'],
   zin: ['Double tap', 'Zoom in ×2 toward the point under the finger'],
   zout: ['Triple tap', 'Zoom out ×2'],
@@ -4084,6 +4177,7 @@ const HPX = RU ? {
   sheet: ['Hold a number and swipe left', 'Part as in nesting'],
   mL: ['Left button — drag', 'Orbit'], mR: ['Right button or Shift + left — drag', 'Pan'],
   mW: ['Wheel', 'Zoom toward the point under the cursor'], mD: ['Double click', 'Zoom in ×2; triple click — zoom out ×2'],
+  mB: ['Double click the ball', 'Nearest standard view in parallel projection, like a drawing'],
   b: { zwb: ['Zoom window', 'Draw a rectangle — it fills the screen'], ms: ['Tape measure', 'Tap two points — distance'],
     pib: ['Part info', 'Tap a part — size and name at the top'], scb: ['Section', 'Tap the model — corner cut; drag the dot; press again — no cut'],
     lkb: ['Look', 'Textures → colors → monochrome'], cmb: ['Comment', 'Note to the model'], rpb: ['Report', 'Parts and hardware list'],
@@ -4114,6 +4208,9 @@ const HPG = {
   pan: hpAr('M16 32h32M44 28l4 4-4 4') + hpDot(32, 32, 'mvx'),
   sph: '<circle cx="32" cy="32" r="17" fill="rgba(255,255,255,.55)" stroke="#fff" stroke-width="1.2"/>' +
     hpAr('M32 4.5v7M29 7.5l3-3 3 3M32 59.5v-7M29 56.5l3 3 3-3M4.5 32h7M7.5 29l-3 3 3 3M59.5 32h-7M56.5 29l3 3-3 3') + hpDot(32, 32, 'trk'),
+  sphd: '<circle cx="30" cy="34" r="17" fill="rgba(255,255,255,.55)" stroke="#fff" stroke-width="1.2"/>' +
+    '<rect x="46" y="5" width="13" height="13" rx="1.5" fill="none" stroke="#4d7480" stroke-width="1.5"/>' +
+    hpRp(30, 34, 0) + hpRp(30, 34, 0.3) + hpDot(30, 34, 'tp'),
   orbit: hpAr('M18 42C21 27 39 22 46 35M42.6 34.4l3.6 1.2 1-3.6') + hpRp(18, 42, 0) + hpRp(18, 42, 0.3) + hpDot(18, 42, 'orb'),
   zin: hpRp(28, 36, 0) + hpRp(28, 36, 0.3) + hpDot(28, 36, 'tp') + hpMg(46, 17, true) + hpX2(46, 54),
   zout: hpRp(28, 36, 0) + hpRp(28, 36, 0.3) + hpRp(28, 36, 0.6) + hpDot(28, 36, 'tp') + hpMg(46, 17, false) + hpX2(46, 54),
@@ -4134,29 +4231,17 @@ function hpBuild() {
   const fine = window.matchMedia ? matchMedia('(pointer: fine)').matches : !touch;
   let h = '';
   if (touch || !fine) {
-    // 1.9.25: одним пальцем (телефон в одной руке) — и несколькими
+    // 1.9.25: одним пальцем (телефон в одной руке) — и несколькими; 1.9.26: «Одной рукой» и «Двумя руками», только навигация
     h += `<h4>${HPX.touch1}</h4>`;
-    for (const k of ['pan', 'sph', 'orbit', 'zin', 'zout']) h += hpRow(hpS(HPG[k]), HPX[k]);
-    if (K && K.scenes && K.scenes.length > 1) h += hpRow(hpS(HPG.scenes), HPX.scenes);
-    if (PW.n) {
-      h += hpRow(hpS(HPG.num), HPX.num) + hpRow(hpS(HPG.hide), HPX.hide);
-      if (PW.items.some(it => { const sh = it.o.userData.sheet; return sh && Array.isArray(sh.loop) && sh.loop.length > 2; })) h += hpRow(hpS(HPG.sheet), HPX.sheet);
-    }
+    for (const k of ['pan', 'sph', 'sphd', 'orbit', 'zin', 'zout']) h += hpRow(hpS(HPG[k]), HPX[k]);
     h += `<h4>${HPX.touch2}</h4>`;
     for (const k of ['pinch', 'pan2']) h += hpRow(hpS(HPG[k]), HPX[k]);
   }
   if (fine) {
     h += `<h4>${HPX.mouse}</h4>`;
     for (const k of ['L', 'R', 'W', 'D']) h += hpRow(hpMouse(k), HPX['m' + k]);
+    h += hpRow(hpS(HPG.sphd), HPX.mB);   // 1.9.26
   }
-  h += `<h4>${HPX.btns}</h4>`;
-  for (const [el, k] of [[zwBtn, 'zwb'], [msEl, 'ms'], [piBtn, 'pib'], [scEl, 'scb'], [lkEl, 'lkb'], [cmBtn, 'cmb'], [rpBtn, 'rpb'], [nsBtn, 'nsb'], [pwBtn, 'pwb']]) {
-    if (!el || el.style.display === 'none' || getComputedStyle(el).display === 'none') continue;
-    const sv = el.querySelector('svg');
-    h += hpRow(`<i>${sv ? sv.outerHTML : ''}</i>`, HPX.b[k], true);
-  }
-  h += hpRow('<i><svg class="zs" viewBox="0 0 24 24"><path d="M12 4.5v15M4.5 12h15"/></svg></i>', HPX.b.zm, true);   // 1.9.24: «+» по середине
-  h += hpRow(`<i>${titleEl.querySelector('.tl').textContent || 'K'}</i>`, HPX.b.title, true);
   hpBody.innerHTML = h;
   hpBody.scrollTop = 0;
 }
@@ -4188,7 +4273,7 @@ hpScr.addEventListener('pointerdown', e => { e.preventDefault(); hpClose(); });
 hpScr.addEventListener('touchstart', e => { if (e.cancelable) e.preventDefault(); }, { passive: false });   // 1.9.23: у «?» — нет (preventDefault на touchstart глушил click — кнопка не нажималась)
 window.__hp = () => ({ on: hpOn, rows: [...hpBody.querySelectorAll('.hr b')].map(b => b.textContent), btn: (() => { const r = hlBtn.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width)]; })(), box: (() => { const r = hpEl.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)]; })() });
 window.__zm = () => ({ z: zoomZ, t: zoomT, minus: zmBtn.style.display, sw: getComputedStyle($('sw') || document.body).marginLeft });
-window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, pinfo: () => (pinfo && pinfo.o ? pinfo.o.userData.nm : null), pwon: () => [...document.querySelectorAll('#pw .c.on')].map(c => c.textContent), pwh: () => ({ hid: !!PW.hid, open: PW.open, of: PW.of, L: PW.pool.filter(c => c.style.display === 'block').map(c => Math.round(c.getBoundingClientRect().left)), C: PW.pool.filter(c => c.style.display === 'block').map(c => { const r = c.getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), Math.round(r.width)]; }), B: (() => { const r = pwBtn.getBoundingClientRect(); return pwBtn.style.display === 'flex' ? [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), Math.round(r.width), pwBtn.classList.contains('on')] : null; })(), N: (() => { const r = nsBtn.getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2)]; })(), W: window.innerWidth }), top: () => ({ tw: Math.round(titleEl.getBoundingClientRect().width), open: titleEl.classList.contains('open'), hid: titleEl.classList.contains('hid'), tl: titleEl.querySelector('.tl').textContent, tt: titleEl.querySelector('.tt').textContent, dm: dmEl.classList.contains('on') ? dmIn.textContent : null, mat: dmEl.classList.contains('mat'), dmw: Math.round(dmEl.getBoundingClientRect().width), sw: dmIn.scrollWidth, cw: dmIn.clientWidth, pn: pnEl.style.display === 'block' ? pnEl.textContent : null, fc: $('fc').style.display }), capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par }) };
+window.__v = { pos: () => cam.position.toArray().map(x => +x.toFixed(4)), dir: () => fwd().toArray().map(x => +x.toFixed(4)), show: i => show(i, false), tick: () => { if (anim) anim(); if (motion) stepMotion(); if (composer && !xray) composer.render(); else renderer.render(scene, cam); }, look: () => look, sec: () => secP && { p: secP.toArray(), sg: secSg }, cut: () => secCutObj ? secCutObj.geometry.attributes.instanceStart.count : 0, caps: () => { const r = {}; for (const o of [capObj, capScene]) if (o) o.traverse(x => { if (x.isMesh) r[x.material.name] = (r[x.material.name] || 0) + x.geometry.attributes.position.count / 3; }); return r; }, xray: () => xray, meas: () => meas && { a: meas.a && meas.a.toArray(), b: meas.b && meas.b.toArray(), mm: meas.a && meas.b ? Math.round(meas.a.distanceTo(meas.b) * 1000) : null }, sh: () => SH && { i: SH.i, z: SH.z, holes: (SH.sh.holes || []).length, dims: SH.svg.querySelectorAll('text').length, lg: SH.svg.parentNode.querySelector('.lg').innerText }, cm: () => [cmBtn.style.display, cmEl.style.display, cmEl.textContent], pw: () => ({ nb: PW.nb, n: PW.n, w: PW.w, to: PW.to, foc: foc ? foc.o.userData.nm : null, vis: PW.pool.filter(c => c.style.display === 'block').map(c => c.textContent + (c.classList.contains('on') ? '*' : '')) }), info: () => piCard.style.display === 'none' ? null : piCard.innerText, lp: () => lp && { x: lp.x, y: lp.y, p: lp.p && lp.p.toArray() }, sw: () => ({ s: SW.s, max: SW.max, mv: SW.mv, to: SW.to, n: SW.n, X: SW.X, A: SW.A }), iso: () => !!(foc && foc.iso), hid: () => { let n = 0; if (root) root.traverse(o => { if (o.isMesh && !o.isLineSegments2 && !shown(o)) n++; }); return n; }, fb: () => [zwBtn, msEl, piBtn, scEl, lkEl, cmBtn, rpBtn, nsBtn].map(b => b.style.display === 'flex' ? [b.id, Math.round(b.getBoundingClientRect().left), Math.round(b.getBoundingClientRect().width)] : null).filter(Boolean), tool: () => tool, zr: () => zrEl.style.display, pinfo: () => (pinfo && pinfo.o ? pinfo.o.userData.nm : null), pwon: () => [...document.querySelectorAll('#pw .c.on')].map(c => c.textContent), pwh: () => ({ hid: !!PW.hid, open: PW.open, of: PW.of, L: PW.pool.filter(c => c.style.display === 'block').map(c => Math.round(c.getBoundingClientRect().left)), C: PW.pool.filter(c => c.style.display === 'block').map(c => { const r = c.getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), Math.round(r.width)]; }), B: (() => { const r = pwBtn.getBoundingClientRect(); return pwBtn.style.display === 'flex' ? [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), Math.round(r.width), pwBtn.classList.contains('on')] : null; })(), N: (() => { const r = nsBtn.getBoundingClientRect(); return [Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2)]; })(), W: window.innerWidth }), top: () => ({ tw: Math.round(titleEl.getBoundingClientRect().width), open: titleEl.classList.contains('open'), hid: titleEl.classList.contains('hid'), tl: titleEl.querySelector('.tl').textContent, tt: titleEl.querySelector('.tt').textContent, dm: dmEl.classList.contains('on') ? dmIn.textContent : null, mat: dmEl.classList.contains('mat'), dmw: Math.round(dmEl.getBoundingClientRect().width), sw: dmIn.scrollWidth, cw: dmIn.clientWidth, pn: pnEl.style.display === 'block' ? pnEl.textContent : null, fc: $('fc').style.display }), capstat: () => capStat, ns: () => (pnIsOn(nsEl) ? { i: NS.i, n: NS.cols.length, title: nsEl.querySelector('.ph b').textContent, cnt: nsEl.querySelector('.ph span').textContent, drawn: NS.cols.map(x => x.cv.filter(S => S.done).length), sheets: NS.cols.map(x => x.cv.length), W: NS.W, tx: (nsEl.querySelector('.nr').style.transform || '') } : null), rp: () => (pnIsOn(rpEl) ? { rows: RPX ? RPX.rows : null, list: rpLines(), shown: [...rpEl.querySelectorAll('.rl .r')].map(r => r.innerText.replace(/\s*\n\s*/g, ' | ')), btns: [...rpEl.querySelectorAll('.rb button')].map(b => b.textContent), h: rpEl.getBoundingClientRect().height } : null), state: () => ({ holes: holeN, edges: edgeN, motion: !!motion, anim: !!anim, n: AN.length, ao: !!composer, aoOff: window.__aoOff || '', clip: renderer.clippingPlanes.length, win: { ...win }, par, parB }) };
 // 1.9.10: открыта по названию на GitHub — в адресе короткая ссылка /НАЗВАНИЕ (без viewer/?m=), страница не перезагружается
 if (cfg.id && /github\.io$/i.test(location.hostname) && !/^[0-9a-f]{12}$/i.test(cfg.id) && /^[A-Za-z0-9_-]+$/.test(cfg.id)) {
   try { history.replaceState(null, '', '/' + cfg.id + location.hash); } catch (e) { /* адрес — как был */ }
