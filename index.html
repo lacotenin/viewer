@@ -328,8 +328,8 @@ body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
   font-style: normal; font-size: 18px; font-weight: 600; color: #1c1c1e; background: var(--lgf); box-shadow: var(--lgs), inset 0 0 0 1px rgba(0,0,0,.06); }
 #hp .hk svg { width: 24px; height: 24px; }
 #hp .ht { min-width: 0; }
-#hp .ht b { display: block; font-size: 15px; font-weight: 600; line-height: 1.25; }
-#hp .ht span { display: block; margin-top: 2px; font-size: 13px; line-height: 1.3; color: #48484a; }
+#hp .ht b { display: block; font-size: 15px; font-weight: 600; line-height: 1.25; color: #1c1c1e; }
+#hp .ht span { display: block; margin-top: 2px; font-size: 15px; font-weight: 400; line-height: 1.3; color: #1c1c1e; }   /* 1.9.25 */
 #hp .hi svg { display: block; width: 64px; height: 64px; }
 #hp .hi .a { transform-box: fill-box; transform-origin: center; }
 #hp .rp { opacity: 0; animation: hpRp 2.8s ease-out infinite; }
@@ -462,6 +462,14 @@ body:not(.land) #sw, body:not(.land) #scenes.zm2 #sw { margin-left: 0; }
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.25 (21.11): ОКНО «?» — ОДНИМ ПАЛЬЦЕМ И НЕСКОЛЬКИМИ; СНАЧАЛА ЖЕСТ, ПОД НИМ — ЧТО ДЕЛАЕТ. Его слова 21.11:
+// «Раздели, пожалуйста, инструкцию на две части… навигация одним пальцем и навигация несколькими пальцами. И наоборот
+// напиши… Сначала пиши двойной таб черным жирным, а снизу можешь писать такого же размера шрифт, только не жирный. И пиши,
+// что это значит.» и «Точнее, приближение умножить на 2.» Жесты: «Навигация одним пальцем» (сдвиг, шар, вращение, двойной и
+// тройной тап, сцены и номера деталей) и «Навигация несколькими пальцами» (щипок, сдвиг двумя пальцами); в строке жирным —
+// что сделать (как в «Двойной тап»), под ним тем же размером, не жирным, чёрным — что это даёт («Приближение ×2…»). Мышь —
+// так же. Кнопки — как были (имя и что делает), шрифт второй строки — тот же. Было: жирным — что даёт, под ним мелко и серым —
+// как сделать; жесты — одним списком.
 // KTNium Viewer 1.9.24 (21.11): ШАР — ТРЕКБОЛ, БЕЗ ЛИНИЙ. Его слова 21.11: «Про орбиту как-то ты не совсем правильно
 // сделал… она должна быть как шар, то есть вверх-вниз, по диагонали. То есть этот шарик должен быть как трекбол.» и «И убери
 // эти экваторы и параллели. Выглядит как глобус, не надо так.» Ведёшь по шару в любую сторону — модель поворачивается вокруг
@@ -4041,40 +4049,41 @@ window.__orb = () => ({ el: +(Math.asin(Math.max(-1, Math.min(1, fwd().y))) * 18
 const hlBtn = $('hlb'), hpEl = $('hp'), hpScr = $('hps'), hpBody = hpEl.querySelector('.hb');
 let hpOn = false, hpT = 0;
 const HPX = RU ? {
-  title: 'Как пользоваться', touch: 'Жесты', mouse: 'Мышь', btns: 'Кнопки',
-  pan: ['Сдвиг', 'Веди одним пальцем'],
-  sph: ['Поворот шаром', 'Веди пальцем по шару в любую сторону — модель поворачивается вокруг середины экрана, как трекбол'],
-  orbit: ['Вращение', 'Двойной тап и веди — вокруг точки под пальцем'],
-  zin: ['Ближе в 2 раза', 'Двойной тап — к точке под пальцем'],
-  zout: ['Дальше в 2 раза', 'Тройной тап'],
-  pinch: ['Ближе / дальше', 'Разведи или сведи два пальца'],
-  pan2: ['Сдвиг двумя пальцами', 'Веди двумя пальцами'],
-  scenes: ['Сцены', 'Лента внизу листается пальцем, тап — сцена'],
-  num: ['Номер детали', 'Тап — к детали; ещё тап — только она; ещё — всё. Тап по модели — назад'],
-  hide: ['Спрятать номера', 'Удержи номер и веди вправо; вернуть — тап по краю справа'],
-  sheet: ['Деталь как в раскрое', 'Удержи номер и веди влево'],
-  mL: ['Вращение', 'Левая кнопка — веди'], mR: ['Сдвиг', 'Правая кнопка или Shift + левая — веди'],
-  mW: ['Ближе / дальше', 'Колесо — к точке под курсором'], mD: ['Ближе / дальше в 2 раза', 'Двойной щелчок — ближе, тройной — дальше'],
+  // 1.9.25: жирным — что сделать, под ним — что это даёт; жесты — одним пальцем и несколькими
+  title: 'Как пользоваться', touch1: 'Навигация одним пальцем', touch2: 'Навигация несколькими пальцами', mouse: 'Мышь', btns: 'Кнопки',
+  pan: ['Веди пальцем', 'Сдвиг'],
+  sph: ['Веди пальцем по шару', 'Поворот вокруг середины экрана в любую сторону, как трекбол'],
+  orbit: ['Двойной тап и веди', 'Вращение вокруг точки под пальцем'],
+  zin: ['Двойной тап', 'Приближение ×2 к точке под пальцем'],
+  zout: ['Тройной тап', 'Отдаление ×2'],
+  pinch: ['Разведи или сведи два пальца', 'Приближение / отдаление'],
+  pan2: ['Веди двумя пальцами', 'Сдвиг'],
+  scenes: ['Тап по сцене в ленте внизу', 'Сцена; ленту листай пальцем'],
+  num: ['Тап по номеру детали', 'К детали; ещё тап — только она; ещё — всё. Тап по модели — назад'],
+  hide: ['Удержи номер и веди вправо', 'Спрятать номера; вернуть — тап по краю справа'],
+  sheet: ['Удержи номер и веди влево', 'Деталь как в раскрое'],
+  mL: ['Левая кнопка — веди', 'Вращение'], mR: ['Правая кнопка или Shift + левая — веди', 'Сдвиг'],
+  mW: ['Колесо', 'Приближение / отдаление к точке под курсором'], mD: ['Двойной щелчок', 'Приближение ×2; тройной щелчок — отдаление ×2'],
   b: { zwb: ['Область зума', 'Обведи пальцем прямоугольник — он на весь экран'], ms: ['Рулетка', 'Тап по двум точкам — расстояние'],
     pib: ['О детали', 'Тап по детали — размер и имя наверху'], scb: ['Сечение', 'Тап по модели — вырез углом, точку можно вести; ещё нажатие — без выреза'],
     lkb: ['Вид', 'Текстуры → цвет → монохром'], cmb: ['Комментарий', 'Заметка к модели'], rpb: ['Отчёт', 'Список деталей и фурнитуры'],
     nsb: ['Раскрой', 'Листы раскроя: свайп влево — другой материал, вниз — закрыть'], pwb: ['Номера деталей', 'Список номеров справа'],
     zm: ['+ / −', 'Картинка крупнее / мельче на всех сценах'], title: ['Кружок с буквой', 'Тап — название проекта'] }
 } : {
-  title: 'How to use', touch: 'Gestures', mouse: 'Mouse', btns: 'Buttons',
-  pan: ['Pan', 'Drag with one finger'],
-  sph: ['Turn with the ball', 'Drag the ball in any direction — the model turns around the screen center, like a trackball'],
-  orbit: ['Orbit', 'Double tap, then drag — around the point under the finger'],
-  zin: ['Zoom in ×2', 'Double tap — toward the point under the finger'],
-  zout: ['Zoom out ×2', 'Triple tap'],
-  pinch: ['Zoom', 'Spread or pinch two fingers'],
-  pan2: ['Pan with two fingers', 'Drag with two fingers'],
-  scenes: ['Scenes', 'Swipe the strip at the bottom, tap a scene'],
-  num: ['Part number', 'Tap — fly to the part; again — only this part; again — all. Tap the model — back'],
-  hide: ['Hide numbers', 'Hold a number and swipe right; tap the right edge to bring them back'],
-  sheet: ['Part as in nesting', 'Hold a number and swipe left'],
-  mL: ['Orbit', 'Drag with the left button'], mR: ['Pan', 'Drag with the right button or Shift + left'],
-  mW: ['Zoom', 'Wheel — toward the point under the cursor'], mD: ['Zoom ×2', 'Double click — in, triple click — out'],
+  title: 'How to use', touch1: 'One-finger navigation', touch2: 'Multi-finger navigation', mouse: 'Mouse', btns: 'Buttons',
+  pan: ['Drag one finger', 'Pan'],
+  sph: ['Drag the ball', 'Turn around the screen center in any direction, like a trackball'],
+  orbit: ['Double tap, then drag', 'Orbit around the point under the finger'],
+  zin: ['Double tap', 'Zoom in ×2 toward the point under the finger'],
+  zout: ['Triple tap', 'Zoom out ×2'],
+  pinch: ['Spread or pinch two fingers', 'Zoom in / out'],
+  pan2: ['Drag two fingers', 'Pan'],
+  scenes: ['Tap a scene in the strip at the bottom', 'Scene; swipe the strip for more'],
+  num: ['Tap a part number', 'Fly to the part; again — only this part; again — all. Tap the model — back'],
+  hide: ['Hold a number and swipe right', 'Hide numbers; tap the right edge to bring them back'],
+  sheet: ['Hold a number and swipe left', 'Part as in nesting'],
+  mL: ['Left button — drag', 'Orbit'], mR: ['Right button or Shift + left — drag', 'Pan'],
+  mW: ['Wheel', 'Zoom toward the point under the cursor'], mD: ['Double click', 'Zoom in ×2; triple click — zoom out ×2'],
   b: { zwb: ['Zoom window', 'Draw a rectangle — it fills the screen'], ms: ['Tape measure', 'Tap two points — distance'],
     pib: ['Part info', 'Tap a part — size and name at the top'], scb: ['Section', 'Tap the model — corner cut; drag the dot; press again — no cut'],
     lkb: ['Look', 'Textures → colors → monochrome'], cmb: ['Comment', 'Note to the model'], rpb: ['Report', 'Parts and hardware list'],
@@ -4125,13 +4134,16 @@ function hpBuild() {
   const fine = window.matchMedia ? matchMedia('(pointer: fine)').matches : !touch;
   let h = '';
   if (touch || !fine) {
-    h += `<h4>${HPX.touch}</h4>`;
-    for (const k of ['pan', 'sph', 'orbit', 'zin', 'zout', 'pinch', 'pan2']) h += hpRow(hpS(HPG[k]), HPX[k]);
+    // 1.9.25: одним пальцем (телефон в одной руке) — и несколькими
+    h += `<h4>${HPX.touch1}</h4>`;
+    for (const k of ['pan', 'sph', 'orbit', 'zin', 'zout']) h += hpRow(hpS(HPG[k]), HPX[k]);
     if (K && K.scenes && K.scenes.length > 1) h += hpRow(hpS(HPG.scenes), HPX.scenes);
     if (PW.n) {
       h += hpRow(hpS(HPG.num), HPX.num) + hpRow(hpS(HPG.hide), HPX.hide);
       if (PW.items.some(it => { const sh = it.o.userData.sheet; return sh && Array.isArray(sh.loop) && sh.loop.length > 2; })) h += hpRow(hpS(HPG.sheet), HPX.sheet);
     }
+    h += `<h4>${HPX.touch2}</h4>`;
+    for (const k of ['pinch', 'pan2']) h += hpRow(hpS(HPG[k]), HPX[k]);
   }
   if (fine) {
     h += `<h4>${HPX.mouse}</h4>`;
