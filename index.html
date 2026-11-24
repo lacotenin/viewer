@@ -463,6 +463,8 @@ body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.30 (25.11): ЧИСЛО РАЗМЕРА БЕЗ ЛИШНИХ НУЛЕЙ. Его слова 25.11: «Пусть в минимодели десятые и сотые отображаются
+// только если они есть. Если нет, то только целые - без нулей и запятой» — dimText: «26,00» → «26», «5,50» → «5,5».
 // KTNium Viewer 1.9.29 (25.11): РАЗМЕРЫ SKETCHUP В СЦЕНАХ; СЦЕНА СТОИТ КАК В МОДЕЛИ И НА ВЕРТИКАЛЬНОМ ЭКРАНЕ. Его слова 25.11:
 // «Пч размеры в последний сцене не отображается?», «Камера не приблизилась». 1) Размеры (линейные) в выгрузку не шли вовсе —
 // Phone 1.7.10 кладёт их в K.dims (точки, вынос, текст, pid и тег — свои и обёрток), страница рисует выносные и размерную
@@ -3432,6 +3434,10 @@ function dimLabel(t) {
   s.renderOrder = 20;
   return s;
 }
+// 1.9.30: десятые и сотые — только если есть: «26,00» → «26», «5,50» → «5,5», «5,25» — как есть
+function dimText(t) {
+  return String(t || '').replace(/(\d)([.,])(\d+)(?!\d)/g, (m, a, sep, fr) => { const f = fr.replace(/0+$/, ''); return f ? a + sep + f : a; });
+}
 function addDims(r) {
   for (const d of (K && K.dims) || []) {
     if (!d || !d.a || !d.b || !d.a2 || !d.b2) continue;
@@ -3440,7 +3446,7 @@ function addDims(r) {
     const g = new THREE.Group();
     const pos = [A.x, A.y, A.z, A3.x, A3.y, A3.z, B.x, B.y, B.z, B3.x, B3.y, B3.z, A2.x, A2.y, A2.z, B2.x, B2.y, B2.z];
     g.add(new LineSegments2(new LineSegmentsGeometry().setPositions(pos), dimMat));
-    const s = dimLabel(String(d.t || ''));
+    const s = dimLabel(dimText(d.t));
     s.position.copy(A2).add(B2).multiplyScalar(0.5);
     g.add(s);
     g.userData.dim = { pids: d.pids || [], tags: d.tags || [], s };
