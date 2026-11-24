@@ -463,6 +463,9 @@ body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.31 (25.11): РАЗМЕРЫ КРУПНЕЕ И ЧЁТЧЕ. Его слова 25.11: «Графика размеров не четкая и мелкая» — число было
+// нарисовано шрифтом 44 точки и на экране телефона (×3) растягивалось; теперь холст 128 точек (уменьшается), цифры ~20 точек
+// экрана вместо ~11, линии 1,8 вместо 1,3.
 // KTNium Viewer 1.9.30 (25.11): ЧИСЛО РАЗМЕРА БЕЗ ЛИШНИХ НУЛЕЙ. Его слова 25.11: «Пусть в минимодели десятые и сотые отображаются
 // только если они есть. Если нет, то только целые - без нулей и запятой» — dimText: «26,00» → «26», «5,50» → «5,5».
 // KTNium Viewer 1.9.29 (25.11): РАЗМЕРЫ SKETCHUP В СЦЕНАХ; СЦЕНА СТОИТ КАК В МОДЕЛИ И НА ВЕРТИКАЛЬНОМ ЭКРАНЕ. Его слова 25.11:
@@ -937,7 +940,7 @@ const edgeMat = new LineMaterial({ color: 0x1c1c1c, linewidth: EW, worldUnits: f
 let edgeN = 0;
 const selMat = new LineMaterial({ color: 0x6c98a3, linewidth: 2.2, worldUnits: false, side: THREE.DoubleSide });   // 1.7.0: Part info — рёбра детали
 const DIMS = [];   // 1.9.29: размеры SketchUp (группы: линии + число)
-const dimMat = new LineMaterial({ color: 0x1c1c1c, linewidth: 1.3, worldUnits: false, side: THREE.DoubleSide });   // 1.9.29: размеры SketchUp
+const dimMat = new LineMaterial({ color: 0x111111, linewidth: 1.8, worldUnits: false, side: THREE.DoubleSide });   // 1.9.29: размеры SketchUp
 const wireMat = new LineMaterial({ color: 0x6c98a3, linewidth: 1.6, worldUnits: false, transparent: true, opacity: 0.85, side: THREE.DoubleSide });   // 1.7.0: грани угла сечения
 function resize() {
   const w = window.innerWidth, h = window.innerHeight;
@@ -3418,17 +3421,18 @@ canvas.addEventListener('wheel', e => {
 
 // 1.9.29: РАЗМЕРЫ SKETCHUP (Phone 1.7.10, K.dims): выносные и размерная линии, число — одного роста на экране
 function dimLabel(t) {
-  const c = document.createElement('canvas'), F = 44, font = F + 'px Arial, Helvetica, sans-serif';
+  const c = document.createElement('canvas'), F = 128, font = '500 ' + F + 'px -apple-system, "Segoe UI", Roboto, Arial, Helvetica, sans-serif';   // 1.9.31: холст крупнее экрана — число уменьшается, а не растягивается
   let x = c.getContext('2d');
   x.font = font;
-  const w = Math.ceil(x.measureText(t).width) + 18;
-  c.width = w; c.height = F + 16;
+  const w = Math.ceil(x.measureText(t).width) + 44;
+  c.width = w; c.height = F + 40;
   x = c.getContext('2d');
   x.font = font; x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineJoin = 'round';
-  x.lineWidth = 9; x.strokeStyle = 'rgba(255,255,255,.92)'; x.strokeText(t, w / 2, c.height / 2 + 2);
-  x.fillStyle = '#1c1c1c'; x.fillText(t, w / 2, c.height / 2 + 2);
+  x.lineWidth = 22; x.strokeStyle = 'rgba(255,255,255,.95)'; x.strokeText(t, w / 2, c.height / 2 + 6);
+  x.fillStyle = '#111'; x.fillText(t, w / 2, c.height / 2 + 6);
   const tx = new THREE.CanvasTexture(c);
   tx.colorSpace = THREE.SRGBColorSpace;
+  tx.anisotropy = 4;
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, depthTest: false, transparent: true }));
   s.userData.asp = w / c.height;
   s.renderOrder = 20;
@@ -3460,7 +3464,7 @@ function dimTick() {
     if (!g.visible) continue;
     const s = g.userData.dim.s;
     const z = Math.max(1e-4, s.getWorldPosition(p).sub(cam.position).dot(f));
-    const h = 2 * z * (win.h / zoomZ) * (19 / H);   // 19 точек экрана
+    const h = 2 * z * (win.h / zoomZ) * (38 / H);   // 1.9.31: 38 точек экрана на холст (цифры ~ 20 точек; было 19 на холст — цифры ~ 11)
     s.scale.set(h * s.userData.asp, h, 1);
   }
 }
