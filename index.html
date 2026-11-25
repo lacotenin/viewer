@@ -463,6 +463,9 @@ body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.34 (25.11): «+» ИДЁТ БЛИЖЕ И ПОСЛЕ ПРЕДЕЛА МАСШТАБА. Его слова 25.11: «Приближение иногда не идет близко к
+// объекту», «Именно +» — «+» только растягивал картинку до ×8 (камера на месте) и дальше не шёл: издалека до объекта не
+// доходил. Теперь у предела ×8 каждое нажатие подводит камеру к точке под серединой экрана в 1,25 раза.
 // KTNium Viewer 1.9.33 (25.11): РАЗМЕРЫ — ЦВЕТ, ТОЛЩИНА И СТИЛЬ КАК В SKETCHUP. Его слова 25.11: «Сд цвет, толщину и стиль как в
 // скетчапе». Цвет — материала размера (Phone 1.7.11: c), линии в 1 точку, засечки на концах по типу размера (ar: косая черта,
 // точка, стрелки), выносные на 5 точек за размерную, число — Tahoma без обводки, цветом размера.
@@ -4144,6 +4147,8 @@ for (const [b9, f9] of [[zpBtn, 1.25], [zmBtn, 1 / 1.25]]) {
     e.preventDefault(); e.stopPropagation(); b9.classList.add('dn');
     // 1.9.26: «−» при масштабе 1 — камера отходит от точки середины экрана (×1,25); угол перспективы — прежний
     if (f9 < 1 && zoomT <= 1.0001) { if (root) tapZoom(window.innerWidth / 2, window.innerHeight / 2, f9); return; }
+    // 1.9.34: «+» у предела масштаба (×8) — камера подходит к точке середины экрана (×1,25), как «−» отходит
+    if (f9 > 1 && zoomT >= 7.999) { if (root) tapZoom(window.innerWidth / 2, window.innerHeight / 2, f9); return; }
     zoomTo(zoomT * f9);
   });
   for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) b9.addEventListener(ev, () => b9.classList.remove('dn'));
