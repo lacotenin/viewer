@@ -463,6 +463,9 @@ body.hlp #pn { max-width: calc(100vw - 82px - env(safe-area-inset-right)); }
 </script>
 <div id="cfg" data-id="<?= id ?>" data-exec="https://script.google.com/macros/s/AKfycbz9UohieJlJQ12OSGxoyKqMKh-mDbj_xfe61qhMswZxS03hhymff6rGQ9fkCgIdTmw/exec"></div>
 <script type="module">
+// KTNium Viewer 1.9.33 (25.11): РАЗМЕРЫ — ЦВЕТ, ТОЛЩИНА И СТИЛЬ КАК В SKETCHUP. Его слова 25.11: «Сд цвет, толщину и стиль как в
+// скетчапе». Цвет — материала размера (Phone 1.7.11: c), линии в 1 точку, засечки на концах по типу размера (ar: косая черта,
+// точка, стрелки), выносные на 5 точек за размерную, число — Tahoma без обводки, цветом размера.
 // KTNium Viewer 1.9.32 (25.11): РАЗМЕРНАЯ ЛИНИЯ НЕ ИДЁТ ПОД ЧИСЛОМ. Его слова 25.11: «Пч между 7 и 5 видна размерная линия? Убери.» —
 // число рисовалось поверх линии, в просветах между знаками она была видна. Теперь у линии разрыв по ширине числа; если число
 // шире самого размера — размерной линии нет, остаются выносные.
@@ -943,7 +946,16 @@ const edgeMat = new LineMaterial({ color: 0x1c1c1c, linewidth: EW, worldUnits: f
 let edgeN = 0;
 const selMat = new LineMaterial({ color: 0x6c98a3, linewidth: 2.2, worldUnits: false, side: THREE.DoubleSide });   // 1.7.0: Part info — рёбра детали
 const DIMS = [];   // 1.9.29: размеры SketchUp (группы: линии + число)
-const dimMat = new LineMaterial({ color: 0x111111, linewidth: 1.8, worldUnits: false, side: THREE.DoubleSide });   // 1.9.29: размеры SketchUp
+const dimMats = new Map();   // 1.9.33: цвет размера — свой (как в SketchUp), линия в 1 точку
+function dimMatOf(rgb) {
+  const k = rgb.join(',');
+  if (!dimMats.has(k)) {
+    const m = new LineMaterial({ color: new THREE.Color().setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255, THREE.SRGBColorSpace), linewidth: 1, worldUnits: false, side: THREE.DoubleSide });
+    m.resolution.copy(edgeMat.resolution);
+    dimMats.set(k, m);
+  }
+  return dimMats.get(k);
+}   // 1.9.29: размеры SketchUp
 const wireMat = new LineMaterial({ color: 0x6c98a3, linewidth: 1.6, worldUnits: false, transparent: true, opacity: 0.85, side: THREE.DoubleSide });   // 1.7.0: грани угла сечения
 function resize() {
   const w = window.innerWidth, h = window.innerHeight;
@@ -953,7 +965,7 @@ function resize() {
   edgeMat.resolution.set(w, h);
   selMat.resolution.set(w, h);
   wireMat.resolution.set(w, h);
-  dimMat.resolution.set(w, h);
+  for (const m of dimMats.values()) m.resolution.set(w, h);
   cam.aspect = w / h;
   if (untouched && cur) goTo(cur, true); else proj();
 }
@@ -3423,16 +3435,16 @@ canvas.addEventListener('wheel', e => {
 
 
 // 1.9.29: РАЗМЕРЫ SKETCHUP (Phone 1.7.10, K.dims): выносные и размерная линии, число — одного роста на экране
-function dimLabel(t) {
-  const c = document.createElement('canvas'), F = 128, font = '500 ' + F + 'px -apple-system, "Segoe UI", Roboto, Arial, Helvetica, sans-serif';   // 1.9.31: холст крупнее экрана — число уменьшается, а не растягивается
+function dimLabel(t, rgb) {
+  // 1.9.33: как в SketchUp — Tahoma, цвет размера, без обводки; холст крупнее экрана (число уменьшается, а не растягивается)
+  const c = document.createElement('canvas'), F = 128, font = F + 'px Tahoma, Verdana, "Segoe UI", -apple-system, Roboto, Arial, sans-serif';
   let x = c.getContext('2d');
   x.font = font;
-  const w = Math.ceil(x.measureText(t).width) + 44;
+  const w = Math.ceil(x.measureText(t).width) + 24;
   c.width = w; c.height = F + 40;
   x = c.getContext('2d');
-  x.font = font; x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineJoin = 'round';
-  x.lineWidth = 22; x.strokeStyle = 'rgba(255,255,255,.95)'; x.strokeText(t, w / 2, c.height / 2 + 6);
-  x.fillStyle = '#111'; x.fillText(t, w / 2, c.height / 2 + 6);
+  x.font = font; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillStyle = 'rgb(' + rgb.join(',') + ')'; x.fillText(t, w / 2, c.height / 2 + 6);
   const tx = new THREE.CanvasTexture(c);
   tx.colorSpace = THREE.SRGBColorSpace;
   tx.anisotropy = 4;
@@ -3449,40 +3461,64 @@ function addDims(r) {
   for (const d of (K && K.dims) || []) {
     if (!d || !d.a || !d.b || !d.a2 || !d.b2) continue;
     const A = new V3(...d.a), B = new V3(...d.b), A2 = new V3(...d.a2), B2 = new V3(...d.b2);
-    const A3 = A2.clone().add(A2.clone().sub(A).multiplyScalar(0.18)), B3 = B2.clone().add(B2.clone().sub(B).multiplyScalar(0.18));   // выносные — чуть за размерную
+    const rgb = Array.isArray(d.c) && d.c.length >= 3 ? d.c.slice(0, 3).map(Number) : [43, 43, 43];
     const g = new THREE.Group();
-    const ext = [A.x, A.y, A.z, A3.x, A3.y, A3.z, B.x, B.y, B.z, B3.x, B3.y, B3.z];
-    const ln = new LineSegments2(new LineSegmentsGeometry().setPositions(ext.concat([A2.x, A2.y, A2.z, B2.x, B2.y, B2.z])), dimMat);
+    const ln = new LineSegments2(new LineSegmentsGeometry().setPositions([A.x, A.y, A.z, A2.x, A2.y, A2.z, B.x, B.y, B.z, B2.x, B2.y, B2.z, A2.x, A2.y, A2.z, B2.x, B2.y, B2.z]), dimMatOf(rgb));
     g.add(ln);
-    const s = dimLabel(dimText(d.t));
+    const s = dimLabel(dimText(d.t), rgb);
     s.position.copy(A2).add(B2).multiplyScalar(0.5);
     g.add(s);
-    g.userData.dim = { pids: d.pids || [], tags: d.tags || [], s, ln, ext, A2, B2, gw: -1 };
+    const ev = A2.clone().sub(A), dv = B2.clone().sub(A2);
+    g.userData.dim = { pids: d.pids || [], tags: d.tags || [], s, ln, A, B, A2, B2, gw: -1, ar: d.ar === undefined ? 1 : +d.ar,
+      ev: ev.length() > 1e-9 ? ev.normalize() : null, dv: dv.length() > 1e-9 ? dv.normalize() : null };
     r.add(g);
     DIMS.push(g);
   }
 }
+// 1.9.33: линии размера — как в SketchUp: выносные чуть за размерную, засечки на концах (косая черта, стрелка, точка — по
+// размеру модели), разрыв размерной под числом; всё, что меряется точками экрана, пересчитывается при смене масштаба
 function dimTick() {
   const f = fwd(), H = window.innerHeight || 1, p = new V3();
   for (const g of DIMS) {
     if (!g.visible) continue;
-    const s = g.userData.dim.s;
+    const u = g.userData.dim, s = u.s;
     const z = Math.max(1e-4, s.getWorldPosition(p).sub(cam.position).dot(f));
-    const h = 2 * z * (win.h / zoomZ) * (38 / H);   // 1.9.31: 38 точек экрана на холст (цифры ~ 20 точек; было 19 на холст — цифры ~ 11)
+    const px = 2 * z * (win.h / zoomZ) / H;   // одна точка экрана у числа — в метрах
+    const h = px * 34;                         // холст числа — 34 точки (цифры ~ 17)
     s.scale.set(h * s.userData.asp, h, 1);
-    // 1.9.32: размерная линия под числом не идёт — разрыв по ширине числа; число шире размера — линии нет вовсе
-    const u = g.userData.dim, tw = h * s.userData.asp * 0.9;
-    if (Math.abs(tw - u.gw) > 0.01 * tw) {
-      u.gw = tw;
-      const L = u.A2.distanceTo(u.B2), pos = u.ext.slice();
+    const tw = h * s.userData.asp * 0.96;
+    if (Math.abs(tw - u.gw) <= 0.01 * tw) continue;
+    u.gw = tw;
+    const pos = [], seg = (a, b) => pos.push(a.x, a.y, a.z, b.x, b.y, b.z);
+    const ov = px * 5, tk = px * 6;   // выносная за размерную — 5 точек; засечка — 12 точек
+    const A3 = u.ev ? u.A2.clone().addScaledVector(u.ev, ov) : u.A2, B3 = u.ev ? u.B2.clone().addScaledVector(u.ev, ov) : u.B2;
+    seg(u.A, A3); seg(u.B, B3);
+    const L = u.A2.distanceTo(u.B2);
+    if (u.dv) {
       if (L > tw * 1.25) {
-        const dv = u.B2.clone().sub(u.A2).normalize(), M = u.A2.clone().add(u.B2).multiplyScalar(0.5);
-        const P = M.clone().addScaledVector(dv, -tw / 2), Q = M.clone().addScaledVector(dv, tw / 2);
-        pos.push(u.A2.x, u.A2.y, u.A2.z, P.x, P.y, P.z, Q.x, Q.y, Q.z, u.B2.x, u.B2.y, u.B2.z);
+        const M = u.A2.clone().add(u.B2).multiplyScalar(0.5);
+        seg(u.A2, M.clone().addScaledVector(u.dv, -tw / 2)); seg(M.clone().addScaledVector(u.dv, tw / 2), u.B2);
       }
-      u.ln.geometry.dispose();
-      u.ln.geometry = new LineSegmentsGeometry().setPositions(pos);
+      if (u.ev && u.ar) {
+        for (const [P, sg] of [[u.A2, 1], [u.B2, -1]]) {
+          if (u.ar === 1) {            // косая черта
+            const t = u.dv.clone().add(u.ev).normalize().multiplyScalar(tk);
+            seg(P.clone().sub(t), P.clone().add(t));
+          } else if (u.ar === 2) {     // точка
+            const a = u.dv.clone().multiplyScalar(px * 2), b = u.ev.clone().multiplyScalar(px * 2);
+            seg(P.clone().sub(a), P.clone().add(a)); seg(P.clone().sub(b), P.clone().add(b));
+            seg(P.clone().sub(a).sub(b), P.clone().add(a).add(b)); seg(P.clone().sub(a).add(b), P.clone().add(a).sub(b));
+          } else {                     // стрелка: закрытая (3) — с заливкой линиями, открытая (4) — два уса
+            const base = P.clone().addScaledVector(u.dv, sg * px * 11), n = u.ev.clone().multiplyScalar(px * 3.2);
+            const q1 = base.clone().add(n), q2 = base.clone().sub(n);
+            seg(P, q1); seg(P, q2);
+            if (u.ar === 3) { seg(q1, q2); for (const k of [-0.6, -0.3, 0, 0.3, 0.6]) seg(P, base.clone().addScaledVector(n, k)); }
+          }
+        }
+      }
     }
+    u.ln.geometry.dispose();
+    u.ln.geometry = new LineSegmentsGeometry().setPositions(pos);
   }
 }
 
